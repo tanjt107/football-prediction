@@ -1,1 +1,1 @@
-# football_prediction
+# Multiplicative Rating Models for Soccer
