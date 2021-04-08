@@ -16,7 +16,7 @@ def solver(filepath, home_edge=True, cut_off_date=None):
                 cut_off_timestamp = int(datetime.datetime.strptime(cut_off_date, "%b %d %Y").timestamp())
             # a bonus of up to 25 percent is given to games played within past month to reflect a team's most recent form
             if df.timestamp.max() - timestamp <= 2628000:
-                recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp) * 1.25
+                recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp) * (1 + (2628000 - df.timestamp.max() + timestamp) / 2628000 * 0.25)
             else:
                 recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp)
             return recentness
