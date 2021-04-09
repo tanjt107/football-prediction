@@ -1,7 +1,7 @@
 # Multiplicative Rating Models for Soccer
 
 ## Introduction
-This model makes reference to the [course material][1] of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions][2]. In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this script uses a solver for non-linear problems from `scipy.optimize` which is up to 10,000 times faster in some cases.
+This model makes reference to the [course material][1] of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions][2]. In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is up to 10,000 times faster in some cases.
 
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
