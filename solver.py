@@ -4,21 +4,24 @@ import datetime
 import re
 from scipy import optimize
 
-def solver(filepath, home_edge=True, cut_off_date=None):
+def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
 
     def transformation(df, cut_off_date=None):
         # recentness factor gives less weight to games that were played further back in time
-        def calculate_recentness(timestamp):
-            if cut_off_date == None:
-                # assume cut-off point is one year
-                cut_off_timestamp = df.timestamp.max() - 31536000
+        def calculate_recentness(timestamp, recentness=True):
+            if recentness == True:
+                if cut_off_date == None:
+                    # assume cut-off point is one year
+                    cut_off_timestamp = df.timestamp.max() - 31536000
+                else:
+                    cut_off_timestamp = int(datetime.datetime.strptime(cut_off_date, "%b %d %Y").timestamp())
+                # a bonus of up to 25 percent is given to games played within past month to reflect a team's most recent form
+                if df.timestamp.max() - timestamp <= 2628000:
+                    recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp) * (1 + (2628000 - df.timestamp.max() + timestamp) / 2628000 * 0.25)
+                else:
+                    recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp)
             else:
-                cut_off_timestamp = int(datetime.datetime.strptime(cut_off_date, "%b %d %Y").timestamp())
-            # a bonus of up to 25 percent is given to games played within past month to reflect a team's most recent form
-            if df.timestamp.max() - timestamp <= 2628000:
-                recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp) * (1 + (2628000 - df.timestamp.max() + timestamp) / 2628000 * 0.25)
-            else:
-                recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp)
+                recentness = 1
             return recentness
 
         def get_goal_timings_dict(df):
@@ -84,7 +87,7 @@ def solver(filepath, home_edge=True, cut_off_date=None):
 
         df = df[df['status'] == 'complete']
         df = df[['timestamp', 'home_team_name', 'away_team_name', 'home_team_goal_count', 'away_team_goal_count', 'home_team_goal_timings', 'away_team_goal_timings', 'team_a_xg', 'team_b_xg']]
-        df['recentness'] = df['timestamp'].apply(calculate_recentness)
+        df['recentness'] = df['timestamp'].apply(calculate_recentness, recentness=recentness)
         df['goal_timings'] = df.apply(get_goal_timings_dict, axis=1)
         df = df.apply(calculate_adjusted_goal, axis=1)
         df['average_goal'] = 'average_goal'
@@ -160,5 +163,5 @@ def solver(filepath, home_edge=True, cut_off_date=None):
     result = pd.DataFrame({'factors': factors, 'values':solver.x})
     return result
 
-filepath = '/Users/tanjt107/Documents/Python/Football Prediction/data/completed/england-premier-league-matches-2018-to-2019-stats.csv'
+filepath = 'england-premier-league-matches-2018-to-2019-stats.csv'
 result = solver(filepath)
