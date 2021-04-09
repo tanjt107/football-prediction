@@ -6,8 +6,8 @@ This model makes reference to the [course material][1] of Math behind Moneyball 
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
 ```
-home_team_expected_goals = average_goals * home_advantage * home_team_offence_rating / away_team_defence_rating
-away_team_expected_goals = average_goals / home_advantage * away_team_offence_rating / home_team_defence_rating
+home_team_forecasted_goals = average_goals * home_advantage * home_team_offence_rating / away_team_defence_rating
+away_team_forecasted_goals = average_goals / home_advantage * away_team_offence_rating / home_team_defence_rating
 ```
 And the solver finds the best values for each rating by minimising the following function:
 ```
@@ -23,7 +23,7 @@ Soccer is a tricky sport to model because there are so few goals scored in each 
 
 1. For *adjusted goals*, goals scored late by a leading team may not be important. Using `goal_timings` columns, the value of a goal by a leading team decreases linearly after the 70th minute. A goal in the 90th minute or later only worths 0.5 goals in the calculation.
 
-2. For [*xg*][5], `xg` columns (if available) are used.
+2. For [*expected goals*][5], `xg` columns (if available) are used.
 
 The average of the above two metrics is used as `adjusted goals` in the calculation.
 
