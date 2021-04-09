@@ -21,7 +21,7 @@ Unlike the
 In addition, recent matches are given more weight to reflect a team's recent performance.
 
 ## Adjusting Goals
-Soccer is a tricky sport to model because there are so few goals scored in each match. The final result may not reflect the performance of each team. To migrate the randomness and estimate team ratings better, two metrics are used in the calculation using in-depth match stats from [Footy Stats][4] (sample csv is available):
+Soccer is a tricky sport to model because there are so few goals scored in each match. The final result may not reflect the performance of each team well. To migrate the randomness and estimate team ratings better, two metrics are used in the calculation using in-depth match stats from [Footy Stats][4] (sample csv is available):
 
 1. For *adjusted goals*, goals scored late by a leading team may not be important. Using `goal_timings` columns, the value of a goal by a leading team decreases linearly after the 70th minute. A goal in the 90th minute or later only worths 0.5 goals in the calculation.
 
