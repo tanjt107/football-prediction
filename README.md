@@ -6,13 +6,15 @@ This model makes reference to the [course material][1] of Math behind Moneyball 
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
 ```
-home_team_forecasted_goals = average_goals * home_advantage * home_team_offence_rating / away_team_defence_rating
-away_team_forecasted_goals = average_goals / home_advantage * away_team_offence_rating / home_team_defence_rating
+home_team_forecasted_goals = average_goals * home_advantage * home_team_offensive_rating / away_team_defensive_rating
+away_team_forecasted_goals = average_goals / home_advantage * away_team_offensive_rating / home_team_defensive_rating
 ```
 And the solver finds the best values for each rating by minimising the following function:
 ```
 objective_function = (home_team_forecasted_goals - home_team_adjusted_goals)^2 + (away_team_forecasted_goals - awya_team_adjusted_goals)^2
 ```
+A 1.50 offensive rating means the team is expected to score 50% more and a 1.50 defensive rating means the team is expected to concede 50% more compared to an average team.
+
 Unlike the 
 [Elo rating system][3], a team rating does not necessarily improve whenever it wins a match. If the team performs worse than the model expected, its ratings can decline.
 
