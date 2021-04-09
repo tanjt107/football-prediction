@@ -4,7 +4,7 @@ import datetime
 import re
 from scipy import optimize
 
-def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
+def solver(filepath, home_advantage=True, recentness=True, cut_off_date=None):
 
     def transformation(df, cut_off_date=None):
         # recentness factor gives less weight to games that were played further back in time
@@ -15,8 +15,8 @@ def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
                     cut_off_timestamp = df.timestamp.max() - 31536000
                 else:
                     cut_off_timestamp = int(datetime.datetime.strptime(cut_off_date, "%b %d %Y").timestamp())
-                # a bonus of up to 25 percent is given to games played within past month to reflect a team's most recent form
-                if df.timestamp.max() - timestamp <= 2628000:
+                # a bonus of up to 25 percent is given to games played within past 25 days to reflect a team's most recent form
+                if df.timestamp.max() - timestamp <= 2160000:
                     recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp) * (1 + (2628000 - df.timestamp.max() + timestamp) / 2628000 * 0.25)
                 else:
                     recentness = (timestamp - cut_off_timestamp) / (df.timestamp.max() - cut_off_timestamp)
@@ -91,7 +91,7 @@ def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
         df['goal_timings'] = df.apply(get_goal_timings_dict, axis=1)
         df = df.apply(calculate_adjusted_goal, axis=1)
         df['average_goal'] = 'average_goal'
-        df['home_edge'] = 'home_edge'
+        df['home_advantage'] = 'home_advantage'
         df['home_team_offence'] = df['home_team_name'] + "_offence"
         df['home_team_defence'] = df['home_team_name'] + "_defence"
         df['away_team_offence'] = df['away_team_name'] + "_offence"
@@ -106,12 +106,12 @@ def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
     #second argument is the corresponding strings forarray values
     def get_factor_array(teams):
         average_goal = pd.DataFrame({'value': ['average_goal']})
-        home_edge = pd.DataFrame({'value': ['home_edge']})
+        home_advantage = pd.DataFrame({'value': ['home_advantage']})
         team_offence = pd.DataFrame({'value': teams})
         team_offence.value += "_offence"
         team_defence = pd.DataFrame({'value': teams})
         team_defence.value += "_defence"
-        return np.concatenate([team_offence, home_edge, average_goal, team_defence], axis=None).astype(object)
+        return np.concatenate([team_offence, home_advantage, average_goal, team_defence], axis=None).astype(object)
 
     # first argument required by optimize is a 1d array with some number of values and set a reasonable initial value for the solver
     def initialise_factors(factors):
@@ -126,13 +126,13 @@ def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
         df = df.replace(lookup)
         obj = (
             (
-                (df.average_goal * df.home_edge * df.home_team_offence * df.away_team_defence - df.home_team_average_goal) ** 2 +
-                (df.average_goal * df.home_edge * df.away_team_offence * df.home_team_defence - df.away_team_average_goal) ** 2
+                (df.average_goal * df.home_advantage * df.home_team_offence * df.away_team_defence - df.home_team_average_goal) ** 2 +
+                (df.average_goal / df.home_advantage * df.away_team_offence * df.home_team_defence - df.away_team_average_goal) ** 2
             ) * df.recentness
         )
         return np.sum(obj)
 
-    def constraints(teams, home_edge=True):
+    def constraints(teams, home_advantage=True):
         def average_offence(factors):
             return np.average(factors[:teams.size]) - 1
         def average_defence(factors):
@@ -141,23 +141,23 @@ def solver(filepath, home_edge=True, recentness=True, cut_off_date=None):
             return factors[:teams.size].min()
         def minimum_defence(factors):
             return factors[-teams.size:].min()
-        def minimum_home_edge(factors):
+        def minimum_home_advantage(factors):
             return factors[teams.size] - 1
         con_avg_offence = {'type': 'eq', 'fun': average_offence}
         con_avg_defence = {'type': 'eq', 'fun': average_defence}
-        if home_edge == True:
-            con_home_edge = {'type': 'ineq', 'fun': minimum_home_edge}
+        if home_advantage == True:
+            con_home_advantage = {'type': 'ineq', 'fun': minimum_home_advantage}
         else:
-            con_home_edge = {'type': 'eq', 'fun': minimum_home_edge}
+            con_home_advantage = {'type': 'eq', 'fun': minimum_home_advantage}
         con_min_offence = {'type': 'ineq', 'fun': minimum_offence}
         con_min_defence = {'type': 'ineq', 'fun': minimum_defence}
-        return [con_avg_offence, con_avg_defence, con_home_edge, con_min_offence, con_min_defence]      
+        return [con_avg_offence, con_avg_defence, con_home_advantage, con_min_offence, con_min_defence]      
 
     df = pd.read_csv(filepath)
     teams = get_team_list(df)
     factors = get_factor_array(teams)
     initial = initialise_factors(factors)
-    cons = constraints(teams, home_edge)
+    cons = constraints(teams, home_advantage)
     df = transformation(df, cut_off_date)
     solver = optimize.minimize(objective, args=(factors, df), x0=initial, method = 'SLSQP', constraints=cons, options={'maxiter':10000})
     result = pd.DataFrame({'factors': factors, 'values':solver.x})
