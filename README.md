@@ -11,7 +11,7 @@ away_team_forecasted_goals = average_goals / home_advantage * away_team_offence_
 ```
 And the solver finds the best values for each rating by minimising the following function:
 ```
-objective_function = (home_team_expected_goals - home_team_adjusted_goals)^2 + (away_team_expected_goals - awya_team_adjusted_goals)^2
+objective_function = (home_team_forecasted_goals - home_team_adjusted_goals)^2 + (away_team_forecasted_goals - awya_team_adjusted_goals)^2
 ```
 Unlike the 
 [Elo rating system][3], a team rating does not necessarily improve whenever it wins a match. If the team performs worse than the model expected, its ratings can decline.
