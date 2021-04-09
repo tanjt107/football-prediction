@@ -27,7 +27,7 @@ Soccer is a tricky sport to model because there are so few goals scored in each 
 
 2. For [*expected goals*][5], `xg` columns (if available) are used.
 
-The average of the above two metrics is used as `adjusted goals` in the calculation.
+The average of the above two metrics is used as `forecasted goals` in the calculation.
 
 ## Inter-league Matches
 To be updated.
