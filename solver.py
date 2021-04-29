@@ -8,7 +8,7 @@ def solver(filepath, home_advantage=True, recent=True, cut_off_date=None, cut_of
     def transformation(df, cut_off_date=None, cut_off_number_of_year=None):
         df = df[df['status'] == 'complete']
         df = df[['timestamp', 'home_team_name', 'away_team_name', 'home_team_goal_count', 'away_team_goal_count', 'home_team_goal_timings', 'away_team_goal_timings', 'team_a_xg', 'team_b_xg']]
-        df['recentness'] = df['timestamp'].apply(calculate_recentness, df=df, cut_off_date=cut_off_date,cut_off_number_of_year=cut_off_number_of_year)
+        df['recentness'] = df['timestamp'].apply(calculate_recentness, args=(df, recent, cut_off_date, cut_off_number_of_year))
         df['goal_timings'] = df.apply(get_goal_timings_dict, axis=1)
         df = df.apply(calculate_adjusted_goal, axis=1)
         df = df.apply(calculate_average_goal, axis=1)
