@@ -38,38 +38,41 @@ def get_goal_timings_dict(df):
     goal_timings_dict = {int(key): goal_timings_dict[key] for key in sorted(goal_timings_dict.keys())}
     return goal_timings_dict
 
-#reduce the value of goals scored late in a match when a team is already leading
 def calculate_adjusted_goal(df):
-    if df.goal_timings != {}:
-        if list(df.goal_timings)[-1] > 90:
-            playing_time = 120
-        else:
-            playing_time = 90
-        (home_team_goal, home_team_adjusted_goal, away_team_goal, away_team_adjusted_goal) = (0, 0, 0, 0)
-        for timing in df.goal_timings:
-            # after the 70th minute, value of a goal when a team is leading decreases to the end of the game
-            # a goal is worth 0.5 goal in the eyes of 538's model.
-            if df.goal_timings[timing] == 'home':
-                home_team_goal += 1
-                if (playing_time - timing < 20) and (home_team_goal - away_team_goal > 1):
-                    home_team_adjusted_goal += 0.5 + (playing_time - timing)/20 * 0.5
-                else:
-                    home_team_adjusted_goal += 1.0
-            elif df.goal_timings[timing] == 'away':
-                away_team_goal +=1
-                if (playing_time - timing < 20) and (away_team_goal - home_team_goal > 1):
-                    away_team_adjusted_goal += 0.5 + (playing_time - timing)/20 * 0.5
-                else:
-                    away_team_adjusted_goal += 1.0
-        if (home_team_goal > 0) and (away_team_goal > 0):
-            df['home_team_adjusted_goal'] = home_team_adjusted_goal / (home_team_adjusted_goal + away_team_adjusted_goal) * (home_team_goal + away_team_goal)
-            df['away_team_adjusted_goal'] = away_team_adjusted_goal / (home_team_adjusted_goal + away_team_adjusted_goal) * (home_team_goal + away_team_goal)
-        else:
+    #reduce the value of goals scored late in a match when a team is already leading
+    def reduce_goal_value(df):
+        if df.goal_timings != {}:
+            if list(df.goal_timings)[-1] > 90:
+                playing_time = 120
+            else:
+                playing_time = 90
+            (home_team_goal, home_team_adjusted_goal, away_team_goal, away_team_adjusted_goal) = (0, 0, 0, 0)
+            for timing in df.goal_timings:
+                # after the 70th minute, value of a goal when a team is leading decreases to the end of the game
+                # a goal is worth 0.5 goal in the eyes of 538's model.
+                if df.goal_timings[timing] == 'home':
+                    home_team_goal += 1
+                    if (playing_time - timing < 20) and (home_team_goal - away_team_goal > 1):
+                        home_team_adjusted_goal += 0.5 + (playing_time - timing)/20 * 0.5
+                    else:
+                        home_team_adjusted_goal += 1.0
+                elif df.goal_timings[timing] == 'away':
+                    away_team_goal +=1
+                    if (playing_time - timing < 20) and (away_team_goal - home_team_goal > 1):
+                        away_team_adjusted_goal += 0.5 + (playing_time - timing)/20 * 0.5
+                    else:
+                        away_team_adjusted_goal += 1.0
             df['home_team_adjusted_goal'] = home_team_adjusted_goal
             df['away_team_adjusted_goal'] = away_team_adjusted_goal
-    else:
-        df['home_team_adjusted_goal'] = df.home_team_goal_count
-        df['away_team_adjusted_goal'] = df.away_team_goal_count
+        else:
+            df['home_team_adjusted_goal'] = df['home_team_goal_count']
+            df['away_team_adjusted_goal'] = df['away_team_goal_count']
+        return df
+    df = df.apply(reduce_goal_value, axis=1)
+    # increased value of all other goals to make total number of adjusted goals equal to total number of actual goals
+    adjusted_goal_ratio = (df['home_team_goal_count'].sum() + df['away_team_goal_count'].sum()) / (df['home_team_adjusted_goal'].sum() + df['away_team_adjusted_goal'].sum())
+    df['home_team_adjusted_goal'] = df['home_team_adjusted_goal'] * adjusted_goal_ratio
+    df['away_team_adjusted_goal'] = df['away_team_adjusted_goal'] * adjusted_goal_ratio
     return df
 
 # average of the two metrics
@@ -80,8 +83,8 @@ def calculate_average_goal(df):
         df['away_team_average_goal'] = df.away_team_adjusted_goal
     else:
         # take average of two metrics
-        df['home_team_average_goal'] = (df.home_team_adjusted_goal + df.team_a_xg) / 2
-        df['away_team_average_goal'] = (df.away_team_adjusted_goal + df.team_b_xg) / 2
+        df['home_team_average_goal'] = (df.home_team_adjusted_goal + df.team_a_xg * 2) / 3
+        df['away_team_average_goal'] = (df.away_team_adjusted_goal + df.team_b_xg * 2) / 3
     return df
 
 def get_team_list(df):
