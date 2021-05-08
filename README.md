@@ -1,7 +1,7 @@
 # Multiplicative Rating Models for Soccer
 
 ## Introduction
-This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is up to 10,000 times faster in some cases.
+This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is much times faster in some cases.
 
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
@@ -32,8 +32,8 @@ The average of the above two metrics is used as `forecasted goals` in the calcul
 ## Inter-league Matches
 Matches played between teams from two different leagues, like those in the UEFA Champions League and AFC Champions league are used to calculate the relative strength of different leagues. Matches of the last five years are used for calculation. The country ratings are found as follows:
 ```
-home_team_forecasted_goals = average_goals * home_advantage * home_team_offensive_rating / away_team_defensive_rating * home_country_rating / away_country_rating
-away_team_forecasted_goals = average_goals / home_advantage * away_team_offensive_rating / home_team_defensive_rating * away_country_rating / away_country_rating
+home_team_forecasted_goals = average_goals * home_advantage * home_team_offensive_rating / away_team_defensive_rating + home_country_rating - away_country_rating
+away_team_forecasted_goals = average_goals / home_advantage * away_team_offensive_rating / home_team_defensive_rating + away_country_rating - away_country_rating
 ```
 `team_rating` factors are constants calculated domestically.
 
