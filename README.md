@@ -3,6 +3,9 @@
 ## Introduction
 This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is much times faster in some cases.
 
+## Result
+[Hong Kong football prediction (in Traditional Chinese)](https://docs.google.com/spreadsheets/d/1KZoV2Zyi8pnzVi5pNCcixdcNon-56jZEpZgalRXsOAs/edit?usp=sharing)
+
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
 ```
