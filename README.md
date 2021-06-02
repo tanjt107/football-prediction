@@ -49,9 +49,9 @@ Source: [FiveThirtyEight](https://projects.fivethirtyeight.com/soccer-prediction
 From the matrix, win probabilities of both teams and draw probabilities can be found.
 
 ## Team Rating
-To calculate team rating, the expected goal to score and expected goal concede of each team against an average team in the model can be calculated using the same formula above. The percentage of possible points against an average team is the team rating. For example, if a team is forecast to have a 50% probability to win (scoring three points), 25% to draw (scoring one point), 25% to lose (scoring no points) against an average team. The team rating of the team is:
+To calculate team rating, the expected goal to score and expected goal concede of each team against an average team in the model can be calculated using the same formula above. The percentage of possible points against an average team is the team rating. For example, if a team is forecast to have a 35% probability to win (scoring three points), 30% to draw (scoring one point), 35% to lose (scoring no points) against an average team. The team rating of the team is:
 ```
-(0.50 * 3 + 0.25 * 1 + 0.25 * 0)/3 = 58.3
+(0.35 * 3 + 0.30 * 1 + 0.35 * 0)/3 = 45.0
 ```
 From the formulae, the distribution of team ratings is not linear. Below is a general guideline from [ESPN](https://www.espn.com/world-cup/story/_/id/4447078/ce/us/guide-espn-spi-ratings):
 
