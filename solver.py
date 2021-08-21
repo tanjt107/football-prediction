@@ -131,12 +131,10 @@ def set_boundaries(factors: np.array) -> tuple:
     n = len(factors)
     return ((0,3),) * n
 
-def objective(value: np.array, factor: np.array, df: pd.DataFrame) -> float:
+def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     '''turn df strings into values that can be calculated.'''
-    assert len(value) == len(factor)
-    lookup = dict()
-    for i in range(len(value)):
-        lookup[factor[i]] = value[i]
+    assert len(values) == len(factors)
+    lookup = {factor: value for factor, value in zip (factors, values)}
     df = df.replace(lookup)
     obj = (
           (
