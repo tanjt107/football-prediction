@@ -2,22 +2,10 @@ import json
 import numpy as np
 import pandas as pd
 import re
-import requests
 from scipy import optimize
-
-def get_api_key(credentials_path: str) -> str:
-    with open(credentials_path) as f:
-        return json.load(f)['key']
-
-def get_matches_df(season_id: int) -> pd.DataFrame:
-    response = requests.get(f'https://api.football-data-api.com/league-matches?key={api_key}&season_id={season_id}').json()
-    return pd.DataFrame.from_dict(response['data'])
 
 def get_teamID_list(df: pd.DataFrame) -> list:
     return np.unique(df[['homeID', 'awayID']].values)
-
-def remove_cancelled_matches(df: pd.DataFrame) -> pd.DataFrame:
-    return df[df['status'] != 'canceled']
 
 def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year: int=1) -> pd.Series:
     '''recentness factor gives less weight to games that were played further back in time.'''
@@ -32,10 +20,11 @@ def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year:
                               (df.date_unix - cut_off_timestamp) / (df.date_unix.max() - cut_off_timestamp)
                               * (1 + (bouns_timestamp - df.date_unix.max() + df.date_unix) / bouns_timestamp * 0.25),
                               (df.date_unix - cut_off_timestamp)/ (df.date_unix.max() - cut_off_timestamp))
+        # TODO Check if the condition is working
         df.recentness = np.where(df.recentness > 0, df.recentness, 1 / cut_off_number_of_year / 365)
     else:
-        df.recentness = 1
-    return df.recentness
+        df['recentness'] = 1
+    return df
 
 def get_goal_timings_dict(df: pd.DataFrame) -> dict:
     if df.goal_timings_recorded == 1:
@@ -50,9 +39,10 @@ def get_goal_timings_dict(df: pd.DataFrame) -> dict:
         goal_timings_dict = df.homeGoals.copy()
         goal_timings_dict.update(df.awayGoals)
         goal_timings_dict = {int(key): goal_timings_dict[key] for key in sorted(goal_timings_dict.keys())}
-        return goal_timings_dict
+        df['goal_timings'] =  {int(key): goal_timings_dict[key] for key in sorted(goal_timings_dict.keys())}
     else:
-        return {}
+        df['goal_timings'] = {}
+    return df
 
 def reduce_goal_value(df: pd.DataFrame) -> pd.DataFrame:
     '''reduce the value of goals scored late in a match when a team is already leading.'''
@@ -128,8 +118,7 @@ def set_constraints(factors: np.array) -> list:
     return [con_avg_offence, con_avg_defence, con_home_advantage]
 
 def set_boundaries(factors: np.array) -> tuple:
-    n = len(factors)
-    return ((0,3),) * n
+    return ((0,3),) * len(factors)
 
 def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     '''turn df strings into values that can be calculated.'''
@@ -144,21 +133,20 @@ def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     )
     return np.sum(obj)
 
-def parse_result_to_json(solver: str, factors: np.array) -> json:
+def parse_result_to_dict(solver: str, factors: np.array) -> json:
     number_of_teams = int((len(factors) - 2) / 2)
     result = {factors[0]: solver.x[0], factors[1]: solver.x[1]}
     result_team = {}
     for factor, offence, defence in zip(factors[2:-number_of_teams], solver.x[2:-number_of_teams], solver.x[-number_of_teams:]):
         team = factor.split('_')[0]
         result_team[str(team)] = {'offence': offence, 'defence': defence}
-    result['teams'] = result_team
+    result['team'] = result_team
     return result
-
 
 def solver(df: pd.DataFrame, recent: bool=True) -> json:
     df = df[['date_unix', 'homeID', 'awayID', 'homeGoalCount', 'awayGoalCount', 'goal_timings_recorded', 'homeGoals', 'awayGoals', 'team_a_xg', 'team_b_xg', 'no_home_away']]
-    df['recentness'] = calculate_recentness(df, recent)
-    df['goal_timings'] = df.apply(get_goal_timings_dict, axis=1)
+    df = calculate_recentness(df, recent)
+    df = df.apply(get_goal_timings_dict, axis=1)
     df = df.apply(reduce_goal_value, axis=1)
     df = calculate_adjusted_goal(df)
     df = calculate_average_goal(df)
@@ -169,12 +157,17 @@ def solver(df: pd.DataFrame, recent: bool=True) -> json:
     cons = set_constraints(factors)
     bnds = set_boundaries(factors)
     solver = optimize.minimize(objective, args=(factors, df), x0=initial, method = 'SLSQP', constraints=cons, bounds=bnds, options={'maxiter':10000})
-    result = parse_result_to_json(solver, factors)
+    result = parse_result_to_dict(solver, factors)
     return result
-
+    
 if __name__ == '__main__':
+    import requests
+    def get_matches_df(season_id: int) -> pd.DataFrame:
+        response = requests.get(f'https://api.football-data-api.com/league-matches?key={api_key}&season_id={season_id}').json()
+        return pd.DataFrame.from_dict(response['data'])
+
     # api_key = get_api_key('credentials.json')
     api_key = 'example'
     df = get_matches_df(2012)
-    df = remove_cancelled_matches(df)
     result = solver(df)
+    print(result)
