@@ -1,6 +1,4 @@
 .DS_Store
-archive/
-data/
+__*
 credentials.json
-solve_seasons_in_inter_league.py
-test.ipynb
+*/
