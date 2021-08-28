@@ -1,4 +1,4 @@
-# Multiplicative Rating Models for Soccer
+# Multiplicative Rating Model for Football
 
 ## Introduction
 This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is much times faster in some cases.
@@ -24,7 +24,7 @@ Unlike the
 In addition, recent matches are given more weight to reflect a team's recent performance.
 
 ## Adjusting Goals
-Soccer is a tricky sport to model because there are so few goals scored in each match. The final result may not reflect the performance of each team well. To migrate the randomness and estimate team ratings better, two metrics are used in the calculation using in-depth match stats from [Footy Stats](https://footystats.org/) (a sample csv is available):
+Soccer is a tricky sport to model because there are so few goals scored in each match. The final result may not reflect the performance of each team well. To migrate the randomness and estimate team ratings better, two metrics are used in the calculation using in-depth match stats from [Footy Stats API](https://docs.footystats.org/):
 
 1. For *adjusted goals*, goals scored late by a leading team may not be important. Using `goal_timings` columns, the value of a goal by a leading team decreases linearly after the 70th minute. A goal in the 90th minute or later only worths 0.5 goals in the calculation.
 
@@ -49,9 +49,9 @@ Source: [FiveThirtyEight](https://projects.fivethirtyeight.com/soccer-prediction
 From the matrix, win probabilities of both teams and draw probabilities can be found.
 
 ## Team Rating
-To calculate team rating, the expected goal to score and expected goal concede of each team against an average team in the model can be calculated using the same formula above. The percentage of possible points against an average team is the team rating. For example, if a team is forecast to have a 35% probability to win (scoring three points), 30% to draw (scoring one point), 35% to lose (scoring no points) against an average team. The team rating of the team is:
+To calculate team rating, the expected goal to score and expected goal concede of each team against an average team in the model can be calculated using the same formula above. The percentage of possible points against an average team is the team rating. For example, if a team is forecast to have a 50% probability to win (scoring three points), 25% to draw (scoring one point), 25% to lose (scoring no points) against an average team. The team rating of the team is:
 ```
-(0.35 * 3 + 0.30 * 1 + 0.35 * 0)/3 = 45.0
+(0.50 * 3 + 0.25 * 1 + 0.25 * 0)/3 = 58.3
 ```
 From the formulae, the distribution of team ratings is not linear. Below is a general guideline from [ESPN](https://www.espn.com/world-cup/story/_/id/4447078/ce/us/guide-espn-spi-ratings):
 
