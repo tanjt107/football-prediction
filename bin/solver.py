@@ -7,7 +7,7 @@ from scipy import optimize
 def get_teamID_list(df: pd.DataFrame) -> list:
     return np.unique(df[['homeID', 'awayID']].values)
 
-def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year: int=1) -> pd.Series:
+def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year: int) -> pd.Series:
     '''
     recentness factor gives less weight to games that were played further back in time.
     '''
@@ -28,7 +28,7 @@ def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year:
         df.recentness = np.where(df.recentness > 0, df.recentness, 0)
     else:
         df['recentness'] = 1
-    return df
+    return df.loc[df.recentness>0]
 
 def get_goal_timings_dict(df: pd.DataFrame) -> dict:
     if df.goal_timings_recorded == 1:
@@ -122,18 +122,17 @@ def calculate_average_goal(df: pd.DataFrame) -> pd.DataFrame:
         df.away_team_adjusted_goal, (df.away_team_adjusted_goal + df.team_b_xg * 2) / 3)
     return df
 
-def clean_data_for_solver(df: pd.DataFrame, recent: bool) -> pd.DataFrame:
+def clean_data_for_solver(df: pd.DataFrame, recent: bool = True, cut_off_number_of_year: int=1) -> pd.DataFrame:
     df = df[
         ['date_unix', 'homeID', 'awayID', 'homeGoalCount', 'awayGoalCount',
         'goal_timings_recorded', 'homeGoals', 'awayGoals', 'team_a_xg', 'team_b_xg',
         'no_home_away']
         ]
-    df = calculate_recentness(df, recent)
+    df = calculate_recentness(df, recent, cut_off_number_of_year)
     df = df.apply(get_goal_timings_dict, axis=1)
     df = df.apply(reduce_goal_value, axis=1)
     df = calculate_adjusted_goal(df)
     df = calculate_average_goal(df)
-    df = df.apply(set_calculable_string_in_df, axis=1)
     return df
 
 def set_calculable_string_in_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -172,9 +171,12 @@ def set_constraints(factors: np.array) -> list:
     con_home_advantage = {'type': 'ineq', 'fun': minimum_home_advantage}
     return [con_avg_offence, con_avg_defence, con_home_advantage]
 
-def set_boundaries(factors: np.array) -> tuple:
-    return ((0,3),) * len(factors)
+def set_boundaries(factors: np.array, max: float) -> tuple:
+    return ((0,max),) * len(factors)
 
+# TODO Market value function
+
+# TODO Change formulae to include market value
 def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     '''turn df strings into values that can be calculated.'''
     assert len(values) == len(factors)
@@ -184,12 +186,16 @@ def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
         (
             (
                 df.average_goal * df.home_advantage ** (1 - df.no_home_away)
-                * df.home_team_offence * df.away_team_defence - df.home_team_average_goal
+                * df.home_team_offence # (df.home_team_offence ** (2 + df.previous_season) / df.market_value_factor ** df.previous_season) ** (1/2)
+                * df.away_team_defence
+                - df.home_team_average_goal
                 ) ** 2
                 +
             (
                 df.average_goal / df.home_advantage ** (1 - df.no_home_away)
-                * df.away_team_offence * df.home_team_defence - df.away_team_average_goal
+                * df.away_team_offence
+                * df.home_team_defence
+                - df.away_team_average_goal
                 ) ** 2
         ) * df.recentness
     )
@@ -209,13 +215,14 @@ def parse_result_to_dict(solver: str, factors: np.array) -> json:
     result['team'] = result_team
     return result
 
-def solver(df: pd.DataFrame, recent: bool=True) -> json:
-    df = clean_data_for_solver(df, recent)
+def solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of_year: int=1, max_boundary: float=3) -> json:
+    df = clean_data_for_solver(df, recent, cut_off_number_of_year)
+    df = df.apply(set_calculable_string_in_df, axis=1)
     teams = get_teamID_list(df)
     factors = get_factors_array(teams)
     initial = initialise_factors(factors)
     cons = set_constraints(factors)
-    bnds = set_boundaries(factors)
+    bnds = set_boundaries(factors, max_boundary)
     solver = optimize.minimize(
         objective, args=(factors, df), x0=initial,
         method = 'SLSQP', constraints=cons, bounds=bnds, options={'maxiter':10000})
@@ -231,7 +238,6 @@ if __name__ == '__main__':
             ).json()
         return pd.DataFrame.from_dict(response['data'])
 
-    # API_KEY = get_api_key('credentials.json')
     API_KEY = 'example'
     df = get_matches_df(2012)
     result = solver(df)

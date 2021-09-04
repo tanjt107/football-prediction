@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import requests
+from param import API_KEY, SEASON_DATA_FOLDER_PATH, CURRENT_YEAR
 
 class Season:
     def __init__(self, season_id: int):
@@ -21,7 +22,7 @@ class Season:
             self.matches = Matches(self.id)
             self.matchesCompleted = data['matchesCompleted']
             self.json_name = f'{self.id}-{self.iso}-{data["shortHand"]}-{self.season.replace("/", "")}.json'
-            if os.path.exists(json_path:= os.path.join(DATA_FOLDER_PATH, self.json_name)):
+            if os.path.exists(json_path:= os.path.join(SEASON_DATA_FOLDER_PATH, self.json_name)):
                 with open(json_path) as f:
                     if json.load(f)['status'] == 'In Progress':
                         self.need_update =  True
@@ -76,9 +77,18 @@ class Team:
     def __str__(self):
          return f'Team {self.id}: {self.country} {self.name}'
 
-def get_api_key(credentials_path: str) -> str:
-    with open(credentials_path) as f:
-        return json.load(f)['key']
+def get_all_leagues(chosen_leagues_only: bool) -> pd.DataFrame:
+    response = requests.get(
+        f'https://api.football-data-api.com/league-list?key={API_KEY}&chosen_leagues_only={str(chosen_leagues_only).lower()}'
+        ).json()
+    return pd.DataFrame(response['data'])
 
-API_KEY = get_api_key('credentials.json')
-DATA_FOLDER_PATH = 'data/season'
+def get_season_ids(season_ids: list, number_of_years: int) -> list:
+    seasons = []
+    df = get_all_leagues(True)
+    leagues = df.loc[df['name'].isin(season_ids)]['season'].values
+    for league in leagues:
+        for season in league:
+            if int(str(season['year'])[-4:]) >= CURRENT_YEAR - number_of_years:
+                seasons.append(season['id'])
+    return seasons
