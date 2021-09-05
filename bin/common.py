@@ -1,9 +1,11 @@
+import gspread as gs
 import json
 import numpy as np
 import os
 import pandas as pd
 import requests
-from param import API_KEY, SEASON_DATA_FOLDER_PATH, CURRENT_YEAR
+from param import API_KEY, CURRENT_YEAR, GS_CREDENTIALS_PATH, GS_WB_NAME, SEASON_DATA_FOLDER_PATH
+from scipy.stats import distributions
 
 class Season:
     def __init__(self, season_id: int):
@@ -83,6 +85,30 @@ def get_all_leagues(chosen_leagues_only: bool) -> pd.DataFrame:
         ).json()
     return pd.DataFrame(response['data'])
 
+def get_goal_matrix(home_expected_goals: float, away_expected_goals: float, size: int) -> np.array:
+    """
+    home_expected_goals, away_expected_goals: number of expected goals calculated from solver
+    size: increasing this range increases accuracy but takes more computation time
+    """
+    # assuming poisson distribution 
+    home_goals = [distributions.poisson.pmf(i, home_expected_goals) for i in range(size+1)]
+    home_goals[-1] = 1 - np.sum(home_goals[:-1])
+    away_goals = [distributions.poisson.pmf(i, away_expected_goals) for i in range(size+1)]
+    away_goals[-1] = 1 - np.sum(away_goals[:-1])
+    matrix = np.outer(home_goals, away_goals)
+    di = np.diag_indices(size+1)   
+    # increase probability of draw
+    # according to fivethirtyeight, the increment is around 9 percent
+    matrix[di] *= 1.09
+    matrix /= np.sum(matrix)
+    return matrix
+
+def get_home_draw_away_probs(goal_matrix: np.array) -> list:
+   home_win_percentage = np.tril(goal_matrix, -1).sum()
+   draw_percentage = np.trace(goal_matrix)
+   away_win_percentage = np.triu(goal_matrix, 1).sum()
+   return [home_win_percentage, draw_percentage, away_win_percentage]
+
 def get_season_ids(season_ids: list, number_of_years: int) -> list:
     seasons = []
     df = get_all_leagues(True)
@@ -92,3 +118,27 @@ def get_season_ids(season_ids: list, number_of_years: int) -> list:
             if int(str(season['year'])[-4:]) >= CURRENT_YEAR - number_of_years:
                 seasons.append(season['id'])
     return seasons
+
+def get_all_team_ratings(dict: dict, size: int=5) -> pd.DataFrame:
+    def get_team_rating(home_expected_goals: float, away_expected_goals: float, size: int=5) -> float:
+        goal_matrix = get_goal_matrix(home_expected_goals, away_expected_goals, size)
+        home_draw_away_probs = get_home_draw_away_probs(goal_matrix)
+        return (home_draw_away_probs[0] * 3 + home_draw_away_probs[1] * 1) / 3 * 100
+
+    average_goal = dict['average_goal']
+    df = pd.DataFrame.from_dict(dict['team'], orient='index')
+    df *= average_goal
+    df['rating'] = df.apply(lambda team: get_team_rating(team.offence, team.defence, size), axis=1)
+    df = df.round(2)
+    df.index.name = 'team'
+    return df
+
+def update_worksheet(ws: str, df: pd.DataFrame):
+    df = df.reset_index()
+    gc = gs.service_account(filename=GS_CREDENTIALS_PATH)
+    sh = gc.open(GS_WB_NAME)
+    if ws in [sheet.title for sheet in sh.worksheets()]:
+        sh.worksheet(ws).clear()
+    else:
+        sh.add_worksheet(title=ws, rows="100", cols="20")
+    sh.worksheet(ws).update([df.columns.values.tolist()] + df.values.tolist())

@@ -37,6 +37,7 @@ def main(inter_league_id: int):
                             if (recent:= current_season.status != 'Completed'):
                                 previous_season = Season(previous_season_id)
                                 assert current_season.name == previous_season.name
+                                #T TODO append_multiple_season_matches_df(current_season, [previous_season], True)
                                 df = append_two_seasons_df(current_season, previous_season)
                             else:
                                 df = current_season.matches.df('complete')
