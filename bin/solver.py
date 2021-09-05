@@ -122,17 +122,27 @@ def calculate_average_goal(df: pd.DataFrame) -> pd.DataFrame:
         df.away_team_adjusted_goal, (df.away_team_adjusted_goal + df.team_b_xg * 2) / 3)
     return df
 
-def clean_data_for_solver(df: pd.DataFrame, recent: bool = True, cut_off_number_of_year: int=1) -> pd.DataFrame:
+def merge_market_value_series(df: pd.DataFrame, market_values: pd.Series=None):
+    if market_values is not None:
+        df = df.merge(market_values, how='left', left_on='homeID', right_index=True, suffixes=('_home', '_away'))
+        df = df.merge(market_values, how='left', left_on='awayID', right_index=True, suffixes=('_home', '_away'))
+    else:
+        df['market_value_home'] = 1
+        df['market_value_away'] = 1
+    return df
+
+def clean_data_for_solver(df: pd.DataFrame, recent: bool = True, cut_off_number_of_year: int=1, market_values: pd.Series=None) -> pd.DataFrame:
     df = df[
         ['date_unix', 'homeID', 'awayID', 'homeGoalCount', 'awayGoalCount',
         'goal_timings_recorded', 'homeGoals', 'awayGoals', 'team_a_xg', 'team_b_xg',
-        'no_home_away']
+        'no_home_away', 'previous_season']
         ]
     df = calculate_recentness(df, recent, cut_off_number_of_year)
     df = df.apply(get_goal_timings_dict, axis=1)
     df = df.apply(reduce_goal_value, axis=1)
     df = calculate_adjusted_goal(df)
     df = calculate_average_goal(df)
+    df = merge_market_value_series(df, market_values)
     return df
 
 def set_calculable_string_in_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -174,8 +184,6 @@ def set_constraints(factors: np.array) -> list:
 def set_boundaries(factors: np.array, max: float) -> tuple:
     return ((0,max),) * len(factors)
 
-# TODO Market value function
-
 # TODO Change formulae to include market value
 def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     '''turn df strings into values that can be calculated.'''
@@ -186,15 +194,15 @@ def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
         (
             (
                 df.average_goal * df.home_advantage ** (1 - df.no_home_away)
-                * df.home_team_offence # (df.home_team_offence ** (2 + df.previous_season) / df.market_value_factor ** df.previous_season) ** (1/2)
-                * df.away_team_defence
+                * (df.home_team_offence ** (2 + df.previous_season) / df.market_value_home ** df.previous_season) ** (1/2)
+                * (df.away_team_defence ** (2 + df.previous_season) * df.market_value_away ** df.previous_season) ** (1/2)
                 - df.home_team_average_goal
                 ) ** 2
                 +
             (
                 df.average_goal / df.home_advantage ** (1 - df.no_home_away)
-                * df.away_team_offence
-                * df.home_team_defence
+                * (df.away_team_offence ** (2 + df.previous_season) / df.market_value_away ** df.previous_season) ** (1/2)
+                * (df.home_team_defence ** (2 + df.previous_season) * df.market_value_home ** df.previous_season) ** (1/2)
                 - df.away_team_average_goal
                 ) ** 2
         ) * df.recentness
@@ -215,8 +223,8 @@ def parse_result_to_dict(solver: str, factors: np.array) -> json:
     result['team'] = result_team
     return result
 
-def solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of_year: int=1, max_boundary: float=3) -> json:
-    df = clean_data_for_solver(df, recent, cut_off_number_of_year)
+def solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of_year: int=1, max_boundary: float=3, market_values: pd.Series=None) -> json:
+    df = clean_data_for_solver(df, recent, cut_off_number_of_year, market_values)
     df = df.apply(set_calculable_string_in_df, axis=1)
     teams = get_teamID_list(df)
     factors = get_factors_array(teams)

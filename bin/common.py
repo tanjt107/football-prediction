@@ -4,7 +4,7 @@ import numpy as np
 import os
 import pandas as pd
 import requests
-from param import API_KEY, CURRENT_YEAR, GS_CREDENTIALS_PATH, GS_WB_NAME, SEASON_DATA_FOLDER_PATH
+from param import API_KEY, CURRENT_YEAR, GS_CREDENTIALS_PATH, GS_WB_NAME, MARKET_VALUE_FOLDER_PATH, SEASON_DATA_FOLDER_PATH
 from scipy.stats import distributions
 
 class Season:
@@ -24,6 +24,7 @@ class Season:
             self.matches = Matches(self.id)
             self.matchesCompleted = data['matchesCompleted']
             self.json_name = f'{self.id}-{self.iso}-{data["shortHand"]}-{self.season.replace("/", "")}.json'
+            self.market_value_name = f'{self.iso}-{data["shortHand"]}.json'
             if os.path.exists(json_path:= os.path.join(SEASON_DATA_FOLDER_PATH, self.json_name)):
                 with open(json_path) as f:
                     if json.load(f)['status'] == 'In Progress':
@@ -79,6 +80,21 @@ class Team:
     def __str__(self):
          return f'Team {self.id}: {self.country} {self.name}'
 
+def append_multiple_season_matches_df(main_season: Season, other_seasons: list, market_value: bool, main_teams_only: bool=True) -> pd.DataFrame:
+    team_ids = main_season.team_ids()
+    df = main_season.matches.df('complete')
+    df['previous_season'] = 0
+    for season in other_seasons:
+        df_season = season.matches.df('complete')
+        df_season['previous_season'] = int(market_value)
+        df = df.append(df_season)
+    if main_teams_only:
+        df = df[
+            df.homeID.isin(team_ids)
+            & df.awayID.isin(team_ids)
+            ]
+    return df
+
 def get_all_leagues(chosen_leagues_only: bool) -> pd.DataFrame:
     response = requests.get(
         f'https://api.football-data-api.com/league-list?key={API_KEY}&chosen_leagues_only={str(chosen_leagues_only).lower()}'
@@ -108,6 +124,14 @@ def get_home_draw_away_probs(goal_matrix: np.array) -> list:
    draw_percentage = np.trace(goal_matrix)
    away_win_percentage = np.triu(goal_matrix, 1).sum()
    return [home_win_percentage, draw_percentage, away_win_percentage]
+
+def get_market_value_factors(season: Season) -> pd.Series:
+    if os.path.exists(path:= os.path.join(MARKET_VALUE_FOLDER_PATH, season.market_value_name)):
+        df = pd.read_json(path, orient='index')
+        market_values = df[0].str.replace("€", "").str.replace("m", "").astype(float) * 1000000
+        market_values = market_values / (np.prod(market_values) ** (1/len(market_values)))
+        market_values.name = 'market_value'
+        return market_values
 
 def get_season_ids(season_ids: list, number_of_years: int) -> list:
     seasons = []

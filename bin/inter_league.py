@@ -1,7 +1,7 @@
 import json
 import os
 import pandas as pd
-from common import Season, Team, get_season_ids
+from common import Season, Team, append_multiple_season_matches_df, get_market_value_factors, get_season_ids
 from param import CURRENT_YEAR, INTER_LEAGUE_LIST, SEASON_DATA_FOLDER_PATH
 from solver import solver
 
@@ -37,14 +37,10 @@ def main(inter_league_id: int):
                             if (recent:= current_season.status != 'Completed'):
                                 previous_season = Season(previous_season_id)
                                 assert current_season.name == previous_season.name
-                                #T TODO append_multiple_season_matches_df(current_season, [previous_season], True)
-                                df = append_two_seasons_df(current_season, previous_season)
+                                df = append_multiple_season_matches_df(current_season, [previous_season], True)
                             else:
-                                df = current_season.matches.df('complete')
-
-                            # TODO If have market value = .json else = None
-                            # TODO Transformation and calculation in solver
-
+                                df = append_multiple_season_matches_df(current_season, [], True)
+                            market_values = get_market_value_factors(current_season)
                             print(current_season)
                             result = {
                                 'id': current_season.id,
@@ -54,7 +50,8 @@ def main(inter_league_id: int):
                                 'status': current_season.status,
                                 **solver(
                                     df,
-                                    recent=recent
+                                    recent=recent,
+                                    market_values = market_values
                                     )}
                             with open(os.path.join(
                                 SEASON_DATA_FOLDER_PATH, current_season.json_name
