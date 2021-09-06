@@ -38,9 +38,10 @@ def main(inter_league_id: int):
                                 previous_season = Season(previous_season_id)
                                 assert current_season.name == previous_season.name
                                 df = append_multiple_season_matches_df(current_season, [previous_season], True)
+                                market_values = get_market_value_factors(current_season)
                             else:
                                 df = append_multiple_season_matches_df(current_season, [], True)
-                            market_values = get_market_value_factors(current_season)
+                                market_values = None
                             print(current_season)
                             result = {
                                 'id': current_season.id,

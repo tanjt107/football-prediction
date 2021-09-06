@@ -4,15 +4,23 @@ import numpy as np
 import os
 import pandas as pd
 import requests
+import time
 from param import API_KEY, CURRENT_YEAR, GS_CREDENTIALS_PATH, GS_WB_NAME, MARKET_VALUE_FOLDER_PATH, SEASON_DATA_FOLDER_PATH
 from scipy.stats import distributions
 
 class Season:
     def __init__(self, season_id: int):
         self.id = season_id
-        response = requests.get(
-            f'https://api.football-data-api.com/league-season?key={API_KEY}&season_id={self.id}'
-            ).json()
+        try:
+            response = requests.get(
+                f'https://api.football-data-api.com/league-season?key={API_KEY}&season_id={self.id}'
+                ).json()
+        except json.decoder.JSONDecodeError:
+            time.sleep(1)
+            response = requests.get(
+                f'https://api.football-data-api.com/league-season?key={API_KEY}&season_id={self.id}'
+                ).json()
+        
         self.success = response['success']
         if self.success == True:
             data = response['data']
@@ -128,7 +136,7 @@ def get_home_draw_away_probs(goal_matrix: np.array) -> list:
 def get_market_value_factors(season: Season) -> pd.Series:
     if os.path.exists(path:= os.path.join(MARKET_VALUE_FOLDER_PATH, season.market_value_name)):
         df = pd.read_json(path, orient='index')
-        market_values = df[0].str.replace("€", "").str.replace("m", "").astype(float) * 1000000
+        market_values = df[0].str.replace("€", "").str.replace("m", "e6").str.replace("Th.", "e3").astype(float)
         market_values = market_values / (np.prod(market_values) ** (1/len(market_values)))
         market_values.name = 'market_value'
         return market_values

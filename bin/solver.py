@@ -19,7 +19,7 @@ def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year:
         # a bonus of up to 25 percent is given
         # to games played within past past 25 days to reflect a team's most recent form
         bouns_timestamp = cut_off_number_of_year * 2160000 # 25 * 24 * 60 * 60
-        df['recentness'] = np.where(
+        df.loc[: ,'recentness'] = np.where(
             df.date_unix.max() - df.date_unix <= bouns_timestamp,
             (df.date_unix - cut_off_timestamp) / (df.date_unix.max() - cut_off_timestamp)
             * (1 + (bouns_timestamp - df.date_unix.max() + df.date_unix) / bouns_timestamp * 0.25),
@@ -27,7 +27,7 @@ def calculate_recentness(df: pd.DataFrame, recent: bool, cut_off_number_of_year:
             )
         df.recentness = np.where(df.recentness > 0, df.recentness, 0)
     else:
-        df['recentness'] = 1
+        df.loc[: ,'recentness'] = 1
     return df.loc[df.recentness>0]
 
 def get_goal_timings_dict(df: pd.DataFrame) -> dict:
@@ -132,6 +132,8 @@ def merge_market_value_series(df: pd.DataFrame, market_values: pd.Series=None):
     return df
 
 def clean_data_for_solver(df: pd.DataFrame, recent: bool = True, cut_off_number_of_year: int=1, market_values: pd.Series=None) -> pd.DataFrame:
+    if 'previous_season' not in df.columns:
+        df['previous_season'] = 0
     df = df[
         ['date_unix', 'homeID', 'awayID', 'homeGoalCount', 'awayGoalCount',
         'goal_timings_recorded', 'homeGoals', 'awayGoals', 'team_a_xg', 'team_b_xg',
@@ -184,7 +186,6 @@ def set_constraints(factors: np.array) -> list:
 def set_boundaries(factors: np.array, max: float) -> tuple:
     return ((0,max),) * len(factors)
 
-# TODO Change formulae to include market value
 def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
     '''turn df strings into values that can be calculated.'''
     assert len(values) == len(factors)
