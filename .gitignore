@@ -1,4 +1,7 @@
 .DS_Store
 __*
-credentials.json
-*/
+bin/param.py
+archive
+data
+test*
+excel
