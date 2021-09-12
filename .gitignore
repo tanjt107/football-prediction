@@ -1,7 +1,7 @@
 .DS_Store
 __*
-bin/param.py
 archive
+credentials
 data
-test*
-excel
+param.py
+transfermarkt

@@ -1,8 +1,8 @@
 import json
 import os
 import time
+from param import CHROMEDRIVER_PATH, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
 from selenium import webdriver
-from param import MARKET_VALUE_FOLDER_PATH, MARKET_VALUE_PARAM_PATH, WEBDRIVER_PATH
 
 def main(url: str) -> dict:
     result = dict()
@@ -11,22 +11,16 @@ def main(url: str) -> dict:
     teams = driver.find_elements_by_class_name("hauptlink.no-border-links")
     values = driver.find_elements_by_class_name("rechts.hauptlink")
     for team, value in zip(teams, values):
-        result[
-            lookup.get(team.text.strip(), team.text.strip())
-            ] =  value.text.strip()
+        result[team.text.strip()] =  value.text.strip()
     return result
 
 if __name__ == '__main__':
-    with open(MARKET_VALUE_PARAM_PATH, 'r') as f:
-        param = json.load(f)
+    driver = webdriver.Chrome(CHROMEDRIVER_PATH)
 
-    lookup = param['lookup']
-    driver = webdriver.Chrome(WEBDRIVER_PATH)
-
-    for league, url in list(param['league'].items()):
+    for league, url in MARKET_VALUE_URL_LIST.items():
         result = main(url)
 
-        with open(os.path.join(MARKET_VALUE_FOLDER_PATH, f'{league}.json'), 'w') as f:
+        with open(os.path.join(PARENT_DIRECTORY, "data/market-value", f'{league}.json'), 'w') as f:
             json.dump(result, f, indent=4)
 
     driver.quit()
