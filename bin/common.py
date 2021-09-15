@@ -6,8 +6,9 @@ import pandas as pd
 import requests
 import time
 from typing import Dict, List
-from param import PARENT_DIRECTORY
+from param import CHROMEDRIVER_PATH, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
 from scipy.stats import distributions
+from selenium import webdriver
 
 class Season:
     def __init__(self, season_id: int):
@@ -18,42 +19,59 @@ class Season:
             data = response["data"]
             self.name = data["name"]
             self.season = data["season"]
+            self.starting_year = data["starting_year"]
+            self.ending_year = data["ending_year"]
             self.country = data["country"]
             self.iso = data["iso"]
             self.status = data["status"]
             self.matches = Matches(self.id)
-            self.matchesCompleted = data["matchesCompleted"]
-            self.json_path = f"{self.id}-{self.iso}-{data['shortHand']}-{self.season.replace('/', '')}.json"
-            self.market_value_path = f"{self.iso}-{data['shortHand']}.json"
+            self.matchesCompletedLatest = data["matchesCompleted"]
+            self.iso_shortHand = f"{self.iso}-{data['shortHand']}"
+            self.json_path = f"{self.id}-{self.iso_shortHand }-{self.season.replace('/', '')}.json"
+            self.market_value_path = f"{self.iso_shortHand}.json"
             self.market_value_full_path = os.path.join(PARENT_DIRECTORY, "data/market-value", self.market_value_path)
             self.has_market_value = os.path.exists(self.market_value_full_path)
-            self.need_update = self.check_if_needs_update()
+            self.exists = os.path.exists(os.path.join(PARENT_DIRECTORY, "data/season", self.json_path))
+            self.matchesCompletedBefore = self.get_matchesCompletedBefore()
         else:
             print(
-                f"{self.id}: {response['message']}"
+                f"Season {self.id}: {response['message']}"
                 )
 
-    def check_if_needs_update(self) -> bool:
-        if os.path.exists(fp:= os.path.join(PARENT_DIRECTORY, "data/season", self.json_path)):
-            with open(fp) as f:
-                if json.load(f)["status"] == "Completed":
-                    return False
-        return True
+    def get_matchesCompletedBefore(self) -> int:
+        if self.exists:
+            with open(os.path.join(PARENT_DIRECTORY, "data/season", self.json_path), "r") as f:
+                season = json.load(f)
+            return season["matchesCompleted"]
+        else:
+            return 0
 
     def market_value_factors(self) -> pd.Series:
-        if self.has_market_value:
-            with open("transfermarkt/teams.json", "r") as f:
-                lookups = json.load(f)
-            df = pd.read_json(self.market_value_full_path, orient="index")
-            df.index = df.index.map(lookups)
-            market_values = (df[0].str.replace("€", "", regex=False)
-                                  .str.replace("m", "e3", regex=False)
-                                  .str.replace("Th.", "", regex=False)
-                                  .astype(float))
-            market_values /= np.prod(market_values) ** (1/len(market_values))
-            market_values.name = "market_value"
-            market_values = market_values.loc[~market_values.duplicated(keep=False)]
-            return market_values
+        with open("transfermarkt/teams.json", "r") as f:
+            lookups = json.load(f)
+        df = pd.read_json(self.market_value_full_path, orient="index")
+        df.index = df.index.map(lookups)
+        market_values = (df[0].str.replace("€", "", regex=False)
+                                .str.replace("m", "e3", regex=False)
+                                .str.replace("Th.", "", regex=False)
+                                .astype(float))
+        market_values /= np.prod(market_values) ** (1/len(market_values))
+        market_values.name = "market_value"
+        market_values = market_values.loc[~market_values.duplicated(keep=False)]
+        return market_values
+
+    def update_market_value(self) -> dict:
+        driver = webdriver.Chrome(CHROMEDRIVER_PATH)
+        result = dict()
+        driver.get(MARKET_VALUE_URL_LIST[self.iso_shortHand])
+        time.sleep(5)
+        teams = driver.find_elements_by_class_name("hauptlink.no-border-links")
+        values = driver.find_elements_by_class_name("rechts.hauptlink")
+        for team, value in zip(teams, values):
+            result[team.text.strip()] = value.text.strip()
+        with open(self.market_value_full_path, 'w') as f:
+                json.dump(result, f, indent=4)
+        driver.quit()
 
     def team_ids(self, status: str="all") -> list:
         df = self.matches.df(status)
@@ -139,11 +157,6 @@ def get_all_leagues(chosen_leagues_only=bool) -> pd.DataFrame:
     return pd.DataFrame(response["data"])
 
 def get_all_team_ratings(dict: dict, size: int=5) -> pd.DataFrame:
-    def get_team_rating(home_expected_goals: float, away_expected_goals: float, size: int=5) -> float:
-        goal_matrix = get_goal_matrix(home_expected_goals, away_expected_goals, size)
-        home_draw_away_probs = get_home_draw_away_probs(goal_matrix)
-        return (home_draw_away_probs[0] * 3 + home_draw_away_probs[1] * 1) / 3 * 100
-
     average_goal = dict['average_goal']
     df = pd.DataFrame.from_dict(dict['team'], orient='index')
     df *= average_goal
@@ -151,6 +164,11 @@ def get_all_team_ratings(dict: dict, size: int=5) -> pd.DataFrame:
     df = df.round(2)
     df.index.name = 'team'
     return df
+
+def get_team_rating(home_expected_goals: float, away_expected_goals: float, size: int=5) -> float:
+    goal_matrix = get_goal_matrix(home_expected_goals, away_expected_goals, size)
+    home_draw_away_probs = get_home_draw_away_probs(goal_matrix)
+    return (home_draw_away_probs[0] * 3 + home_draw_away_probs[1] * 1) / 3 * 100
 
 def get_api_key() -> str:
     with open(os.path.join(PARENT_DIRECTORY, "credentials", "footystats.json")) as f:
