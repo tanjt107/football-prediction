@@ -1,4 +1,3 @@
-import json
 import numpy as np
 import pandas as pd
 import re
@@ -141,87 +140,88 @@ def clean_data_for_solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of
     df = map_market_values(df, market_values)
     return df
 
-def set_calculable_string_in_df(df: pd.DataFrame) -> pd.DataFrame:
-    df["average_goal"] = "average_goal"
-    df["home_advantage"] = "home_advantage"
-    for team in ["home", "away"]:
-        for factor in ["offence", "defence"]:
-            df[f"{team}_team_{factor}"] = f"{df[f'{team}ID']}_{factor}"
-    return df
-
-def get_teamID_list(df: pd.DataFrame) -> List[int]:
-    return np.unique(df[["homeID", "awayID"]].values)
-
-def get_factors_array(teams: List[str]) -> np.array:
-    """second argument is the corresponding strings forarray values."""
-    return np.concatenate(
-        (["average_goal", "home_advantage"],
-        [f"{team}_offence" for team in teams],
-        [f"{team}_defence" for team in teams])
-        )
-
-def initialise_factors(factors: np.array) -> np.array:
-    """
-    first argument required by optimize is a 1d array with some number of values
-    and set a reasonable initial value for the solver.
-    """
-    return np.concatenate(([1.35], np.repeat(1, factors.size - 1)))
-
-def set_constraints(factors: np.array) -> List[dict]:
-    number_of_teams = int((len(factors) - 2) / 2)
-    def average_offence(factors):
-        return np.product(factors[2:-number_of_teams]) - 1
-    def average_defence(factors):
-        return np.product(factors[-number_of_teams:]) - 1
-    def minimum_home_advantage(factors):
-        return factors[1] - 1
-    con_avg_offence = {"type": "eq", "fun": average_offence}
-    con_avg_defence = {"type": "eq", "fun": average_defence}
-    con_home_advantage = {"type": "ineq", "fun": minimum_home_advantage}
-    return [con_avg_offence, con_avg_defence, con_home_advantage]
-
-def set_boundaries(factors: np.array, max: float) -> List[tuple]:
-    return ((0,max),) * len(factors)
-
-def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
-    """turn df strings into values that can be calculated."""
-    assert len(values) == len(factors)
-    lookup = {factor: value for factor, value in zip (factors, values)}
-    df = df.replace(lookup)
-    obj = (
-        (
-            (
-                df.average_goal * df.home_advantage ** (1 - df.no_home_away)
-                * (df.home_team_offence ** (2 + df.previous_season) / df.market_value_home ** df.previous_season) ** (1/2)
-                * (df.away_team_defence ** (2 + df.previous_season) * df.market_value_away ** df.previous_season) ** (1/2)
-                - df.home_team_average_goal
-                ) ** 2
-                +
-            (
-                df.average_goal / df.home_advantage ** (1 - df.no_home_away)
-                * (df.away_team_offence ** (2 + df.previous_season) / df.market_value_away ** df.previous_season) ** (1/2)
-                * (df.home_team_defence ** (2 + df.previous_season) * df.market_value_home ** df.previous_season) ** (1/2)
-                - df.away_team_average_goal
-                ) ** 2
-        ) * df.recentness
-    )
-    return np.sum(obj)
-
-def parse_result_to_dict(solver: str, factors: np.array) -> dict:
-    number_of_teams = int((len(factors) - 2) / 2)
-    result = {factors[0]: solver.x[0], factors[1]: solver.x[1]}
-    result_team = {}
-    for factor, offence, defence in zip(
-        factors[2:-number_of_teams],
-        solver.x[2:-number_of_teams],
-        solver.x[-number_of_teams:]
-        ):
-        team = factor.split("_")[0]
-        result_team[str(team)] = {"offence": offence, "defence": defence}
-    result["team"] = result_team
-    return result
 
 def solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of_year: int=1, bounds: float=3, market_values: pd.Series=None) -> dict:
+    def set_calculable_string_in_df(df: pd.DataFrame) -> pd.DataFrame:
+        df["average_goal"] = "average_goal"
+        df["home_advantage"] = "home_advantage"
+        for team in ["home", "away"]:
+            for factor in ["offence", "defence"]:
+                df[f"{team}_team_{factor}"] = f"{df[f'{team}ID']}_{factor}"
+        return df
+
+    def get_teamID_list(df: pd.DataFrame) -> List[int]:
+        return np.unique(df[["homeID", "awayID"]].values)
+
+    def get_factors_array(teams: List[str]) -> np.array:
+        """second argument is the corresponding strings forarray values."""
+        return np.concatenate(
+            (["average_goal", "home_advantage"],
+            [f"{team}_offence" for team in teams],
+            [f"{team}_defence" for team in teams])
+            )
+
+    def initialise_factors(factors: np.array) -> np.array:
+        """
+        first argument required by optimize is a 1d array with some number of values
+        and set a reasonable initial value for the solver.
+        """
+        return np.concatenate(([1.35], np.repeat(1, factors.size - 1)))
+
+    def set_constraints(factors: np.array) -> List[dict]:
+        number_of_teams = int((len(factors) - 2) / 2)
+        def average_offence(factors):
+            return np.product(factors[2:-number_of_teams]) - 1
+        def average_defence(factors):
+            return np.product(factors[-number_of_teams:]) - 1
+        def minimum_home_advantage(factors):
+            return factors[1] - 1
+        con_avg_offence = {"type": "eq", "fun": average_offence}
+        con_avg_defence = {"type": "eq", "fun": average_defence}
+        con_home_advantage = {"type": "ineq", "fun": minimum_home_advantage}
+        return [con_avg_offence, con_avg_defence, con_home_advantage]
+
+    def set_boundaries(factors: np.array, max: float) -> List[tuple]:
+        return ((0,max),) * len(factors)
+
+    def objective(values: np.array, factors: np.array, df: pd.DataFrame) -> float:
+        """turn df strings into values that can be calculated."""
+        assert len(values) == len(factors)
+        lookup = {factor: value for factor, value in zip (factors, values)}
+        df = df.replace(lookup)
+        obj = (
+            (
+                (
+                    df.average_goal * df.home_advantage ** (1 - df.no_home_away)
+                    * (df.home_team_offence ** (2 + df.previous_season) / df.market_value_home ** df.previous_season) ** (1/2)
+                    * (df.away_team_defence ** (2 + df.previous_season) * df.market_value_away ** df.previous_season) ** (1/2)
+                    - df.home_team_average_goal
+                    ) ** 2
+                    +
+                (
+                    df.average_goal / df.home_advantage ** (1 - df.no_home_away)
+                    * (df.away_team_offence ** (2 + df.previous_season) / df.market_value_away ** df.previous_season) ** (1/2)
+                    * (df.home_team_defence ** (2 + df.previous_season) * df.market_value_home ** df.previous_season) ** (1/2)
+                    - df.away_team_average_goal
+                    ) ** 2
+            ) * df.recentness
+        )
+        return np.sum(obj)
+
+    def parse_result_to_dict(solver: str, factors: np.array) -> dict:
+        number_of_teams = int((len(factors) - 2) / 2)
+        result = {factors[0]: solver.x[0], factors[1]: solver.x[1]}
+        result_team = {}
+        for factor, offence, defence in zip(
+            factors[2:-number_of_teams],
+            solver.x[2:-number_of_teams],
+            solver.x[-number_of_teams:]
+            ):
+            team = factor.split("_")[0]
+            result_team[str(team)] = {"offence": offence, "defence": defence}
+        result["team"] = result_team
+        return result
+
     df = clean_data_for_solver(df, recent, cut_off_number_of_year, market_values)
     df = df.apply(set_calculable_string_in_df, axis=1)
     teams = get_teamID_list(df)
