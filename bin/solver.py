@@ -128,7 +128,7 @@ def clean_data_for_solver(df: pd.DataFrame, recent: bool=True, cut_off_number_of
     if "previous_season" not in df.columns:
         df["previous_season"] = 0
     df = df[
-        ["date_unix", "homeID", "awayID", "homeGoalCount", "awayGoalCount",
+        ["date_unix", "homeID", "awayID", "competition_id", "homeGoalCount", "awayGoalCount",
         "goal_timings_recorded", "homeGoals", "awayGoals", "team_a_xg", "team_b_xg",
         "no_home_away", "previous_season"]
         ]
