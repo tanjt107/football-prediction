@@ -1,12 +1,13 @@
-from datetime import datetime
+import gspread as gs
 import json
 import numpy as np
 import os
 import pandas as pd
 import requests
 import time
-from typing import Dict, List
-from param import CHROMEDRIVER_PATH, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
+from datetime import datetime
+from typing import Dict, List, Optional
+from param import CHROMEDRIVER_PATH, GS_WB_NAME, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
 from scipy.stats import distributions
 from selenium import webdriver
 
@@ -47,7 +48,7 @@ class Season:
             return 0
 
     def market_value_factors(self) -> pd.Series:
-        with open("transfermarkt/teams.json", "r") as f:
+        with open(os.path.join(PARENT_DIRECTORY, "mapping/transfermarkt.json"), "r") as f:
             lookups = json.load(f)
         df = pd.read_json(self.market_value_full_path, orient="index")
         df.index = df.index.map(lookups)
@@ -62,13 +63,15 @@ class Season:
 
     def update_market_value(self) -> dict:
         driver = webdriver.Chrome(CHROMEDRIVER_PATH)
-        result = dict()
         driver.get(MARKET_VALUE_URL_LIST[self.iso_shortHand])
         time.sleep(5)
         teams = driver.find_elements_by_class_name("hauptlink.no-border-links")
         values = driver.find_elements_by_class_name("rechts.hauptlink")
-        for team, value in zip(teams, values):
-            result[team.text.strip()] = value.text.strip()
+        result = {
+            team.text.strip(): value.text.strip()
+            for team, value in zip(teams, values)
+        }
+
         with open(self.market_value_full_path, 'w') as f:
                 json.dump(result, f, indent=4)
         driver.quit()
@@ -119,7 +122,7 @@ def append_matches_dfs(main_season: Season=None, seasons: List[Season]=[], marke
         df["previous_season"] = 0
     else:
         df = pd.DataFrame()
-        assert main_teams_only == False
+        assert not main_teams_only
     for season in seasons:
         df_season = season.matches.df("complete")
         df_season["previous_season"] = int(market_value)
@@ -156,13 +159,20 @@ def get_all_leagues(chosen_leagues_only=bool) -> pd.DataFrame:
         )
     return pd.DataFrame(response["data"])
 
-def get_all_team_ratings(dict: dict, size: int=5) -> pd.DataFrame:
-    average_goal = dict['average_goal']
-    df = pd.DataFrame.from_dict(dict['team'], orient='index')
-    df *= average_goal
-    df['rating'] = df.apply(lambda team: get_team_rating(team.offence, team.defence, size), axis=1)
+def get_all_team_ratings(team_dict: dict, inter_league: bool, league_strength: Optional[dict]=None, size: int=5) -> pd.DataFrame:
+    df = pd.DataFrame.from_dict(team_dict, orient="index")
+    if inter_league:
+        df["league"] = df["league"].map(league_strength)
+        df[["offence", "defence"]] *= league_strength["average_goal"]
+        df["offence"] += df["league"]
+        df["defence"] -= df["league"]
+        df["offence"].loc[df["offence"] < 0.2] = 0.2
+        df["defence"].loc[df["defence"] < 0.2] = 0.2
+    else:
+        assert league_strength is None
+        df[["offence", "defence"]] *= team_dict["average_goal"]
+    df["rating"] = df.apply(lambda df: get_team_rating(df.offence, df.defence), axis=1)
     df = df.round(2)
-    df.index.name = 'team'
     return df
 
 def get_team_rating(home_expected_goals: float, away_expected_goals: float, size: int=5) -> float:
@@ -213,7 +223,8 @@ def get_season_ids(competitions: List[str], years: int) -> list:
 
 def update_worksheet(ws: str, df: pd.DataFrame):
     df = df.reset_index()
-    gc = gs.service_account(filename=GS_CREDENTIALS_PATH)
+    df = df.fillna("")
+    gc = gs.service_account(filename=os.path.join(PARENT_DIRECTORY, "credentials/googlesheet.json"))
     sh = gc.open(GS_WB_NAME)
     if ws in [sheet.title for sheet in sh.worksheets()]:
         sh.worksheet(ws).clear()
