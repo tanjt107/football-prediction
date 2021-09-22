@@ -171,7 +171,7 @@ def get_all_team_ratings(team_dict: dict, inter_league: bool, league_strength: O
     else:
         assert league_strength is None
         df[["offence", "defence"]] *= team_dict["average_goal"]
-    df["rating"] = df.apply(lambda df: get_team_rating(df.offence, df.defence), axis=1)
+    df["rating"] = df.apply(lambda df: get_team_rating(df.offence, df.defence, size=size), axis=1)
     df = df.round(2)
     return df
 

@@ -89,8 +89,8 @@ def get_team_countries(season_ids: List[int]) -> Dict[int, str]:
 def get_season2(timestamp: pd.Series) -> pd.Series:
     year = timestamp.year
     return np.where(
-        timestamp.month > 7, f'{year}/{year + 1}', f'{year - 1}/{year}'
-    )
+        timestamp.month > 7 , f'{year}/{year + 1}',  f'{year - 1}/{year}'
+        )
 
 def get_team_factor(date_unix: pd.Series, team: pd.Series) -> pd.DataFrame:
     df = pd.concat([date_unix, team], axis=1)
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     for season_id in inter_league_season_ids_current_season:
         print("---------------------------------------------------------------")
         update_seasons(season_id)
-# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
     all_factors = append_all_team_factors()
     team_factors = get_all_team_factors(all_factors)
     team_countries = get_team_countries(inter_league_season_ids_4yr)
