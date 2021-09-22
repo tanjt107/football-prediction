@@ -2,7 +2,7 @@ import json
 import numpy as np
 import os
 import pandas as pd
-from common import Season, Team, append_matches_dfs, call_api, get_all_team_ratings, get_current_year, get_season_ids
+from common import Season, Team, append_matches_dfs, call_api, get_all_team_ratings, get_current_year, get_season_ids, update_worksheet
 from param import PARENT_DIRECTORY, INTER_LEAGUE_LIST, MANUALLY_HANDLED_SEASONS
 from scipy import optimize
 from solver import solver, clean_data_for_solver
@@ -88,7 +88,9 @@ def get_team_countries(season_ids: List[int]) -> Dict[int, str]:
 
 def get_season2(timestamp: pd.Series) -> pd.Series:
     year = timestamp.year
-    return np.where(timestamp.month > 7 , f'{str(year)}/{str(year + 1)}',  f'{str(year - 1)}/{str(year)}')
+    return np.where(
+        timestamp.month > 7, f'{year}/{year + 1}', f'{year - 1}/{year}'
+    )
 
 def get_team_factor(date_unix: pd.Series, team: pd.Series) -> pd.DataFrame:
     df = pd.concat([date_unix, team], axis=1)
@@ -101,7 +103,7 @@ def get_team_factor(date_unix: pd.Series, team: pd.Series) -> pd.DataFrame:
         df[f"team_season{season}"] = list(zip(df[team], df[f"season{season}"]))
         df[f"factor_season{season}"] = df[f"team_season{season}"].map(team_factors)
         df[[f"defence{season}", f"league{season}", f"offence{season}"]] = df[f"factor_season{season}"].apply(pd.Series).iloc[:,-3:]
-    df[f"league3"] = df[team].map(team_countries).map(country_leagues)
+    df["league3"] = df[team].map(team_countries).map(country_leagues)
     for factor in ["offence","defence"]:
         df[factor] = df[f"{factor}1"].fillna(df[f"{factor}2"])
     df["league"] = df["league1"].fillna(df["league2"]).fillna(df["league3"])
@@ -216,21 +218,23 @@ def get_all_team_factors_latest(seasons: List[Dict]) -> dict:
 if __name__ == "__main__":
     CURRENT_YEAR = get_current_year()
     updated_seasons = set(MANUALLY_HANDLED_SEASONS)
-    inter_league_season_ids = get_season_ids(INTER_LEAGUE_LIST, 0)
-    for season_id in inter_league_season_ids:
+    inter_league_season_ids_current_season = get_season_ids(INTER_LEAGUE_LIST, 0)
+    inter_league_season_ids_4yr = get_season_ids(INTER_LEAGUE_LIST, 4)
+    for season_id in inter_league_season_ids_current_season:
         print("---------------------------------------------------------------")
         update_seasons(season_id)
 # ----------------------------------------------------------------------------
     all_factors = append_all_team_factors()
     team_factors = get_all_team_factors(all_factors)
-    # TODO to csv
-    team_countries = get_team_countries(inter_league_season_ids)
-    df = append_matches_dfs(seasons=[Season(season_id) for season_id in inter_league_season_ids], main_teams_only=False)
-    with open("mapping/country-leagues.json", "r") as f:
+    team_countries = get_team_countries(inter_league_season_ids_4yr)
+    df = append_matches_dfs(seasons=[Season(season_id) for season_id in inter_league_season_ids_4yr], main_teams_only=False)
+    with open(os.path.join(PARENT_DIRECTORY,"mapping/country-leagues.json"), "r") as f:
         country_leagues = json.load(f)
     league_strength = solver_inter_league(df)
-    # TODO to csv
-    print(league_strength)
+    with open(os.path.join(PARENT_DIRECTORY, "data/clubs", "league-strength.json"), "w") as f:
+        json.dump(league_strength, f, indent=4)
     team_factors_latest = get_all_team_factors_latest(all_factors)
+    with open(os.path.join(PARENT_DIRECTORY, "data/clubs", "team-factors-latest.json"), "w") as f:
+        json.dump(team_factors_latest, f, indent=4)
     team_ratings = get_all_team_ratings(team_factors_latest, True, league_strength)
-    print(team_ratings)
+    update_worksheet("Team Ratings", team_ratings)

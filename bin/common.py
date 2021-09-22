@@ -1,12 +1,13 @@
-from datetime import datetime
+import gspread as gs
 import json
 import numpy as np
 import os
 import pandas as pd
 import requests
 import time
+from datetime import datetime
 from typing import Dict, List, Optional
-from param import CHROMEDRIVER_PATH, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
+from param import CHROMEDRIVER_PATH, GS_WB_NAME, MARKET_VALUE_URL_LIST, PARENT_DIRECTORY
 from scipy.stats import distributions
 from selenium import webdriver
 
@@ -47,7 +48,7 @@ class Season:
             return 0
 
     def market_value_factors(self) -> pd.Series:
-        with open("mapping/transfermarkt.json", "r") as f:
+        with open(os.path.join(PARENT_DIRECTORY, "mapping/transfermarkt.json"), "r") as f:
             lookups = json.load(f)
         df = pd.read_json(self.market_value_full_path, orient="index")
         df.index = df.index.map(lookups)
@@ -222,7 +223,8 @@ def get_season_ids(competitions: List[str], years: int) -> list:
 
 def update_worksheet(ws: str, df: pd.DataFrame):
     df = df.reset_index()
-    gc = gs.service_account(filename=GS_CREDENTIALS_PATH)
+    df = df.fillna("")
+    gc = gs.service_account(filename=os.path.join(PARENT_DIRECTORY, "credentials/googlesheet.json"))
     sh = gc.open(GS_WB_NAME)
     if ws in [sheet.title for sheet in sh.worksheets()]:
         sh.worksheet(ws).clear()
