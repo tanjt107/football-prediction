@@ -1,4 +1,5 @@
 import mysql.connector
+import pathlib
 import re
 from datetime import datetime
 from tqdm import tqdm
@@ -116,67 +117,26 @@ def transform(data: List[dict]) -> List[dict]:
         "awayGoals",
         "homeGoalCount",
         "awayGoalCount",
-        "home_adj",
-        "away_adj",
-        "date_time",
+        "date_unix",
         "no_home_away",
         "team_a_xg",
         "team_b_xg",
         "total_xg",
-        "home_avg",
-        "away_avg",
         "goal_timings_recorded",
         "competition_id",
+        "date_time",
+        "home_adj",
+        "away_adj",
+        "home_avg",
+        "away_avg",
         "modified_on",
     ]
     return filter_dict_keys(data, keys)
 
 
 def matches():
-    sql_create = """CREATE TABLE IF NOT EXISTS matches(
-	id INT PRIMARY KEY NOT NULL,
-    home_id INT NOT NULL,
-    away_id INT NOT NULL,
-    status VARCHAR(255),
-    home_goals VARCHAR(255),
-    away_goals VARCHAR(255),
-    home_goal_count INT,
-    away_goal_count INT,
-    home_adj FLOAT,
-    away_adj FLOAT,
-    date_time DATETIME,
-    no_home_away BOOLEAN,
-    team_a_xg FLOAT,
-    team_b_xg FLOAT,
-    total_xg FLOAT,
-    home_avg FLOAT,
-    away_avg FLOAT,
-    goal_timings_recorded BOOLEAN,
-    competition_id INT NOT NULL,
-    modified_on TIMESTAMP NOT NULL);"""
-
-    sql_insert = """REPLACE INTO footystats.matches(
-    id,
-    home_id,
-    away_id,
-    status,
-    home_goals,
-    away_goals,
-    home_goal_count,
-    away_goal_count,
-    no_home_away,
-    team_a_xg,
-    team_b_xg,
-    total_xg,
-    goal_timings_recorded,
-    competition_id,
-    date_time,
-    home_adj,
-    away_adj,
-    home_avg,
-    away_avg,
-    modified_on
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+    sql_create = pathlib.Path("sql/matches_create.sql").read_text()
+    sql_insert = pathlib.Path("sql/matches_insert.sql").read_text()
 
     pipeline = Pipeline("matches")
 
