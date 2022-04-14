@@ -2,25 +2,32 @@ import json
 import requests
 from datetime import datetime
 from retry import retry
+from typing import List
 
 
 class FootyStats:
-    def __init__(self, filename: str = "credentials/footystats.json"):
-        """
-        Parameters:
-        filename: #TODO API key.
-        """
-        with open(filename) as f:
-            self.key = json.load(f)["key"]
+    """
+    Parameters:
+    ------------
+    key: str
+        API key.
+    """
+
+    def __init__(self, key: str = "example"):
+        self.key = key
 
     @retry(json.decoder.JSONDecodeError, tries=1, delay=1)
-    def league_list(self, chosen_leagues_only: bool) -> dict:
+    def league_list(self, chosen_leagues_only: bool = False) -> dict:
         """
         Parameters:
-        chosen_leagues_only: If set to "true", the list will only return leagues that have been chosen by the user.
+        ------------
+        chosen_leagues_only: bool
+            If True, only return leagues that have been chosen by the user.
 
         Returns:
-        A JSON array of all leagues available in the API Database. Each season of a competition gives a unique ID.
+        ------------
+        league_list: dict
+            List of leagues. Each season of a competition gives a unique ID.
         """
         params = {"key": self.key}
         if chosen_leagues_only:
@@ -30,7 +37,21 @@ class FootyStats:
         )
         return response.json()["data"]
 
-    def league_id_list_filtered(self, years: int = 0) -> list:
+    def chosen_season_id(self, years: int = 0) -> List[int]:
+        """
+        Filter recent seasons based on a year offset.
+
+        Parameters:
+        ------------
+        years: int
+            The offset number of years that will be selected. For instance, years=1 will
+            return the most recent season and last season.
+
+        Returns:
+        ------------
+        chosen_season_id: List[int]
+            List of chosen season IDs.
+        """
         year_today = datetime.now().year
         season_spring_to_fall = year_today - years
         season_fall_to_spring = (year_today - years - 1) * 10000 + year_today - years
@@ -52,10 +73,14 @@ class FootyStats:
     def season(self, season_id: int) -> dict:
         """
         Parameters:
-        season_id: ID of the league season that you would like to retrieve
+        ------------
+        season_id: int
+            ID of the league season.
 
         Returns:
-        The League season's stats, and an array of Teams that have participated in the season. The teams contain all stats relevant to them.
+        ------------
+        season: dict
+            League season's stats, and list of teams that have participated in the season.
         """
         params = {"key": self.key, "season_id": season_id}
         response = requests.get(
@@ -69,10 +94,14 @@ class FootyStats:
         Returns the full match schedule of the selected league id.
 
         Parameters:
-        season_id: Season ID.
+        ------------
+        season_id: int
+            ID of the league season.
 
         Returns:
-        A JSON Array containing each match details.
+        ------------
+        matches: dict
+            Match details.
         """
         params = {"key": self.key, "season_id": season_id}
         response = requests.get(
@@ -86,10 +115,14 @@ class FootyStats:
         Stats for all teams that participated in a season of a league.
 
         Parameters:
-        season_id: Season ID.
+        ------------
+        season_id: int
+            ID of the league season.
 
         Returns:
-        The data of each team as a JSON array.
+        ------------
+        teams: dict
+            The data of each team
         """
         params = {"key": self.key, "season_id": season_id}
         response = requests.get(
