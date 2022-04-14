@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from typing import Callable, Optional
+from ..database import Database
 
 DATA_DIR = "data"
 SOURCE_DIR = os.path.join(DATA_DIR, "incoming")
@@ -42,6 +43,7 @@ def is_updated(data1: dict, path2: str) -> bool:
     return data1 != data2
 
 
+# TODO Doc string
 class Pipeline:
     def __init__(
         self,
@@ -98,7 +100,7 @@ class Pipeline:
         with open(self.integration_dir, "w") as f:
             json.dump(transformed_data, f, indent=4)
 
-    def load(self, sql: str, cursor):
+    def load(self, sql: str, cursor: Database.cursor):
         if not self.write_to_integration:
             return
         with open(self.integration_dir) as f:

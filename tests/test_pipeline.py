@@ -1,6 +1,6 @@
 import json
 import random
-from footballprediction.etl.pipeline.pipeline import is_updated, Pipeline
+from footballprediction.etl.pipeline import is_updated, Pipeline
 
 N = random.random()
 
