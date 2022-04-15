@@ -2,7 +2,7 @@ import json
 import requests
 from datetime import datetime
 from retry import retry
-from typing import List
+from typing import List, Optional
 
 
 class FootyStats:
@@ -37,7 +37,7 @@ class FootyStats:
         )
         return response.json()["data"]
 
-    def chosen_season_id(self, years: int = 0) -> List[int]:
+    def chosen_season_id(self, years: Optional[int] = None) -> List[int]:
         """
         Filter recent seasons based on a year offset.
 
@@ -52,22 +52,24 @@ class FootyStats:
         chosen_season_id: List[int]
             List of chosen season IDs.
         """
-        year_today = datetime.now().year
-        season_spring_to_fall = year_today - years
-        season_fall_to_spring = (year_today - years - 1) * 10000 + year_today - years
+        if years:
+            year_today = datetime.now().year
+            season_spring_to_fall = year_today - years
+            season_fall_to_spring = (
+                (year_today - years - 1) * 10000 + year_today - years
+            )
 
-        league_ids = []
+        season_ids = []
 
         for league in self.league_list(chosen_leagues_only=True):
-            league_ids.extend(
-                season["id"]
-                for season in league["season"]
+            for season in league["season"]:
                 if (
-                    season_spring_to_fall <= season["year"] < 10000
+                    years is None
+                    or season_spring_to_fall <= season["year"] < 10000
                     or season_fall_to_spring <= season["year"]
-                )
-            )
-        return league_ids
+                ):
+                    season_ids.extend([season["id"]])
+        return season_ids
 
     @retry(json.decoder.JSONDecodeError, tries=1, delay=1)
     def season(self, season_id: int) -> dict:
