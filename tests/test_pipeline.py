@@ -44,15 +44,15 @@ def test_compare_not_equal():
 
 
 def test_pipeline_list():
-    p = Pipeline("mockapi", "mockapi", "tests/data/incoming", "tests/data/completed")
+    p = Pipeline("mockapi", "mockapi", "tests/data/source", "tests/data/staging")
 
     p.extract(MockAPI().dict)
-    with open("tests/data/incoming/mockapi/mockapi.json") as f:
+    with open("tests/data/source/mockapi/mockapi.json") as f:
         data = json.load(f)
     assert data == {"status": 200, "value": a, "transformed": False}
 
     p.transform(transform_mock, ["status", "value", "transformed"])
-    with open("tests/data/completed/mockapi/mockapi.json") as f:
+    with open("tests/data/staging/mockapi/mockapi.json") as f:
         data = json.load(f)
     data.pop("modified_on")
     assert data == {"status": 200, "value": a, "transformed": True}
@@ -75,10 +75,10 @@ def test_pipeline_list():
 
 
 def test_pipeline_list_of_dicts():
-    p = Pipeline("mockapi", "mockapi", "tests/data/incoming", "tests/data/completed")
+    p = Pipeline("mockapi", "mockapi", "tests/data/source", "tests/data/staging")
 
     p.extract(MockAPI().list_of_dicts)
-    with open("tests/data/incoming/mockapi/mockapi.json") as f:
+    with open("tests/data/source/mockapi/mockapi.json") as f:
         data = json.load(f)
     assert data == [
         {"status": 200, "value": a, "transformed": False},
@@ -86,7 +86,7 @@ def test_pipeline_list_of_dicts():
     ]
 
     p.transform(transform_mock, ["status", "value", "transformed"])
-    with open("tests/data/completed/mockapi/mockapi.json") as f:
+    with open("tests/data/staging/mockapi/mockapi.json") as f:
         data = json.load(f)
     for d in data:
         d.pop("modified_on")
