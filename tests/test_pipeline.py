@@ -67,9 +67,10 @@ def test_pipeline_list():
 
     p.load(sql_insert, con)
     con.commit()
-
     cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 1")
     assert cursor.fetchone() == (a,)
+
+    cursor.execute("TRUNCATE TABLE test")
     con.close()
 
 
@@ -104,7 +105,8 @@ def test_pipeline_list_of_dicts():
 
     p.load(sql_insert, con)
     con.commit()
-
     cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 2")
     assert cursor.fetchall() in [[(a,), (b,)], [(b,), (a,)]]
+
+    cursor.execute("TRUNCATE TABLE test")
     con.close()
