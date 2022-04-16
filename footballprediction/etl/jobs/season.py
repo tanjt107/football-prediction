@@ -1,6 +1,7 @@
 import json
 import mysql.connector
 from tqdm import tqdm
+from typing import Optional
 from footballprediction.etl.pipeline import Pipeline
 from footballprediction.etl.source.footystats import FootyStats
 
@@ -10,7 +11,7 @@ def transform(season):
     return season
 
 
-def main():
+def main(years: Optional[int] = 0):
     keys = [
         "id",
         "name",
@@ -33,7 +34,7 @@ def main():
     with open("credentials/footystats.json") as f:
         key = json.load(f)["key"]
     fs = FootyStats(key)
-    season_ids = fs.chosen_season_id()
+    season_ids = fs.chosen_season_id(years)
 
     sql_create = open("sql/tables/season/create.sql").read()
     sql_insert = open("sql/tables/season/insert.sql").read()
@@ -47,14 +48,10 @@ def main():
     pbar.set_description("Ingesting season data")
 
     for season_id in pbar:
-        p = Pipeline(season_id, "season", initial=True)
+        p = Pipeline(season_id, "season", initial=years is None)
         p.extract(fs.season, season_id)
         p.transform(transform, keys)
         p.load(sql_insert, conn)
 
     conn.commit()
     conn.close()
-
-
-if __name__ == "__main__":
-    main()

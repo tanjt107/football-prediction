@@ -2,7 +2,7 @@ import json
 import mysql.connector
 import re
 from tqdm import tqdm
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 from footballprediction.etl.pipeline import Pipeline
 from footballprediction.etl.source.footystats import FootyStats
 
@@ -108,7 +108,7 @@ def transform(match):
     return match
 
 
-def main():
+def main(years: Optional[int] = 0):
     keys = [
         "id",
         "homeID",
@@ -135,7 +135,7 @@ def main():
     with open("credentials/footystats.json") as f:
         key = json.load(f)["key"]
     fs = FootyStats(key)
-    season_ids = fs.chosen_season_id()
+    season_ids = fs.chosen_season_id(years)
 
     sql_create = open("sql/tables/matches/create.sql").read()
     sql_insert = open("sql/tables/matches/insert.sql").read()
@@ -149,14 +149,10 @@ def main():
     pbar.set_description("Ingesting match data")
 
     for season_id in pbar:
-        p = Pipeline(season_id, "matches", initial=True)
+        p = Pipeline(season_id, "matches", initial=years is None)
         p.extract(fs.matches, season_id)
         p.transform(transform, keys)
         p.load(sql_insert, conn)
 
     conn.commit()
     conn.close()
-
-
-if __name__ == "__main__":
-    main()

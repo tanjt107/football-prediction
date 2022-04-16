@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from datetime import datetime
@@ -25,7 +26,7 @@ def is_updated(data1: dict, path2: str) -> bool:
     bool
         True if contents of data1 and path2 are not equal.
     """
-    _data1 = data1.copy()
+    _data1 = copy.deepcopy(data1)
     if not os.path.exists(path2):
         return True
     with open(path2) as f:
@@ -72,10 +73,10 @@ class Pipeline:
         self.staging_dir = os.path.join(staging_root_dir, dir, f"{basename}.json")
         if initial:
             self.write_to_source = True
-            self.write_to_staging = True
+            self.write_to_db = True
         else:
             self.write_to_source = False
-            self.write_to_staging = False
+            self.write_to_db = False
 
     def extract(self, endpoint: Callable, *args, **kwargs):
         """
@@ -126,12 +127,11 @@ class Pipeline:
                 transformed_data.append(d)
         else:
             raise TypeError
+
         if is_updated(transformed_data, self.staging_dir):
-            self.write_to_staging = True
-        if not self.write_to_staging:
-            return
-        with open(self.staging_dir, "w") as f:
-            json.dump(transformed_data, f, indent=4)
+            self.write_to_db = True
+            with open(self.staging_dir, "w") as f:
+                json.dump(transformed_data, f, indent=4)
 
     def load(self, sql: str, con):
         """
@@ -144,7 +144,7 @@ class Pipeline:
         con :
             Database connection.
         """
-        if not self.write_to_staging:
+        if not self.write_to_db:
             return
         cursor = con.cursor()
         with open(self.staging_dir) as f:

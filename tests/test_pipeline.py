@@ -67,9 +67,21 @@ def test_pipeline_list():
 
     p.load(sql_insert, con)
     con.commit()
+
     cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 1")
     assert cursor.fetchone() == (a,)
 
+    con.close()
+
+
+def test_pipeline_list_no_update():
+    test_pipeline_list()
+    con = mysql.connector.connect(
+        user="root", password="password", host="127.0.0.1", database="test"
+    )
+    cursor = con.cursor()
+    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 1")
+    assert cursor.fetchone() == (a,)
     cursor.execute("TRUNCATE TABLE test")
     con.close()
 
@@ -108,5 +120,16 @@ def test_pipeline_list_of_dicts():
     cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 2")
     assert cursor.fetchall() in [[(a,), (b,)], [(b,), (a,)]]
 
+    con.close()
+
+
+def test_pipeline_list_of_dicts_no_update():
+    test_pipeline_list_of_dicts()
+    con = mysql.connector.connect(
+        user="root", password="password", host="127.0.0.1", database="test"
+    )
+    cursor = con.cursor()
+    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 2")
+    assert cursor.fetchall() in [[(a,), (b,)], [(b,), (a,)]]
     cursor.execute("TRUNCATE TABLE test")
     con.close()

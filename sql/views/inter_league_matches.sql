@@ -1,22 +1,31 @@
 SELECT
+	matches.id,
+	matches.date_unix,
     matches.home_id,
+    home1.competition_id AS home_season_id,
+    COALESCE(period_home.league_name,
+        home2.country) AS home_league,
     matches.away_id,
-    matches.date_unix,
-    matches.no_home_away,
+    away1.competition_id AS away_season_id,
+    COALESCE(period_away.league_name,
+        away2.country) AS away_league,
     matches.home_avg,
-    matches.away_avg,
-    matches.total_xg > 0 AS have_xg,
-    home.league AS home_league,
-    home.competition_id AS home_season_id,
-    away.league AS away_league,
-    away.competition_id AS away_season_id
+    matches.away_avg
 FROM
-    matches
-    LEFT JOIN match_season_map home ON matches.home_id = home.team_id
-        AND matches.date_unix = home.date_unix
-    LEFT JOIN match_season_map away ON matches.away_id = away.team_id
-        AND matches.date_unix = away.date_unix
+	matches
+	LEFT JOIN (teams home1
+	INNER JOIN season_period period_home ON home1.competition_id = period_home.id) ON matches.home_id = home1.team_id
+        AND matches.date_unix > period_home.start_date_unix
+        AND matches.date_unix < period_home.end_date_unix
+	LEFT JOIN teams home2 ON matches.home_id = home2.team_id
+        AND matches.competition_id = home2.competition_id
+	LEFT JOIN (teams away1
+	INNER JOIN season_period period_away ON away1.competition_id = period_away.id) ON matches.away_id = away1.team_id
+		AND matches.date_unix > period_away.start_date_unix
+        AND matches.date_unix < period_away.end_date_unix
+	LEFT JOIN teams away2
+		ON matches.away_id = away2.team_id
+        AND matches.competition_id = away2.competition_id
 WHERE
-    matches.status = 'complete'
-        AND home.league <> away.league
-ORDER BY matches.date_time 
+	matches.status = 'complete'
+HAVING home_league <> away_league

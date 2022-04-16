@@ -52,7 +52,7 @@ class FootyStats:
         chosen_season_id: List[int]
             List of chosen season IDs.
         """
-        if years:
+        if years is not None:
             year_today = datetime.now().year
             season_spring_to_fall = year_today - years
             season_fall_to_spring = (

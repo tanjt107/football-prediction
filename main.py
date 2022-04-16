@@ -4,9 +4,9 @@ import footballprediction.etl.jobs.matches as matches
 
 
 def main():
-    season.main()
-    teams.main()
-    matches.main()
+    season.main(0)
+    teams.main(0)
+    matches.main(0)
 
 
 if __name__ == "__main__":
