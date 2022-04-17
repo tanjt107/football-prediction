@@ -36,8 +36,8 @@ def main(years: Optional[int] = 0):
     fs = FootyStats(key)
     season_ids = fs.chosen_season_id(years)
 
-    sql_create = open("sql/tables/season/create.sql").read()
-    sql_insert = open("sql/tables/season/insert.sql").read()
+    sql_create = open("sql/footystats/tables/season/create.sql").read()
+    sql_insert = open("sql/footystats/tables/season/insert.sql").read()
 
     conn = mysql.connector.connect(
         user="root", password="password", host="127.0.0.1", database="footystats"

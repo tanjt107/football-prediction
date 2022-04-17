@@ -7,7 +7,7 @@ from typing import Callable
 DATA_DIR = "data"
 SOURCE_DIR = os.path.join(DATA_DIR, "source")
 STAGING_DIR = os.path.join(DATA_DIR, "staging")
-NOW = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+MODIFIED_ON = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 
 def is_updated(data1: dict, path2: str) -> bool:
@@ -117,13 +117,13 @@ class Pipeline:
         if isinstance(data, dict):
             transformed_data = func(data)
             transformed_data = {k: v for k, v in transformed_data.items() if k in keys}
-            transformed_data["modified_on"] = NOW
+            transformed_data["modified_on"] = MODIFIED_ON
         elif isinstance(data, list):
             transformed_data = []
             for d in data:
                 d = func(d)
                 d = {k: v for k, v in d.items() if k in keys}
-                d["modified_on"] = NOW
+                d["modified_on"] = MODIFIED_ON
                 transformed_data.append(d)
         else:
             raise TypeError
