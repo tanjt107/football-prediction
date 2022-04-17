@@ -3,7 +3,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from scipy import optimize
 from typing import List, Optional, Tuple
-from .constraints import avg_off, avg_def
+from .constraints import avg_off, avg_def, sum_strength
 
 
 def calculate_recentness(dt: pd.Series, years: float) -> pd.Series:
@@ -46,13 +46,6 @@ class Solver(ABC):
         """
         The objective function to be minimized.
         turn df strings into values that can be calculated.
-        """
-        pass
-
-    @abstractmethod
-    def teams(self) -> List[int]:
-        """
-        List of team ids to be turned into strings.
         """
         pass
 
@@ -102,9 +95,15 @@ class Solver(ABC):
 
 
 class SolverSeason(Solver):
-    def __init__(self, df: pd.DataFrame, teams: Optional[list] = None):
+    def __init__(
+        self,
+        df: pd.DataFrame,
+        teams: Optional[list] = None,
+        max: Optional[float] = None,
+    ):
         self._df = df
         self._teams = teams
+        self.max = max
         self.YEARS = 1
 
     @property
@@ -165,7 +164,7 @@ class SolverSeason(Solver):
 
     @property
     def bounds(self) -> Tuple[Tuple[float, float]]:
-        return ((0, None), (1, None)) + ((0.2, None),) * len(self.teams) * 2
+        return ((0, None), (1, None)) + ((0.2, self.max),) * len(self.teams) * 2
 
     @property
     def constraints(self) -> List[dict]:
@@ -193,3 +192,89 @@ class SolverSeason(Solver):
             )
         )
         return result_season, result_team
+
+
+class SolverInterLeague(Solver):
+    def __init__(
+        self,
+        df: pd.DataFrame,
+    ):
+        self._df = df
+        self.YEARS = 5
+
+    @property
+    def df(self) -> pd.DataFrame:
+        self._df["recent"] = calculate_recentness(self._df["date_unix"], self.YEARS)
+        self._df["avg_goal"] = "avg_goal"
+        self._df["home_adv"] = "home_adv"
+        return self._df
+
+    @staticmethod
+    def func(values: List[float], factors: List[str], df: pd.DataFrame) -> float:
+        lookup = dict(zip(factors, values))
+        df = df.replace(lookup)
+        obj = (
+            (
+                df["avg_goal"]
+                * df["home_adv"] ** (1 - df["no_home_away"])
+                * df["home_off"]
+                * df["away_def"]
+                + df["home_league"]
+                - df["away_league"]
+                - df["home_avg"]
+            )
+            ** 2
+            + (
+                df["avg_goal"]
+                / df["home_adv"] ** (1 - df["no_home_away"])
+                * df["away_off"]
+                * df["home_def"]
+                + df["away_league"]
+                - df["home_league"]
+                - df["away_avg"]
+            )
+            ** 2
+        ) * df["recent"]
+        return np.sum(obj)
+
+    @property
+    def leagues(self) -> List[str]:
+        return np.unique(self.df[["home_league", "away_league"]].values).tolist()
+
+    @property
+    def x0(self) -> List[float]:
+        return [1.35, 1] + [0] * len(self.leagues)
+
+    @property
+    def factors(self) -> List[str]:
+        return ["avg_goal", "home_adv"] + self.leagues
+
+    @property
+    def bounds(self) -> Tuple[Tuple[float, float]]:
+        return ((0, None), (1, None)) + ((None, None),) * len(self.leagues)
+
+    @property
+    def constraints(self) -> List[dict]:
+        return [{"type": "eq", "fun": sum_strength}]
+
+    def solve(self) -> optimize.OptimizeResult:
+        return optimize.minimize(
+            self.func,
+            self.x0,
+            args=(self.factors, self.df),
+            method="SLSQP",
+            bounds=self.bounds,
+            constraints=self.constraints,
+        )
+
+    @property
+    def results(self) -> Tuple[Tuple[float], Tuple[float]]:
+        result = self.solve()
+        result_season = (result.x[0], result.x[1])
+        result_league = list(
+            zip(
+                self.leagues,
+                result.x[2:],
+            )
+        )
+        return result_season, result_league

@@ -1,6 +1,8 @@
 SELECT
 	matches.id,
 	matches.date_unix,
+    matches.status,
+    matches.no_home_away,
     matches.home_id,
     home1.competition_id AS home_season_id,
     COALESCE(period_home.league_name,
@@ -26,6 +28,3 @@ FROM
 	LEFT JOIN teams away2
 		ON matches.away_id = away2.team_id
         AND matches.competition_id = away2.competition_id
-WHERE
-	matches.status = 'complete'
-HAVING home_league <> away_league

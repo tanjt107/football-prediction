@@ -156,3 +156,7 @@ def main(years: Optional[int] = 0):
 
     conn.commit()
     conn.close()
+
+
+if __name__ == "__main__":
+    main()
