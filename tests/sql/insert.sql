@@ -1,11 +1,8 @@
-INSERT INTO test (
-    idx,
-    num,
-    transformed,
-    modified_on
-) VALUES (
-    %s,
-    %s,
-    %s,
-    %s
-)
+INSERT INTO test
+SET
+    idx = %(index)s,
+    num = %(value)s,
+    transformed = %(transformed)s
+ON DUPLICATE KEY UPDATE
+    num = %(value)s,
+    transformed = %(transformed)s

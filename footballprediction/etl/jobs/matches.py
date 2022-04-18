@@ -3,7 +3,7 @@ import mysql.connector
 import re
 from tqdm import tqdm
 from typing import Dict, Tuple, Optional
-from footballprediction.etl.pipeline import Pipeline
+from footballprediction.etl import pipeline
 from footballprediction.etl.source.footystats import FootyStats
 
 
@@ -80,6 +80,9 @@ def calculate_average_goal(adj_goals: float, xg: float) -> float:
 
 
 def transform(match):
+    match["is_home_away"] = not match["no_home_away"]
+    match["is_xg"] = match["total_xg"] > 0
+
     if match["goal_timings_recorded"] == 1:
         goal_timings = get_goal_timings_dict(match["homeGoals"], match["awayGoals"])
         home_adj, away_adj = reduce_goal_value(goal_timings)
@@ -91,7 +94,7 @@ def transform(match):
             match["awayGoalCount"],
         )
 
-    if match["total_xg"]:
+    if match["is_xg"]:
         match["home_avg"] = calculate_average_goal(
             match["home_adj"], match["team_a_xg"]
         )
@@ -119,17 +122,16 @@ def main(years: Optional[int] = 0):
         "homeGoalCount",
         "awayGoalCount",
         "date_unix",
-        "no_home_away",
         "team_a_xg",
         "team_b_xg",
-        "total_xg",
         "goal_timings_recorded",
         "competition_id",
+        "is_home_away",
+        "is_xg",
         "home_adj",
         "away_adj",
         "home_avg",
         "away_avg",
-        "modified_on",
     ]
 
     with open("credentials/footystats.json") as f:
@@ -149,10 +151,9 @@ def main(years: Optional[int] = 0):
     pbar.set_description("Ingesting match data")
 
     for season_id in pbar:
-        p = Pipeline(season_id, "matches", initial=years is None)
-        p.extract(fs.matches, season_id)
-        p.transform(transform, keys)
-        p.load(sql_insert, conn)
+        data = pipeline.extract(fs.matches, season_id)
+        data = pipeline.transform(data, transform, keys)
+        pipeline.load(data, sql_insert, conn)
 
     conn.commit()
     conn.close()

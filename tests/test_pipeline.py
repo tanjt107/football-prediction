@@ -1,20 +1,21 @@
-import json
 import mysql.connector
 import random
-from footballprediction.etl.pipeline import is_updated, Pipeline
+from footballprediction.etl import pipeline
 
 a = round(random.random(), 2)
 b = round(random.random(), 2)
+c = round(random.random(), 2)
+keys = ["index", "value", "transformed"]
 
 
 class MockAPI:
     def dict(self):
-        return {"status": 200, "value": a, "transformed": False}
+        return {"index": 1, "value": a, "transformed": False}
 
     def list_of_dicts(self):
         return [
-            {"status": 200, "value": a, "transformed": False},
-            {"status": 200, "value": b, "transformed": False},
+            {"index": 2, "value": b, "transformed": False},
+            {"index": 3, "value": c, "transformed": False},
         ]
 
 
@@ -23,39 +24,12 @@ def transform_mock(dict):
     return dict
 
 
-def test_compare_equal():
-    data = {
-        "brand": "Ford",
-        "model": "Mustang",
-        "year": 1964,
-        "modified_on": "2022-02-01 00:00:00",
-    }
-    return is_updated(data, "tests/data/test.json")
+def test_etl_list():
+    data = pipeline.extract(MockAPI().dict)
+    assert data == {"index": 1, "value": a, "transformed": False}
 
-
-def test_compare_not_equal():
-    data = {
-        "brand": "Ford",
-        "model": "Mustang",
-        "year": 2020,
-        "modified_on": "2022-01-01 00:00:00",
-    }
-    return is_updated(data, "tests/data/test.json")
-
-
-def test_pipeline_list():
-    p = Pipeline("mockapi", "mockapi", "tests/data/source", "tests/data/staging")
-
-    p.extract(MockAPI().dict)
-    with open("tests/data/source/mockapi/mockapi.json") as f:
-        data = json.load(f)
-    assert data == {"status": 200, "value": a, "transformed": False}
-
-    p.transform(transform_mock, ["status", "value", "transformed"])
-    with open("tests/data/staging/mockapi/mockapi.json") as f:
-        data = json.load(f)
-    data.pop("modified_on")
-    assert data == {"status": 200, "value": a, "transformed": True}
+    data = pipeline.transform(data, transform_mock, keys)
+    assert data == {"index": 1, "value": a, "transformed": True}
 
     con = mysql.connector.connect(
         user="root", password="password", host="127.0.0.1", database="test"
@@ -65,46 +39,26 @@ def test_pipeline_list():
     sql_insert = open("tests/sql/insert.sql").read()
     cursor.execute(sql_create)
 
-    p.load(sql_insert, con)
+    pipeline.load(data, sql_insert, con)
     con.commit()
 
-    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 1")
+    cursor.execute("SELECT num FROM test WHERE idx = 1")
     assert cursor.fetchone() == (a,)
 
     con.close()
 
 
-def test_pipeline_list_no_update():
-    test_pipeline_list()
-    con = mysql.connector.connect(
-        user="root", password="password", host="127.0.0.1", database="test"
-    )
-    cursor = con.cursor()
-    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 1")
-    assert cursor.fetchone() == (a,)
-    cursor.execute("TRUNCATE TABLE test")
-    con.close()
-
-
-def test_pipeline_list_of_dicts():
-    p = Pipeline("mockapi", "mockapi", "tests/data/source", "tests/data/staging")
-
-    p.extract(MockAPI().list_of_dicts)
-    with open("tests/data/source/mockapi/mockapi.json") as f:
-        data = json.load(f)
+def test_etl_list_of_dicts():
+    data = pipeline.extract(MockAPI().list_of_dicts)
     assert data == [
-        {"status": 200, "value": a, "transformed": False},
-        {"status": 200, "value": b, "transformed": False},
+        {"index": 2, "value": b, "transformed": False},
+        {"index": 3, "value": c, "transformed": False},
     ]
 
-    p.transform(transform_mock, ["status", "value", "transformed"])
-    with open("tests/data/staging/mockapi/mockapi.json") as f:
-        data = json.load(f)
-    for d in data:
-        d.pop("modified_on")
+    data = pipeline.transform(data, transform_mock, keys)
     assert data == [
-        {"status": 200, "value": a, "transformed": True},
-        {"status": 200, "value": b, "transformed": True},
+        {"index": 2, "value": b, "transformed": True},
+        {"index": 3, "value": c, "transformed": True},
     ]
 
     con = mysql.connector.connect(
@@ -115,21 +69,9 @@ def test_pipeline_list_of_dicts():
     sql_insert = open("tests/sql/insert.sql").read()
     cursor.execute(sql_create)
 
-    p.load(sql_insert, con)
+    pipeline.load(data, sql_insert, con)
     con.commit()
-    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 2")
-    assert cursor.fetchall() in [[(a,), (b,)], [(b,), (a,)]]
+    cursor.execute("SELECT num FROM test WHERE idx IN (2, 3)")
+    assert cursor.fetchall() in [[(b,), (c,)], [(c,), (b,)]]
 
-    con.close()
-
-
-def test_pipeline_list_of_dicts_no_update():
-    test_pipeline_list_of_dicts()
-    con = mysql.connector.connect(
-        user="root", password="password", host="127.0.0.1", database="test"
-    )
-    cursor = con.cursor()
-    cursor.execute("SELECT num FROM test ORDER BY modified_on DESC LIMIT 2")
-    assert cursor.fetchall() in [[(a,), (b,)], [(b,), (a,)]]
-    cursor.execute("TRUNCATE TABLE test")
     con.close()
