@@ -1,11 +1,8 @@
 import mysql.connector
 import pandas as pd
 import pathlib
-from datetime import datetime
 from tqdm import tqdm
 from footballprediction.solver.solver import SolverSeason
-
-MODIFIED_ON = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 
 def main():
@@ -26,14 +23,13 @@ def main():
         df = pd.read_sql(
             sql, conn, params={"season_id": season_id, "last_date_unix": last_date_unix}
         )
-        for team, offence, defence in SolverSeason(df).results[1]:
+        for team, offence, defence in SolverSeason(df, max=3).results[1]:
             val = (
                 int(season_id),
                 int(last_date_unix),
                 int(team),
                 float(offence),
                 float(defence),
-                MODIFIED_ON,
             )
             cursor.execute(sql_insert, val)
 

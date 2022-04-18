@@ -1,8 +1,6 @@
 INSERT INTO solver.inter_league
 (league,
-strength,
-modified_on)
+strength)
 VALUES
 (%s,
-%s,
 %s)

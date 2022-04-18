@@ -1,10 +1,8 @@
 REPLACE INTO solver.factors
 (season,
 avg_goal,
-home_adv,
-modified_on)
+home_adv)
 VALUES
 (%s,
-%s,
 %s,
 %s)

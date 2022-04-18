@@ -35,13 +35,6 @@ def calculate_recentness(dt: pd.Series, years: float) -> pd.Series:
 
 class Solver(ABC):
     @abstractmethod
-    def df(self) -> pd.DataFrame:
-        """
-        Dataframe to be passed to the opbjective function.
-        """
-        pass
-
-    @abstractmethod
     def func(self, values: List[float], factors: List[str], df: pd.DataFrame) -> float:
         """
         The objective function to be minimized.
@@ -101,22 +94,11 @@ class SolverSeason(Solver):
         teams: Optional[list] = None,
         max: Optional[float] = None,
     ):
-        self._df = df
+        self.df = df
         self._teams = teams
         self.max = max
         self.YEARS = 1
-
-    @property
-    def df(self) -> pd.DataFrame:
-        self._df["recent"] = calculate_recentness(self._df["date_unix"], self.YEARS)
-        self._df["avg_goal"] = "avg_goal"
-        self._df["home_adv"] = "home_adv"
-        for team in ["home", "away"]:
-            for factor in ["off", "def"]:
-                self._df[f"{team}_{factor}"] = (
-                    self._df[f"{team}_id"].astype(str) + f"_{factor}"
-                )
-        return self._df
+        self.df["recent"] = calculate_recentness(self.df["date_unix"], self.YEARS)
 
     @staticmethod
     def func(values: List[float], factors: List[str], df: pd.DataFrame) -> float:
@@ -126,20 +108,20 @@ class SolverSeason(Solver):
             (
                 df["avg_goal"]
                 * df["home_adv"] ** df["is_home_away"]
-                * df["home_off"]
-                * df["away_def"]
-                + df["home_league"]
-                - df["away_league"]
+                * df["home_off"].astype(float)
+                * df["away_def"].astype(float)
+                + df["home_league"].astype(float)
+                - df["away_league"].astype(float)
                 - df["home_avg"]
             )
             ** 2
             + (
                 df["avg_goal"]
                 / df["home_adv"] ** df["is_home_away"]
-                * df["away_off"]
-                * df["home_def"]
-                + df["away_league"]
-                - df["home_league"]
+                * df["away_off"].astype(float)
+                * df["home_def"].astype(float)
+                + df["away_league"].astype(float)
+                - df["home_league"].astype(float)
                 - df["away_avg"]
             )
             ** 2
@@ -199,15 +181,9 @@ class SolverInterLeague(Solver):
         self,
         df: pd.DataFrame,
     ):
-        self._df = df
+        self.df = df
         self.YEARS = 5
-
-    @property
-    def df(self) -> pd.DataFrame:
-        self._df["recent"] = calculate_recentness(self._df["date_unix"], self.YEARS)
-        self._df["avg_goal"] = "avg_goal"
-        self._df["home_adv"] = "home_adv"
-        return self._df
+        self.df["recent"] = calculate_recentness(self.df["date_unix"], self.YEARS)
 
     @staticmethod
     def func(values: List[float], factors: List[str], df: pd.DataFrame) -> float:

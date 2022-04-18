@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS solver.inter_league (
   league VARCHAR(255) NOT NULL,
   strength FLOAT,
-  modified_on TIMESTAMP,
+  modified_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE INDEX (league)
 )

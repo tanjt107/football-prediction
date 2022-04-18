@@ -1,12 +1,10 @@
-REPLACE INTO solver.domestic
+REPLACE INTO solver.final
 (season,
-date_unix,
 team,
 offence,
 defence)
 VALUES
 (%s,
-%s,
 %s,
 %s,
 %s)

@@ -1,4 +1,6 @@
 SELECT
+    "avg_goal" AS avg_goal,
+    "home_adv" AS home_adv,
 	footystats.matches_details.id,
     footystats.matches_details.date_unix,
     footystats.matches_details.is_home_away,
@@ -32,4 +34,11 @@ FROM
         AND footystats.matches_details.away_id = solver_away.team
 WHERE
     footystats.matches_details.status = 'complete'
-AND footystats.matches_details.home_league <> footystats.matches_details.away_league
+    AND footystats.matches_details.home_league <> footystats.matches_details.away_league
+    AND footystats.matches_details.date_unix > (SELECT
+        MAX(date_unix)
+    FROM
+        footystats.matches_details
+    WHERE
+        status = 'complete'
+        AND home_league <> away_league) - 31536000 * 5

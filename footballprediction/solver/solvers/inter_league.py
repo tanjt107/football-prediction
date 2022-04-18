@@ -1,10 +1,7 @@
 import mysql.connector
 import pandas as pd
 import pathlib
-from datetime import datetime
 from footballprediction.solver.solver import SolverInterLeague
-
-MODIFIED_ON = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
 
 def main():
@@ -31,7 +28,7 @@ def main():
     print("Solving inter-league season")
     (avg_goal, home_adv), league_strengths = SolverInterLeague(df).results
 
-    vals = (-1, float(avg_goal), float(home_adv), MODIFIED_ON)
+    vals = (-1, float(avg_goal), float(home_adv))
     cursor.execute(sql_insert_factors, vals)
 
     cursor.execute("TRUNCATE solver.inter_league")
@@ -39,7 +36,6 @@ def main():
         vals = (
             league,
             float(strength),
-            MODIFIED_ON,
         )
         cursor.execute(sql_insert_inter_league, vals)
 

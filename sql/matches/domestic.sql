@@ -1,13 +1,18 @@
 SELECT
+    "avg_goal" AS avg_goal,
+    "home_adv" AS home_adv,
     home_id,
+    CONCAT(home_id, "_off") AS home_off,
+    CONCAT(home_id, "_def") AS home_def,
     away_id,
-    date_unix,
+	CONCAT(away_id, "_off") AS away_off,
+    CONCAT(away_id, "_def") AS away_def,
     is_home_away,
-    is_xg,
     home_avg,
     away_avg,
-    1 AS home_league,
-    1 AS away_league
+    0 AS home_league,
+    0 AS away_league,
+    date_unix
 FROM
     footystats.matches
 WHERE
