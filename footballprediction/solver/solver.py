@@ -125,7 +125,7 @@ class SolverSeason(Solver):
         obj = (
             (
                 df["avg_goal"]
-                * df["home_adv"] ** (1 - df["no_home_away"])
+                * df["home_adv"] ** df["is_home_away"]
                 * df["home_off"]
                 * df["away_def"]
                 + df["home_league"]
@@ -135,7 +135,7 @@ class SolverSeason(Solver):
             ** 2
             + (
                 df["avg_goal"]
-                / df["home_adv"] ** (1 - df["no_home_away"])
+                / df["home_adv"] ** df["is_home_away"]
                 * df["away_off"]
                 * df["home_def"]
                 + df["away_league"]
@@ -216,7 +216,7 @@ class SolverInterLeague(Solver):
         obj = (
             (
                 df["avg_goal"]
-                * df["home_adv"] ** (1 - df["no_home_away"])
+                * df["home_adv"] ** df["is_home_away"]
                 * df["home_off"]
                 * df["away_def"]
                 + df["home_league"]
@@ -226,7 +226,7 @@ class SolverInterLeague(Solver):
             ** 2
             + (
                 df["avg_goal"]
-                / df["home_adv"] ** (1 - df["no_home_away"])
+                / df["home_adv"] ** df["is_home_away"]
                 * df["away_off"]
                 * df["home_def"]
                 + df["away_league"]

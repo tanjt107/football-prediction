@@ -1,7 +1,7 @@
 SELECT
 	footystats.matches_details.id,
     footystats.matches_details.date_unix,
-    footystats.matches_details.no_home_away,
+    footystats.matches_details.is_home_away,
     footystats.matches_details.home_league,
 	IF(footystats.matches_details.home_season_id IS NULL,
         1.25,

@@ -10,7 +10,7 @@ def transform(team):
     return team
 
 
-def main(years: Optional[int] = 0):
+def main(years: Optional[int] = None):
     keys = ["id", "name", "cleanName", "country", "competition_id"]
 
     with open("credentials/footystats.json") as f:

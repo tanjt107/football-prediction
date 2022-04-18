@@ -16,8 +16,7 @@ def main():
     sql_insert = pathlib.Path("sql/solver/tables/domestic/insert.sql").read_text()
     cursor.execute(sql_create)
 
-    # TODO Make it parameterizable
-    sql = """SELECT DISTINCT season_id, last_date_unix FROM footystats.inter_league_map WHERE modified_on >= (SELECT MIN(modified_on) FROM solver.inter_league)"""
+    sql = "SELECT DISTINCT season_id, last_date_unix FROM footystats.inter_league_map WHERE modified_date >= (SELECT MIN(modified_date) FROM solver.inter_league)"
     cursor.execute(sql)
 
     sql = pathlib.Path("sql/matches/domestic.sql").read_text()

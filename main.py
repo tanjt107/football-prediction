@@ -6,9 +6,9 @@ import footballprediction.solver.solvers.inter_league as inter_league
 
 
 def main():
-    season.main(0)
-    teams.main(0)
-    matches.main(0)
+    season.main()
+    teams.main()
+    matches.main()
     domestic.main()
     inter_league.main()
 

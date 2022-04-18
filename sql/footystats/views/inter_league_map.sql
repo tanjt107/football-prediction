@@ -2,7 +2,7 @@ SELECT DISTINCT
 	t.date_unix,
     t.season_id,
     MAX(matches.date_unix) AS last_date_unix,
-    matches.modified_on
+    MAX(matches.modified_date) AS modified_date
 FROM (
 	SELECT
 		date_unix,
@@ -26,4 +26,4 @@ FROM (
 		AND home_league <> away_league) t
     LEFT JOIN matches ON t.season_id = matches.competition_id
     AND t.date_unix > matches.date_unix
-GROUP BY t.date_unix, t.season_id, matches.modified_on
+GROUP BY t.date_unix, t.season_id

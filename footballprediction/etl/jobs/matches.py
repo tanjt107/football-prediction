@@ -111,7 +111,7 @@ def transform(match):
     return match
 
 
-def main(years: Optional[int] = 0):
+def main(years: Optional[int] = None):
     keys = [
         "id",
         "homeID",

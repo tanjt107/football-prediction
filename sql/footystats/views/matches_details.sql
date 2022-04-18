@@ -2,7 +2,7 @@ SELECT
 	matches.id,
 	matches.date_unix,
     matches.status,
-    matches.no_home_away,
+    matches.is_home_away,
     matches.home_id,
     home1.competition_id AS home_season_id,
     COALESCE(period_home.league_name,
