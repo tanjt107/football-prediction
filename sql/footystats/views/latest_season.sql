@@ -12,6 +12,7 @@ FROM
         seasons
     WHERE
         format = 'Domestic League'
+        AND status <> 'Not Started'
     GROUP BY league_name) t ON seasons.league_name = t.league_name
         AND seasons.starting_year = t.last_starting_year
         AND seasons.ending_year = t.last_ending_year

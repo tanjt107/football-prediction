@@ -22,14 +22,14 @@ SELECT
     footystats.matches_details.away_avg
 FROM
     footystats.matches_details
-    LEFT JOIN footystats.inter_league_map map_home ON footystats.matches_details.date_unix = map_home.date_unix
+    JOIN footystats.inter_league_map map_home ON footystats.matches_details.date_unix = map_home.date_unix
         AND footystats.matches_details.home_season_id = map_home.season_id
-    LEFT JOIN solver.domestic solver_home ON solver_home.season = footystats.matches_details.home_season_id
+    JOIN solver.domestic solver_home ON solver_home.season = footystats.matches_details.home_season_id
         AND map_home.last_date_unix = solver_home.date_unix
         AND footystats.matches_details.home_id = solver_home.team
-    LEFT JOIN footystats.inter_league_map map_away ON footystats.matches_details.date_unix = map_away.date_unix
+    JOIN footystats.inter_league_map map_away ON footystats.matches_details.date_unix = map_away.date_unix
         AND footystats.matches_details.away_season_id = map_away.season_id
-    LEFT JOIN solver.domestic solver_away ON solver_away.season = footystats.matches_details.away_season_id
+    JOIN solver.domestic solver_away ON solver_away.season = footystats.matches_details.away_season_id
         AND map_away.last_date_unix = solver_away.date_unix
         AND footystats.matches_details.away_id = solver_away.team
 WHERE

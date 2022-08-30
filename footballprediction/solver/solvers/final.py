@@ -24,6 +24,7 @@ def main():
 
     pbar = tqdm(cursor.fetchall())
     pbar.set_description("Solving full season")
+    cursor.execute("TRUNCATE solver.final")
     for season_id in pbar:
         season_id = season_id[0]
         sql = pathlib.Path("sql/matches/final.sql").read_text()

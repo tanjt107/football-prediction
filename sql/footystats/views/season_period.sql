@@ -1,6 +1,7 @@
 SELECT
     t.league_name,
     t.id,
+    t.status,
     t.start_date_unix,
     (LEAD(t.start_date_unix, 1, UNIX_TIMESTAMP())
         OVER (
@@ -10,6 +11,7 @@ FROM
     (SELECT
         seasons.league_name,
         seasons.id,
+        seasons.status,
         seasons.starting_year,
         seasons.ending_year,
         MIN(matches.date_unix) AS start_date_unix

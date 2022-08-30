@@ -9,16 +9,36 @@ SELECT
     away_league.strength AS away_league,
 	"avg_goal" as avg_goal,
     "home_adv" as home_adv,
-    IF(matches.home_season_id = %(season_id)s,
+    IF(matches.home_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s),
         CONCAT(matches.home_id, "_off"),
         COALESCE(home_solver.offence, 1.25)) AS home_off,
-    IF(matches.home_season_id = %(season_id)s,
+    IF(matches.home_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s),
         CONCAT(matches.home_id, "_def"),
         COALESCE(home_solver.defence, 0.8)) AS home_def,
-	IF(matches.away_season_id = %(season_id)s,
+	IF(matches.away_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s),
         CONCAT(matches.away_id, "_off"),
         COALESCE(away_solver.offence, 1.25)) AS away_off,
-    IF(matches.away_season_id = %(season_id)s,
+    IF(matches.away_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s),
         CONCAT(matches.away_id, "_def"),
         COALESCE(away_solver.defence, 0.8)) AS away_def
 FROM
@@ -34,8 +54,18 @@ FROM
     LEFT JOIN solver.domestic away_solver ON away_map.last_date_unix = away_solver.date_unix
         AND matches.away_id = away_solver.team
     WHERE status = 'complete'
-        AND (home_season_id = %(season_id)s
-            OR away_season_id = %(season_id)s)
+        AND (home_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s)
+        OR away_id IN (SELECT
+            team_id
+        FROM
+            footystats.teams
+        WHERE
+            competition_id = %(season_id)s))
         AND matches.date_unix > (SELECT
             MAX(date_unix)
         FROM
