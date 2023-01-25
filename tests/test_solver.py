@@ -1,10 +1,28 @@
-import numpy as np
-import pandas as pd
-from footballprediction.solver.solver import calculate_recentness
+import csv
+import pytest
+from footballprediction.solver import solver
 
 
-def test_calculate_recentness():
-    timestamp = pd.Series([1483315200, 1514851200, 1546387200, 1577923200, 1609459200])
-    assert np.array_equal(
-        calculate_recentness(timestamp, 4), np.array([0, 0.25, 0.5, 0.75, 1.25])
-    )
+@pytest.fixture
+def matches():
+    with open("tests/test.csv", encoding="utf-8-sig") as file:
+        return list(csv.DictReader(file))
+
+
+def test_solver_single_league(matches):
+    matches = [
+        match for match in matches if match["league_name"] == matches[0]["league_name"]
+    ]
+    s = solver(matches)
+    assert s["league"].keys() == {match["league_name"] for match in matches}
+    assert s["teams"].keys() == {match["home_id"] for match in matches} | {
+        match["away_id"] for match in matches
+    }
+
+
+def test_solver_multiple_leagues(matches):
+    s = solver(matches)
+    assert s["league"].keys() == {match["league_name"] for match in matches}
+    assert s["teams"].keys() == {match["home_id"] for match in matches} | {
+        match["away_id"] for match in matches
+    }

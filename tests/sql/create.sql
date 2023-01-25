@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS test (
-    idx INT,
-    num FLOAT,
-    transformed BOOLEAN,
-    modified_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE INDEX (idx)
-)
