@@ -169,14 +169,14 @@ async def test_pipeline_seasons():
         await footystats.etl(
             "season",
             [1625, 2012, 4759],
-            insert_sql=read_file("sql/insert_seasons.sql"),
-            create_sql=read_file("sql/create_seasons.sql"),
+            insert_sql=read_file("sql/insert_season.sql"),
+            create_sql=read_file("sql/create_season.sql"),
             key="example",
             session=session,
             con=con,
         )
         cur = con.cursor()
-        cur.execute("SELECT * FROM seasons")
+        cur.execute("SELECT * FROM season")
         assert len(cur.fetchall()) == 3
     finally:
         con.close()

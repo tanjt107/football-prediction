@@ -39,14 +39,11 @@ def filter_season_id(
     Parameters:
         league_list: The data response from `league-list` endpoint.
         years: The offset number of years that will be selected. For instance, years=1 will return the most recent season and last season.
-        latest_year: #TODO
+        latest_year: Set this number if you would like the years counted from certain time. Default is today's year.
 
     Returns:
         List of chosen season IDs.
     """
-    if years is not None and years < 0:
-        raise ValueError("years must be larger than or equal to 0.")
-
     season_ids = []
 
     for league in league_list:
@@ -115,10 +112,6 @@ def reduce_goal_value(
         Adjusted goal of home team.
         Adjusted goal of away team.
     """
-    if not 0 <= reduce_from_minute <= 90:
-        raise ValueError("reduce_from_minute must be between 0 and 90.")
-    if not 0 <= goal_value <= 1:
-        raise ValueError("goal_value must be between 0 and 1")
     if not goal_timings:
         return 0, 0
     home = home_adj = away = away_adj = 0
@@ -141,49 +134,27 @@ def reduce_goal_value(
                     90 - reduce_from_minute
                 ) * (1 - goal_value)
         else:
-            raise ValueError("Team must be 'home' or 'away'.")
+            raise ValueError("Team must be 'home' or 'away'")
     return home_adj, away_adj
 
 
-def calculate_adjusted_goal(adj_goals: float, factor: float = 1.05) -> float:
-    """
-    Increase value of all other goals to make total number of adjusted goals equal to total number of actual goals.
-
-    Parameters:
-        adj_goals: Adjusted goals after reducing goal value.
-        factor: The factor to multiply the adjusted goals by.
-
-    Return:
-        Increased goal value.
-    """
-    if factor < 1:
-        raise ValueError("factor must be greater than 1.")
-    return adj_goals * factor
-
-
-def calculate_average_goal(adj_goals: float, xg: float, weight: float = 0.67) -> float:
-    """
-    Calculate average of the two metrics.
-
-    Parameters:
-        adj_goal: Adjusted goals.
-        xg: Expected goals calculated by data points such as shot accuracy, shot frequency, attack dangerousness, overall attack pressure.
-        weight: The weight of the xg metric.
-
-    Return:
-        Weighted average of the two metrics.
-    """
-    if not 0 <= weight <= 1:
-        raise ValueError("factor must be between 0 and 1.")
-    return adj_goals * (1 - weight) + xg * weight
-
-
-def transform_matches(matches: list[dict]) -> list[dict]:
+def transform_matches(
+    matches: list[dict],
+    *,
+    reduce_from_minute: int = 70,
+    min_goal_value: int = 0.5,
+    adj_factor: float = 1.05,
+    xg_weight: float = 0.67,
+) -> list[dict]:
     """
     Transforms matches data.
 
     Parameters:
         matches: Matches data.
+        reduce_from_minute: The minute from where value of a goal starts reducing.
+        min_goal_value: The minimum value of reduced_goal.
+        adj_factor: The factor to multiply all goals after reducing value.
+        xg_weight: The weight of the xg metric.
 
     Returns:
         Transformed matches.
@@ -194,18 +165,24 @@ def transform_matches(matches: list[dict]) -> list[dict]:
             match["homeGoalCount"],
             match["awayGoalCount"],
         )
-        if match["goal_timings_recorded"] == 1:
+        if (
+            match["goal_timings_recorded"] == 1
+            and "None" not in match["homeGoals"]
+            and "None" not in match["awayGoals"]
+        ):
             goal_timings = get_goal_timings_dict(match["homeGoals"], match["awayGoals"])
-            home_adj, away_adj = reduce_goal_value(goal_timings)
-            match["home_adj"] = calculate_adjusted_goal(home_adj)
-            match["away_adj"] = calculate_adjusted_goal(away_adj)
+            home_adj, away_adj = reduce_goal_value(
+                goal_timings, reduce_from_minute, min_goal_value
+            )
+            match["home_adj"] = home_adj * adj_factor
+            match["away_adj"] = away_adj * adj_factor
 
         if match["total_xg"] > 0:
-            match["home_adj"] = calculate_average_goal(
-                match["home_adj"], match["team_a_xg"]
+            match["home_adj"] = (
+                match["home_adj"] * (1 - xg_weight) + match["team_a_xg"] * xg_weight
             )
-            match["away_adj"] = calculate_average_goal(
-                match["away_adj"], match["team_b_xg"]
+            match["away_adj"] = (
+                match["away_adj"] * (1 - xg_weight) + match["team_b_xg"] * xg_weight
             )
 
         records.append(match)
@@ -259,11 +236,18 @@ def get_match_details(
     cut_off_year: int = 1,
     inter_league_cut_off_year: int = 5,
 ) -> dict:
+    """
+    Get match details in database for solver input.
 
-    if cut_off_year <= 0:
-        raise ValueError("cut_off_year must be greater than 0")
-    if inter_league_cut_off_year <= 0:
-        raise ValueError("inter_league_cut_off_year must be greater than 0")
+    Parameter:
+        con: The SQLite connection object.
+        max_time: UNIX Timestamp. Set this number if you would like to return the data up to a certain time. For example, if max_time=1537984169, then the output is stats up to September 26th, 2018.
+        cut_off_year: The cut off year for non league matches.
+        inter_league_cut_off_year: The cut off year for inter-league matches.
+
+    Return:
+        Match details needed for solver.
+    """
 
     cur = con.cursor()
     if not max_time:

@@ -42,4 +42,4 @@ async def main(load_years=None):
 
 
 if __name__ == "__main__":
-    asyncio.run(main(load_years=None))
+    asyncio.run(main())
