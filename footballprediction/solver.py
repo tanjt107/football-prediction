@@ -29,8 +29,8 @@ def solver(matches: list[dict[str, Any]]) -> dict[str, list[dict[str, float]]]:
     # Dictionaries to contain all variables
     avg_goals = LpVariable.dicts("Avg_goal", leagues, lowBound=0)
     home_advs = LpVariable.dict("Home_adv", leagues, lowBound=0)
-    offences = LpVariable.dicts("Offence", teams, lowBound=-2, upBound=2)
-    defences = LpVariable.dicts("Defence", teams, lowBound=-2, upBound=2)
+    offences = LpVariable.dicts("Offence", teams)
+    defences = LpVariable.dicts("Defence", teams)
     home_errors = LpVariable.dicts("Home_error", ids)
     away_errors = LpVariable.dicts("Away_error", ids)
 

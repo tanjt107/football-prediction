@@ -260,6 +260,6 @@ def get_match_details(
         "inter_league_cut_off_year": inter_league_cut_off_year,
     }
 
-    cur.execute(read_file("sql/match_details.sql"), params)
+    cur.execute(read_file("sql/footystats/match_details.sql"), params)
     cols = [col[0] for col in cur.description]
     return [dict(zip(cols, row)) for row in cur.fetchall()]

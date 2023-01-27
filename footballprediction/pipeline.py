@@ -28,6 +28,7 @@ def load(
     con: sqlite3.Connection,
     insert_sql: str,
     create_sql: Optional[str] = None,
+    truncate_sql: Optional[str] = None,
 ) -> None:
     """
     Load data into a SQLite database.
@@ -35,8 +36,9 @@ def load(
     Parameters:
         data: A list of dictionaries of data.
         con: The SQLite database connection.
-        insert_sql_filename: The insert SQL statement.
-        create_sql_filename: The create SQL statement.
+        insert_sql: The insert SQL statement.
+        create_sql: The create SQL statement.
+        truncate_sql: The truncate SQL statement.
 
     Returns:
         None.
@@ -44,5 +46,7 @@ def load(
     cur = con.cursor()
     if create_sql:
         cur.execute(create_sql)
+    if truncate_sql:
+        cur.execute(truncate_sql)
     cur.executemany(insert_sql, data)
     con.commit()
