@@ -7,14 +7,11 @@ from footballprediction import footystats, pipeline, solver, util
 
 async def main(load_years=None):
     key = dotenv_values()["FOOTYSTATS_API_KEY"]
-    endpoints: list[dict] = [
-        {
-            "endpoint": "matches",
-            "transform_func": footystats.transform_matches,
-        },
-        {"endpoint": "season"},
-        {"endpoint": "teams"},
-    ]
+    endpoints = {
+        "matches": footystats.transform_matches,
+        "season": None,
+        "teams": None,
+    }
 
     session = aiohttp.ClientSession()
     con: sqlite3.Connection = sqlite3.connect("footystats.db")
@@ -22,17 +19,13 @@ async def main(load_years=None):
     try:
         league_list = await footystats.get_league_list(key, session)
         season_ids = footystats.filter_season_id(league_list, load_years)
-        for endpoint in endpoints:
+        for endpoint, transform_func in endpoints.items():
             await footystats.etl(
-                endpoint["endpoint"],
+                endpoint,
                 season_ids,
-                transform_func=endpoint.get("transform_func"),
-                insert_sql=util.read_file(
-                    f"sql/footystats/{endpoint['endpoint']}/insert.sql"
-                ),
-                create_sql=util.read_file(
-                    f"sql/footystats/{endpoint['endpoint']}/create.sql"
-                ),
+                transform_func=transform_func,
+                insert_sql=util.read_file(f"sql/footystats/{endpoint}/insert.sql"),
+                create_sql=util.read_file(f"sql/footystats/{endpoint}/create.sql"),
                 key=key,
                 session=session,
                 con=con,

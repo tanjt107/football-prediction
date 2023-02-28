@@ -18,6 +18,6 @@ WITH latest AS (
     WHERE team IN team_ids
 )
 
-SELECT Team, offence - average.avg_off, defence - average.avg_def
+SELECT team, offence - average.avg_off, defence - average.avg_def
 FROM solver_teams, average
 WHERE team IN team_ids;
