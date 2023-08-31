@@ -1,1 +1,0 @@
-DELETE FROM solver_teams;

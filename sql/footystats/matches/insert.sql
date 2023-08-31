@@ -1,4 +1,0 @@
-INSERT INTO matches (id, home_id, away_id, status, home_goal_count, away_goal_count, date_unix, competition_id, no_home_away, home_adj, away_adj)
-VALUES (:id, :homeID, :awayID, :status, :homeGoalCount, :awayGoalCount, :date_unix, :competition_id, :no_home_away, :home_adj, :away_adj)
-ON CONFLICT (id)
-DO UPDATE SET home_id = excluded.home_id, away_id = excluded.away_id, status = excluded.status, home_goal_count = excluded.home_goal_count, away_goal_count = excluded.away_goal_count, date_unix = excluded.date_unix, no_home_away = excluded.no_home_away, home_adj = excluded.home_adj, away_adj = excluded.away_adj;
