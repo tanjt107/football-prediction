@@ -1,0 +1,39 @@
+[
+    {
+        "name": "name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "image",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "season",
+        "type": "STRUCT",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "country",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "country",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    }
+]

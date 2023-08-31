@@ -1,0 +1,17 @@
+[
+    {
+        "name": "team",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offence",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "defence",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    }
+]

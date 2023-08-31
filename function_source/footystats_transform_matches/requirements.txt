@@ -1,0 +1,2 @@
+functions-framework
+google-cloud-storage
