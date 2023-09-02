@@ -32,7 +32,7 @@ def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
             away += 1
             away_adj += 1
             if timing > REDUCE_FROM_MINUTE and away - home > 1:
-                away_adj -= 1 - (
+                away_adj -= (
                     (timing - REDUCE_FROM_MINUTE)
                     / (90 - REDUCE_FROM_MINUTE)
                     * (1 - REDUCE_GOAL_VALUE)
@@ -41,9 +41,11 @@ def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
             home += 1
             home_adj += 1
             if timing > REDUCE_FROM_MINUTE and home - away > 1:
-                home_adj -= 1 - (timing - REDUCE_FROM_MINUTE) / (
-                    90 - REDUCE_FROM_MINUTE
-                ) * (1 - REDUCE_GOAL_VALUE)
+                home_adj -= (
+                    (timing - REDUCE_FROM_MINUTE)
+                    / (90 - REDUCE_FROM_MINUTE)
+                    * (1 - REDUCE_GOAL_VALUE)
+                )
     return home_adj, away_adj
 
 
@@ -87,13 +89,18 @@ def main(cloud_event):
     blob = storage_client.bucket(data["bucket"]).blob(data["name"])
     raw_data = blob.download_as_text()
 
-    transformed_data = "\n".join(
-        [
-            json.dumps(transform_matches(json.loads(line)))
-            for line in raw_data.splitlines()
-        ]
-    )
+    transformed_data = [
+        transform_matches(json.loads(line)) for line in raw_data.splitlines()
+    ]
+    formatted_data = format_data(transformed_data)
+    upload_to_gcs(BUCKET_NAME, formatted_data, blob.name)
 
-    storage_client.bucket(BUCKET_NAME).blob(blob.name).upload_from_string(
-        transformed_data
-    )
+
+def format_data(data):
+    if isinstance(data, list):
+        return "\n".join([json.dumps(d) for d in data])
+    return json.dumps(data)
+
+
+def upload_to_gcs(bucket_name: str, content: str, destination: str):
+    storage.Client().bucket(bucket_name).blob(destination).upload_from_string(content)

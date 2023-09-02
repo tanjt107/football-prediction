@@ -10,23 +10,25 @@ API_KEY = os.getenv("FOOTYSTATS_API_KEY")
 
 @functions_framework.cloud_event
 def main(cloud_event):
-    league_data = fetch_league_list(API_KEY)
-    formatted_data = convert_to_newline_delimited_json(league_data)
+    league_data = fetch_data("list", API_KEY, chosen_leagues_only="true")
+    formatted_data = format_data(league_data)
     destination = "league_list.json"
     upload_to_gcs(BUCKET_NAME, formatted_data, destination)
 
 
-def fetch_league_list(key: str) -> dict:
+def fetch_data(endpoint: str, key: str, **kwargs) -> dict:
     response = requests.get(
-        "https://api.football-data-api.com/league-list",
-        params={"key": key, "chosen_leagues_only": "true"},
+        f"https://api.football-data-api.com/league-{endpoint}",
+        params={"key": key, **kwargs},
     )
     response.raise_for_status()
     return response.json()["data"]
 
 
-def convert_to_newline_delimited_json(data: list) -> str:
-    return "\n".join([json.dumps(d) for d in data])
+def format_data(data):
+    if isinstance(data, list):
+        return "\n".join([json.dumps(d) for d in data])
+    return json.dumps(data)
 
 
 def upload_to_gcs(bucket_name: str, content: str, destination: str):
