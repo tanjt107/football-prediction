@@ -30,6 +30,7 @@ WITH
 
   matches AS (
   SELECT
+    matches.id,
     date_unix,
     matches.competition_id,
     homeID,
@@ -159,8 +160,7 @@ WITH
 
   exp_goals_hk AS (
   SELECT
-    homeID,
-    awayID,
+    matches.id,
     home_exp + home_adv AS home_exp,
     away_exp - home_adv AS away_exp
   FROM
@@ -172,8 +172,7 @@ WITH
 
   had_probs_hk AS (
   SELECT
-    homeID,
-    awayID,
+    id,
     home_exp,
     away_exp,
     solver.matchProbs(home_exp, away_exp, 5)[OFFSET(0)] AS prob_home,
@@ -206,8 +205,7 @@ WITH
   JOIN
     matches
   ON
-    matches.homeID= had_probs_hk.homeID
-    AND matches.awayID = had_probs_hk.awayID
+    matches.id = had_probs_hk.id
   JOIN
     `footystats.season` season
   ON
