@@ -85,7 +85,8 @@ module "bigquery-footystats" {
     }
   }
   views = {
-    "latest_season" = file("../../bigquery/routine/footystats/latest_season.sql")
+    hk_expected_goals = file("../../bigquery/routine/footystats/hk_expected_goals.sql")
+    latest_season     = file("../../bigquery/routine/footystats/latest_season.sql")
   }
   routines = {
     get_solver_matches = {
