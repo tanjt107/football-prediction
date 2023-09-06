@@ -39,7 +39,9 @@ ON
 WHERE
   matches.status = 'complete'
   AND ( home_teams.country = 'Hong Kong'
-    OR away_teams.country = 'Hong Kong')
+    OR away_teams.country = 'Hong Kong'
+    OR home_teams.id = 8618
+    OR away_teams.id = 8618)
   AND TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), TIMESTAMP_SECONDS(date_unix), DAY) < 30
 ORDER BY
   date_unix DESC

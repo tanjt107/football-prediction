@@ -42,6 +42,7 @@ module "buckets" {
     mapping = [
       "../../mapping/hkjc_leagues.csv",
       "../../mapping/hkjc_teams.csv",
+      "../../mapping/intl_club_competitions.csv",
       "../../mapping/non_hkjc_leagues.csv",
       "../../mapping/non_hkjc_teams.csv",
       "../../mapping/transfermarkt_leagues.csv",
@@ -263,7 +264,7 @@ module "solver" {
   bucket_name      = module.buckets.names["gcf"]
   timeout_s        = 540
   available_memory = "1Gi"
-  available_cpu    = 2
+  available_cpu    = 1
   job_name         = "solver"
   job_schedule     = "30 0-3,8-23 * * *"
   job_paused       = true
@@ -361,6 +362,11 @@ module "bigquery-mapping" {
       schema        = file("../../bigquery/schema/mapping/hkjc_teams.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["mapping"]}/hkjc_teams.csv"]
+    }
+    intl_club_competitions = {
+      schema        = file("../../bigquery/schema/mapping/intl_club_competitions.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/intl_club_competitions.csv"]
     }
     non_hkjc_leagues = {
       schema        = file("../../bigquery/schema/mapping/non_hkjc_leagues.json")

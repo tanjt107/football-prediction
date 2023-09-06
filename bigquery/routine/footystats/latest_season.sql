@@ -7,6 +7,7 @@ FROM
 WHERE
   division > 0
   AND format = 'Domestic League'
+  AND country <> 'International' OR name IN (SELECT name FROM `mapping.intl_club_competitions`)
 GROUP BY
   country,
   name
