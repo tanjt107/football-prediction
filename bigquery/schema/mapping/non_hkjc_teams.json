@@ -1,0 +1,12 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "nameC",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    }
+]

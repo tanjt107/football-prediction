@@ -1,3 +1,4 @@
+import base64
 import functions_framework
 import json
 import os
@@ -5,24 +6,28 @@ import requests
 from google.cloud import storage
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
-API_KEY = os.getenv("FOOTYSTATS_API_KEY")
+CONTENTS = ["leaguelist.json", "teamlist.json"]
 
 
 @functions_framework.cloud_event
 def main(cloud_event):
-    league_data = fetch_footystats("list", API_KEY, chosen_leagues_only="true")
-    formatted_data = format_data(league_data)
-    destination = "league_list.json"
-    upload_to_gcs(BUCKET_NAME, formatted_data, destination)
+    for content in CONTENTS:
+        fetched_data = fetch_hkjc(content)
+        formatted_data = format_data(fetched_data)
+        upload_to_gcs(BUCKET_NAME, formatted_data, content)
 
 
-def fetch_footystats(endpoint: str, key: str, **kwargs) -> dict:
+def get_message(cloud_event) -> str:
+    return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
+
+
+def fetch_hkjc(content: str) -> dict:
     response = requests.get(
-        f"https://api.football-data-api.com/league-{endpoint}",
-        params={"key": key, **kwargs},
+        f"https://bet.hkjc.com/contentserver/jcbw/cmc/fb/{content}",
     )
     response.raise_for_status()
-    return response.json()["data"]
+    data = response.content.decode("utf-8-sig")
+    return json.loads(data)
 
 
 def format_data(data):

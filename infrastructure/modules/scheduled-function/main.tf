@@ -9,6 +9,7 @@ resource "google_cloud_scheduler_job" "job" {
   name      = var.job_name
   schedule  = var.job_schedule
   time_zone = var.time_zone
+  paused    = var.job_paused
   region    = var.region
   project   = var.project_id
 

@@ -1,0 +1,12 @@
+[
+    {
+        "name": "footystats_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "hkjc_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    }
+]

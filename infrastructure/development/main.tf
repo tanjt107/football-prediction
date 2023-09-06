@@ -33,9 +33,21 @@ module "buckets" {
     "footystats-matches-transformed",
     "footystats-season",
     "footystats-teams",
+    "hkjc",
+    "mapping",
     "solver",
     "gcf"
   ]
+  files = {
+    mapping = [
+      "../../mapping/hkjc_leagues.csv",
+      "../../mapping/hkjc_teams.csv",
+      "../../mapping/non_hkjc_leagues.csv",
+      "../../mapping/non_hkjc_teams.csv",
+      "../../mapping/transfermarkt_leagues.csv",
+      "../../mapping/transfermarkt_teams.csv",
+    ]
+  }
 }
 
 module "bigquery-footystats" {
@@ -46,38 +58,38 @@ module "bigquery-footystats" {
   project_id          = module.project.project_id
   deletion_protection = false
   tables = {
-    "league_list" = {
+    league_list = {
       schema        = file("../../bigquery/schema/footystats/league_list.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["footystats-league-list"]}/league_list.json"]
     }
-    "matches" = {
+    matches = {
       schema        = file("../../bigquery/schema/footystats/matches.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["footystats-matches"]}/*.json"]
     }
-    "matches_transformed" = {
+    matches_transformed = {
       schema        = file("../../bigquery/schema/footystats/matches_transformed.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["footystats-matches-transformed"]}/*.json"]
     }
-    "season" = {
+    season = {
       schema        = file("../../bigquery/schema/footystats/season.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["footystats-season"]}/*.json"]
     }
-    "teams" = {
+    teams = {
       schema        = file("../../bigquery/schema/footystats/teams.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["footystats-teams"]}/*.json"]
     }
   }
   views = {
-    "latest_season" = file("../../bigquery/routine/latest_season.sql")
+    "latest_season" = file("../../bigquery/routine/footystats/latest_season.sql")
   }
   routines = {
-    "get_solver_matches" = {
-      definition_body = templatefile("../../bigquery/routine/get_solver_matches.sql", { project_id = module.project.project_id })
+    get_solver_matches = {
+      definition_body = templatefile("../../bigquery/routine/footystats/get_solver_matches.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [
@@ -102,20 +114,20 @@ module "bigquery-solver" {
   project_id          = module.project.project_id
   deletion_protection = false
   tables = {
-    "leagues" = {
+    leagues = {
       schema        = file("../../bigquery/schema/solver/leagues.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["solver"]}/leagues.json"]
     }
-    "teams" = {
+    teams = {
       schema        = file("../../bigquery/schema/solver/teams.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["solver"]}/teams.json"]
     }
   }
   routines = {
-    "matchProbs" = {
-      definition_body = file("../../bigquery/routine/matchProbs.js")
+    matchProbs = {
+      definition_body = file("../../bigquery/routine/solver/matchProbs.js")
       routine_type    = "SCALAR_FUNCTION"
       language        = "JAVASCRIPT"
       return_type = jsonencode({
@@ -139,8 +151,7 @@ module "bigquery-solver" {
     }
   }
   views = {
-    "team_ratings"     = file("../../bigquery/routine/team_ratings.sql")
-    "upcoming_matches" = file("../../bigquery/routine/upcoming_matches.sql")
+    team_ratings = file("../../bigquery/routine/solver/team_ratings.sql")
   }
 }
 
@@ -158,12 +169,12 @@ module "footystats-get-league-list" {
   function_name                = "footystats_get_league_list"
   bucket_name                  = module.buckets.names["gcf"]
   job_name                     = "footystats"
-  job_schedule                 = "0 12,19 * * *"
+  job_schedule                 = "0 0-3,8-23 * * *"
   job_paused                   = true
   topic_name                   = "footystats"
   source_directory             = "../../function_source"
   secret_environment_variables = ["FOOTYSTATS_API_KEY"]
-  environment_variables        = { "BUCKET_NAME" = module.buckets.names["footystats-league-list"] }
+  environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
   region                       = var.region
   project_id                   = module.project.project_id
 }
@@ -181,7 +192,7 @@ module "footystats-publish-season-ids" {
   function_name                = "footystats_publish_season_ids"
   bucket_name                  = module.buckets.names["gcf"]
   secret_environment_variables = ["FOOTYSTATS_API_KEY"]
-  environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
+  environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
   event_type                   = "google.cloud.storage.object.v1.finalized"
   source_directory             = "../../function_source"
   region                       = var.region
@@ -198,7 +209,7 @@ module "footystats-publish-season-ids-initial-load" {
   function_name                = "footystats_publish_season_ids_initial_load"
   bucket_name                  = module.buckets.names["gcf"]
   job_name                     = "footystats-initial-load"
-  job_schedule                 = "0 8 1 * *"
+  job_schedule                 = "0 7 1 * *"
   job_paused                   = true
   topic_name                   = "footystats-initial-load"
   source_directory             = "../../function_source"
@@ -214,6 +225,7 @@ module "footystats-get-footystats" {
 
   function_name                = "footystats_get_data"
   bucket_name                  = module.buckets.names["gcf"]
+  max_instances                = 3000
   secret_environment_variables = ["FOOTYSTATS_API_KEY"]
   event_type                   = "google.cloud.pubsub.topic.v1.messagePublished"
   topic_name                   = module.footystats-league-list-topic.id
@@ -221,9 +233,9 @@ module "footystats-get-footystats" {
   region                       = var.region
   project_id                   = module.project.project_id
   environment_variables = {
-    "MATCHES_BUCKET_NAME" = module.buckets.names["footystats-matches"]
-    "SEASON_BUCKET_NAME"  = module.buckets.names["footystats-season"]
-    "TEAMS_BUCKET_NAME"   = module.buckets.names["footystats-teams"]
+    MATCHES_BUCKET_NAME = module.buckets.names["footystats-matches"]
+    SEASON_BUCKET_NAME  = module.buckets.names["footystats-season"]
+    TEAMS_BUCKET_NAME   = module.buckets.names["footystats-teams"]
   }
 }
 
@@ -232,7 +244,7 @@ module "footystats-transform-matches" {
 
   function_name         = "footystats_transform_matches"
   bucket_name           = module.buckets.names["gcf"]
-  environment_variables = { "BUCKET_NAME" = module.buckets.names["footystats-matches-transformed"] }
+  environment_variables = { BUCKET_NAME = module.buckets.names["footystats-matches-transformed"] }
   event_type            = "google.cloud.storage.object.v1.finalized"
   source_directory      = "../../function_source"
   region                = var.region
@@ -252,14 +264,126 @@ module "solver" {
   available_memory = "1Gi"
   available_cpu    = 2
   job_name         = "solver"
-  job_schedule     = "30 12,19 * * *"
+  job_schedule     = "30 0-3,8-23 * * *"
   job_paused       = true
   topic_name       = "solver"
   source_directory = "../../function_source"
   environment_variables = {
-    "BOUND"       = 10
-    "BUCKET_NAME" = module.buckets.names["solver"]
+    BOUND       = 10
+    BUCKET_NAME = module.buckets.names["solver"]
   }
   region     = var.region
   project_id = module.project.project_id
+}
+
+module "hkjc-get-odds" {
+  source = "../modules/scheduled-function"
+
+  function_name    = "hkjc_get_odds"
+  bucket_name      = module.buckets.names["gcf"]
+  job_name         = "hkjc-odds"
+  job_schedule     = "45 0-3,8-23 * * *"
+  job_paused       = true
+  topic_name       = "hkjc-odds"
+  source_directory = "../../function_source"
+  environment_variables = {
+    BUCKET_NAME = module.buckets.names["hkjc"]
+    POOLS       = jsonencode(["HAD", "HDC"])
+  }
+  region     = var.region
+  project_id = module.project.project_id
+}
+
+module "hkjc-get-content" {
+  source = "../modules/scheduled-function"
+
+  function_name         = "hkjc_get_content"
+  bucket_name           = module.buckets.names["gcf"]
+  job_name              = "hkjc-get-content"
+  job_schedule          = "45 7 * * *"
+  job_paused            = true
+  topic_name            = "hkjc-content"
+  source_directory      = "../../function_source"
+  environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
+  region                = var.region
+  project_id            = module.project.project_id
+}
+
+module "bigquery-hkjc" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "hkjc"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  tables = {
+    leagues = {
+      schema        = file("../../bigquery/schema/hkjc/content.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["hkjc"]}/leaguelist.json"]
+    },
+    odds_had = {
+      schema        = file("../../bigquery/schema/hkjc/odds_had.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_had.json"]
+    },
+    odds_hdc = {
+      schema        = file("../../bigquery/schema/hkjc/odds_hdc.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_hdc.json"]
+    },
+    teams = {
+      schema        = file("../../bigquery/schema/hkjc/content.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["hkjc"]}/teamlist.json"]
+    }
+  }
+  views = {
+    upcoming_matches = file("../../bigquery/routine/hkjc/upcoming_matches.sql")
+  }
+}
+
+module "bigquery-mapping" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "mapping"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  tables = {
+    hkjc_leagues = {
+      schema        = file("../../bigquery/schema/mapping/hkjc_leagues.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/hkjc_leagues.csv"]
+    }
+    hkjc_teams = {
+      schema        = file("../../bigquery/schema/mapping/hkjc_teams.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/hkjc_teams.csv"]
+    }
+    non_hkjc_leagues = {
+      schema        = file("../../bigquery/schema/mapping/non_hkjc_leagues.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/non_hkjc_leagues.csv"]
+    }
+    non_hkjc_teams = {
+      schema        = file("../../bigquery/schema/mapping/non_hkjc_teams.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/non_hkjc_teams.csv"]
+    }
+    transfermarkt_leagues = {
+      schema        = file("../../bigquery/schema/mapping/transfermarkt_leagues.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/transfermarkt_leagues.csv"]
+    }
+    transfermarkt_teams = {
+      schema        = file("../../bigquery/schema/mapping/transfermarkt_teams.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["mapping"]}/transfermarkt_teams.csv"]
+    }
+  }
+  views = {
+    league_info = file("../../bigquery/routine/mapping/league_info.sql")
+    team_info   = file("../../bigquery/routine/mapping/team_info.sql")
+  }
 }

@@ -1,0 +1,12 @@
+[
+    {
+        "name": "footystats_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "transfermarkt_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    }
+]

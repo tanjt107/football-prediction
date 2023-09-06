@@ -5,6 +5,10 @@ function factorial(n) {
     return n * factorial(n - 1);
 }
 
+if (projScore1 === null || projScore2 === null) {
+    return [null, null, null];
+}
+
 let prob1 = Array(goalDiff + 1);
 let prob2 = Array(goalDiff + 1);
 

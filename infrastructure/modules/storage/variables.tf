@@ -18,3 +18,9 @@ variable "force_destroy" {
   type        = bool
   default     = false
 }
+
+variable "files" {
+  description = "Map of lowercase unprefixed name => list of file objects."
+  type        = map(list(string))
+  default     = {}
+}

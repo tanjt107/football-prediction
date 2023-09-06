@@ -18,7 +18,7 @@ def main(cloud_event):
     data = get_message(cloud_event)
     message = json.loads(data)
     endpoint, season_id = message["endpoint"], message["season_id"]
-    fetched_data = fetch_data(endpoint, API_KEY, season_id=season_id)
+    fetched_data = fetch_footystats(endpoint, API_KEY, season_id=season_id)
     print(f"Getting data for endpoint: {endpoint}, season_id: {season_id}")
     formatted_data = format_data(fetched_data)
     destination = f"{season_id}.json"
@@ -30,7 +30,7 @@ def get_message(cloud_event) -> str:
     return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
 
 
-def fetch_data(endpoint: str, key: str, **kwargs) -> dict:
+def fetch_footystats(endpoint: str, key: str, **kwargs) -> dict:
     response = requests.get(
         f"https://api.football-data-api.com/league-{endpoint}",
         params={"key": key, **kwargs},
