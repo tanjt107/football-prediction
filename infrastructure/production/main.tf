@@ -87,8 +87,8 @@ module "bigquery-footystats" {
     latest_season     = file("../../bigquery/routine/footystats/latest_season.sql")
   }
   routines = {
-    get_solver_matches = {
-      definition_body = templatefile("../../bigquery/routine/footystats/get_solver_matches.sql", { project_id = module.project.project_id })
+    solver_matches = {
+      definition_body = templatefile("../../bigquery/routine/footystats/solver_matches.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [

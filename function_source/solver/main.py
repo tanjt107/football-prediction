@@ -10,7 +10,7 @@ BUCKET_NAME = os.environ.get("BUCKET_NAME")
 
 def get_matches():
     bigquery_client = bigquery.Client()
-    sql = "SELECT * FROM `footystats.get_solver_matches`(1, 5);"
+    sql = "SELECT * FROM `footystats.solver_matches`(1, 5);"
     query_job = bigquery_client.query(sql)
     rows = query_job.result()
     return [dict(row) for row in rows]

@@ -1,9 +1,9 @@
 SELECT
   FORMAT_TIMESTAMP('%F %T', TIMESTAMP_SECONDS(date_unix), 'Asia/Hong_Kong') AS matchDate,
-  league_info.transfermarkt_id AS league_logo,
-  home_team_info.transfermarkt_id AS home_team_logo,
+  league_info.transfermarkt_id AS league_transfermarkt_id,
+  home_team_info.transfermarkt_id AS home_team_transfermarkt_id,
   home_team_info.nameC AS home_team_name,
-  away_team_info.transfermarkt_id AS away_team_logo,
+  away_team_info.transfermarkt_id AS away_team_transfermarkt_id,
   away_team_info.nameC AS away_team_name,
   CONCAT(homeGoalCount, " - ", awayGoalCount) AS score,
   CONCAT(FORMAT("%.2f", team_a_xg), " - ", FORMAT("%.2f", team_b_xg)) AS xg
