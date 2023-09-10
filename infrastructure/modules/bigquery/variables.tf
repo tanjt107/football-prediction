@@ -4,7 +4,14 @@ variable "dataset_id" {
 }
 
 variable "tables" {
-  description = "A list of objects which include table_id, expiration_time, external_data_configuration, and labels."
+  description = "A list of objects which include table_id, table_name, schema, clustering, time_partitioning, range_partitioning, expiration_time and labels."
+  default     = {}
+  type = map(object({
+    schema = string
+  }))
+}
+
+variable "external_tables" {
   type = map(object({
     schema        = string,
     source_format = string,

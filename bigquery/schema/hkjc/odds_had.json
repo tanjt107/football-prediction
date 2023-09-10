@@ -386,6 +386,10 @@
             {
                 "name": "NTS3",
                 "type": "STRING"
+            },
+            {
+                "name": "NTS4",
+                "type": "STRING"
             }
         ]
     },

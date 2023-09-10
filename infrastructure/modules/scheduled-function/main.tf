@@ -15,7 +15,7 @@ resource "google_cloud_scheduler_job" "job" {
 
   pubsub_target {
     topic_name = "projects/${var.project_id}/topics/${module.pubsub.topic}"
-    data       = var.message_data
+    data       = base64encode(var.message_data)
   }
 }
 

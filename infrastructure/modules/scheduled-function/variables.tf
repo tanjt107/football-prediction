@@ -92,7 +92,7 @@ variable "job_paused" {
 variable "message_data" {
   type        = string
   description = "The data to send in the topic message."
-  default     = "Tm9uZQ=="
+  default     = "Hello World"
 }
 
 variable "time_zone" {

@@ -1,6 +1,12 @@
 variable "names" {
-  description = "Bucket name suffixes."
+  description = "Bucket name."
   type        = list(string)
+}
+
+variable "suffix" {
+  description = "Suffixes used to generate the bucket name."
+  type        = string
+  default     = ""
 }
 
 variable "location" {

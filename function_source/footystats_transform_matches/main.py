@@ -10,13 +10,13 @@ REDUCE_FROM_MINUTE = 70
 REDUCE_GOAL_VALUE = 0.5
 ADJ_FACTOR = 1.05
 XG_WEIGHT = 0.67
+GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
 def main(cloud_event):
     data = cloud_event.data
-    storage_client = storage.Client()
-    blob = storage_client.bucket(data["bucket"]).blob(data["name"])
+    blob = GS_CLIENT.bucket(data["bucket"]).blob(data["name"])
     raw_data = blob.download_as_text()
 
     transformed_data = [
@@ -103,4 +103,4 @@ def format_data(data):
 
 
 def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    storage.Client().bucket(bucket_name).blob(destination).upload_from_string(content)
+    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

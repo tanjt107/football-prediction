@@ -1,0 +1,12 @@
+[
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "date_unix",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    }
+]

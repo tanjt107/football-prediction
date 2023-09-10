@@ -1,6 +1,6 @@
 [
     {
-        "name": "league",
+        "name": "division",
         "type": "STRING",
         "mode": "REQUIRED"
     },

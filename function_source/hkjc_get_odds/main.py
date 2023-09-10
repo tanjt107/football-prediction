@@ -7,6 +7,7 @@ from google.cloud import storage
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 POOLS = os.getenv("POOLS")
+GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
@@ -39,4 +40,4 @@ def format_data(data):
 
 
 def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    storage.Client().bucket(bucket_name).blob(destination).upload_from_string(content)
+    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

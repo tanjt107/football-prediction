@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import functions_framework
@@ -6,24 +7,63 @@ from pulp import LpMinimize, LpProblem, lpSum, LpVariable
 
 BOUND = os.environ.get("BOUND")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
+BQ_CLIENT = bigquery.Client()
+GS_CLIENT = storage.Client()
 
 
-def get_matches():
-    bigquery_client = bigquery.Client()
-    sql = "SELECT * FROM `footystats.solver_matches`(1, 5);"
-    query_job = bigquery_client.query(sql)
+@functions_framework.cloud_event
+def main(cloud_event):
+    type = get_message(cloud_event)
+    last_run = get_last_run(type) or -1
+    latest_match_date = get_latest_match_date(type)
+    if last_run >= latest_match_date:
+        return
+
+    matches = get_matches(type, latest_match_date)
+    leagues, teams = solver(matches)
+    leagues = convert_to_newline_delimited_json(leagues)
+    teams = convert_to_newline_delimited_json(teams)
+
+    upload_to_gcs(BUCKET_NAME, leagues, f"leagues/{type}.json")
+    upload_to_gcs(BUCKET_NAME, teams, f"teams/{type}.json")
+
+    insert_run_log(type, latest_match_date)
+
+
+def get_message(cloud_event) -> str:
+    return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
+
+
+def get_last_run(type):
+    sql = f"SELECT date_unix AS last_run FROM `solver.run_log` WHERE type = '{type}'"
+    return bq_fetch_one(sql)
+
+
+def bq_fetch_one(sql: str):
+    query_job = BQ_CLIENT.query(sql)
+    rows = query_job.result()
+    return next(iter(rows), [None])[0]
+
+
+def get_latest_match_date(type):
+    sql = f"""
+    SELECT
+        MAX(date_unix)
+    FROM `footystats.matches` matches
+    JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
+    JOIN `master.leagues` leagues ON seasons.country = leagues.country
+        AND seasons.name = leagues.footystats_name
+    WHERE matches.status = 'complete'
+        AND leagues.type = '{type}'
+    """
+    return bq_fetch_one(sql)
+
+
+def get_matches(type, max_time: int):
+    sql = f"SELECT * FROM `functions.get_solver_matches`('{type}', {max_time}, 1, 5);"
+    query_job = BQ_CLIENT.query(sql)
     rows = query_job.result()
     return [dict(row) for row in rows]
-
-
-def save_to_bucket(file_name, data):
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(BUCKET_NAME)
-    bucket.blob(file_name).upload_from_string(data)
-
-
-def convert_to_newline_delimited_json(data: list) -> str:
-    return "\n".join([json.dumps(d) for d in data])
 
 
 def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
@@ -32,7 +72,8 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
     # Lists to contain all leagues, teams and match ids
     leagues = list({match["league_name"] for match in matches})
     teams = list(
-        {match["homeID"] for match in matches} | {match["awayID"] for match in matches}
+        {match["home_id"] for match in matches}
+        | {match["away_id"] for match in matches}
     )
     ids = [match["id"] for match in matches]
 
@@ -50,15 +91,15 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
         home_error = (
             avg_goals[match["league_name"]]
             + home_advs[match["league_name"]]
-            + offences[match["homeID"]]
-            + defences[match["awayID"]]
+            + offences[match["home_id"]]
+            + defences[match["away_id"]]
             - float(match["home_avg"])
         ) * float(match["recent"])
         away_error = (
             avg_goals[match["league_name"]]
             - home_advs[match["league_name"]]
-            + offences[match["awayID"]]
-            + defences[match["homeID"]]
+            + offences[match["away_id"]]
+            + defences[match["home_id"]]
             - float(match["away_avg"])
         ) * float(match["recent"])
 
@@ -80,7 +121,7 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
     return (
         [
             {
-                "league": league,
+                "division": league,
                 "avg_goal": avg_goals[league].varValue,
                 "home_adv": home_advs[league].varValue,
             }
@@ -88,7 +129,7 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
         ],
         [
             {
-                "team": team,
+                "id": team,
                 "offence": offences[team].varValue,
                 "defence": defences[team].varValue,
             }
@@ -97,14 +138,15 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
     )
 
 
-@functions_framework.cloud_event
-def main(cloud_event):
-    matches = get_matches()
-    leagues, teams = solver(matches)
-    leagues = convert_to_newline_delimited_json(leagues)
-    teams = convert_to_newline_delimited_json(teams)
+def convert_to_newline_delimited_json(data: list) -> str:
+    return "\n".join([json.dumps(d) for d in data])
 
-    storage_client = storage.Client()
-    bucket = storage_client.get_bucket(BUCKET_NAME)
-    bucket.blob("leagues.json").upload_from_string(leagues)
-    bucket.blob("teams.json").upload_from_string(teams)
+
+def upload_to_gcs(bucket_name: str, content: str, destination: str):
+    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)
+
+
+def insert_run_log(type, match_date):
+    sql = f"INSERT INTO solver.run_log VALUES ('{type}', {match_date})"
+    query_job = BQ_CLIENT.query(sql)
+    query_job.result()

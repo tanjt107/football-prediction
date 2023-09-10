@@ -5,12 +5,13 @@ import os
 import requests
 from google.cloud import storage
 
-bucket_names = {
+BUCKET_NAMES = {
     "matches": os.getenv("MATCHES_BUCKET_NAME"),
-    "season": os.getenv("SEASON_BUCKET_NAME"),
+    "season": os.getenv("SEASONS_BUCKET_NAME"),
     "teams": os.getenv("TEAMS_BUCKET_NAME"),
 }
 API_KEY = os.getenv("FOOTYSTATS_API_KEY")
+GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
@@ -22,7 +23,7 @@ def main(cloud_event):
     print(f"Getting data for endpoint: {endpoint}, season_id: {season_id}")
     formatted_data = format_data(fetched_data)
     destination = f"{season_id}.json"
-    upload_to_gcs(bucket_names[endpoint], formatted_data, destination)
+    upload_to_gcs(BUCKET_NAMES[endpoint], formatted_data, destination)
     print(f"Got data for endpoint: {endpoint}, season_id: {season_id}")
 
 
@@ -46,4 +47,4 @@ def format_data(data):
 
 
 def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    storage.Client().bucket(bucket_name).blob(destination).upload_from_string(content)
+    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

@@ -7,6 +7,7 @@ from google.cloud import storage
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 CONTENTS = ["leaguelist.json", "teamlist.json"]
+GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
@@ -15,10 +16,6 @@ def main(cloud_event):
         fetched_data = fetch_hkjc(content)
         formatted_data = format_data(fetched_data)
         upload_to_gcs(BUCKET_NAME, formatted_data, content)
-
-
-def get_message(cloud_event) -> str:
-    return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
 
 
 def fetch_hkjc(content: str) -> dict:
@@ -37,4 +34,4 @@ def format_data(data):
 
 
 def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    storage.Client().bucket(bucket_name).blob(destination).upload_from_string(content)
+    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

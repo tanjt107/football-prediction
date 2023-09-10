@@ -8,7 +8,12 @@ output "project_id" {
   ]
 }
 
-output "enabled_apis" {
-  description = "Enabled APIs in the project"
-  value       = module.services.enabled_apis
+output "project_number" {
+  description = "Numeric identifier for the project"
+  value       = google_project.project.number
+
+  depends_on = [
+    module.services.enabled_apis,
+    module.services.enabled_api_identities
+  ]
 }

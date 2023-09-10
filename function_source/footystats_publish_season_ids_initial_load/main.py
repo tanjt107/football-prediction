@@ -3,12 +3,12 @@ import functions_framework
 from google.cloud import bigquery, pubsub_v1
 
 TOPIC_NAME = os.getenv("TOPIC_NAME")
+BQ_CLIENT = bigquery.Client()
 
 
 @functions_framework.cloud_event
 def main(cloud_event):
-    bq_client = bigquery.Client()
-    season_ids = get_latest_season_ids(bq_client)
+    season_ids = get_latest_season_ids()
 
     publisher = pubsub_v1.PublisherClient()
 
@@ -19,7 +19,7 @@ def main(cloud_event):
     future.result()
 
 
-def get_latest_season_ids(client: bigquery.Client) -> list[int]:
+def get_latest_season_ids() -> list[int]:
     query = """
     SELECT
       season.id
@@ -27,7 +27,7 @@ def get_latest_season_ids(client: bigquery.Client) -> list[int]:
       `footystats.league_list`,
       UNNEST(season) AS season
     """
-    query_job = client.query(query)
+    query_job = BQ_CLIENT.query(query)
     return [row[0] for row in query_job]
 
 

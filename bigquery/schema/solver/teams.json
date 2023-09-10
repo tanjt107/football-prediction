@@ -1,7 +1,7 @@
 [
     {
-        "name": "team",
-        "type": "INTEGER",
+        "name": "id",
+        "type": "STRING",
         "mode": "REQUIRED"
     },
     {
