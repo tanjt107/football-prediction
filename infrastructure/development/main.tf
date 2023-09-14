@@ -127,7 +127,7 @@ module "footystats-get-league-list" {
   function_name                = "footystats_get_league_list"
   bucket_name                  = module.buckets.names["gcf"]
   job_name                     = "footystats"
-  job_schedule                 = "0 0-3,8-23 * * *"
+  job_schedule                 = "0 */3 * * *"
   job_paused                   = true
   topic_name                   = "footystats"
   source_directory             = "../../function_source"
@@ -222,7 +222,7 @@ module "solver" {
   available_memory = "1Gi"
   available_cpu    = 2
   job_name         = "solver"
-  job_schedule     = "30 0-3,8-23 * * *"
+  job_schedule     = "30 */3 * * *"
   job_paused       = true
   message_data     = "Club"
   topic_name       = "solver"
@@ -241,7 +241,7 @@ module "hkjc-get-odds" {
   function_name    = "hkjc_get_odds"
   bucket_name      = module.buckets.names["gcf"]
   job_name         = "hkjc-odds"
-  job_schedule     = "45 0-3,8-23 * * *"
+  job_schedule     = "45 */3 * * *"
   job_paused       = true
   topic_name       = "hkjc-odds"
   source_directory = "../../function_source"

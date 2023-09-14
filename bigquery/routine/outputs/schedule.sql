@@ -83,9 +83,31 @@ WITH
   ),
 
   matches AS (
-  SELECT * FROM hkjc
+  SELECT
+    matchID,
+    matchDate,
+    league_id,
+    home_id,
+    away_id,
+    had_H,
+    had_D,
+    had_A,
+    GREATEST(home_exp, 0.2) AS home_exp,
+    GREATEST(away_exp, 0.2) AS away_exp
+  FROM hkjc
   UNION ALL
-  SELECT * FROM non_hkjc
+  SELECT
+    matchID,
+    matchDate,
+    league_id,
+    home_id,
+    away_id,
+    had_H,
+    had_D,
+    had_A,
+    GREATEST(home_exp, 0.2) AS home_exp,
+    GREATEST(away_exp, 0.2) AS away_exp
+  FROM non_hkjc
   ),
 
   match_probs AS (

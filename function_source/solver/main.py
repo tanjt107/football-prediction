@@ -35,7 +35,9 @@ def get_message(cloud_event) -> str:
 
 
 def get_last_run(type):
-    sql = f"SELECT date_unix AS last_run FROM `solver.run_log` WHERE type = '{type}'"
+    sql = (
+        f"SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = '{type}'"
+    )
     return bq_fetch_one(sql)
 
 
