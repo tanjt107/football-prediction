@@ -372,6 +372,10 @@
                 "type": "STRING"
             },
             {
+                "name": "FCS",
+                "type": "STRING"
+            },
+            {
                 "name": "FTS",
                 "type": "STRING"
             },

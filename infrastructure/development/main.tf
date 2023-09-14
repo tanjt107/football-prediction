@@ -235,6 +235,19 @@ module "solver" {
   project_id = module.project.project_id
 }
 
+resource "google_cloud_scheduler_job" "solver-international" {
+  name     = "solver-international"
+  schedule = "30 */3 * 1-3,6-7,9-11 *"
+  paused   = true
+  region   = var.region
+  project  = module.project.project_id
+
+  pubsub_target {
+    topic_name = "projects/${module.project.project_id}/topics/${module.solver.pubsub_topic_name}"
+    data       = base64encode("International")
+  }
+}
+
 module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
@@ -427,9 +440,10 @@ module "bigquery-outputs" {
   project_id          = module.project.project_id
   deletion_protection = false
   views = {
-    results      = file("../../bigquery/routine/outputs/results.sql")
-    schedule     = file("../../bigquery/routine/outputs/schedule.sql")
-    team_ratings = file("../../bigquery/routine/outputs/team_ratings.sql")
+    results                    = file("../../bigquery/routine/outputs/results.sql")
+    schedule                   = file("../../bigquery/routine/outputs/schedule.sql")
+    team_ratings               = file("../../bigquery/routine/outputs/team_ratings.sql")
+    team_ratings_international = file("../../bigquery/routine/outputs/team_ratings_international.sql")
   }
 
   depends_on = [module.bigquery-master]

@@ -8,60 +8,91 @@ WITH latest_seasons AS (
     AND format = 'Domestic League' ),
 
 latest_season_teams AS (
-SELECT
-  teams.id,
-  latest_seasons.league_id
-FROM `footystats.teams` teams
-JOIN latest_seasons ON teams.competition_id = latest_seasons.season_id
+  SELECT
+    teams.id,
+    latest_seasons.league_id
+  FROM `footystats.teams` teams
+  JOIN latest_seasons ON teams.competition_id = latest_seasons.season_id
+),
+
+footystats_club AS (
+  SELECT
+    DISTINCT teams.id,
+    name,
+    country,
+    'Club' AS type,  
+    league_id,
+    latest_season_teams.id IS NOT NULL AS in_team_rating
+  FROM `footystats.teams` teams
+  LEFT JOIN latest_season_teams ON teams.id = latest_season_teams.id
+  WHERE name NOT LIKE '%National Team'
+),
+
+footystats_international AS (
+  SELECT
+    DISTINCT teams.id,
+    name,
+    country,
+    'International' AS type,  
+    NULL AS league_id,
+    transfermarkt_id IS NOT NULL AS in_team_rating
+  FROM `footystats.teams` teams
+  LEFT JOIN `manual.transfermarkt_teams` transfermarkt ON teams.id = transfermarkt.footystats_id
+  WHERE name LIKE '%National Team'
 ),
 
 footystats AS (
-SELECT
-  DISTINCT teams.id,
-  name,
-  country,
-  CASE
-    WHEN name LIKE '%National Team' THEN 'International'
-  ELSE 'Club'
-  END AS type,  
-  league_id,
-  latest_season_teams.id IS NOT NULL AS in_team_rating
-FROM `footystats.teams` teams
-LEFT JOIN latest_season_teams ON teams.id = latest_season_teams.id
+  SELECT
+    id,
+    name,
+    country,
+    type,
+    league_id,
+    in_team_rating
+  FROM footystats_club
+  UNION ALL
+  SELECT
+    id,
+    name,
+    country,
+    type,
+    CAST(league_id AS STRING) AS league_id,
+    in_team_rating
+  FROM footystats_international
 ),
 
 hkjc AS (
-SELECT
-  hkjc.id AS hkjc_id,
-  mapping_hkjc.footystats_id,
-  nameC
-FROM `hkjc.teams` hkjc
-LEFT JOIN `manual.hkjc_teams` mapping_hkjc ON id = CAST(hkjc_id AS STRING) 
+  SELECT
+    hkjc.id AS hkjc_id,
+    mapping_hkjc.footystats_id,
+    nameC
+  FROM `hkjc.teams` hkjc
+  LEFT JOIN `manual.hkjc_teams` mapping_hkjc ON CAST(id AS INT64) = hkjc_id
 ),
 
 non_hkjc AS (
-SELECT
-  CAST(NULL AS STRING) AS hkjc_id,
-  footystats_id,
-  nameC
-FROM
-  `manual.non_hkjc_teams` 
+  SELECT
+    CAST(NULL AS STRING) AS hkjc_id,
+    footystats_id,
+    nameC
+  FROM
+    `manual.non_hkjc_teams` 
 ),
 
 hk AS (
-SELECT
-  hkjc_id,
-  footystats_id,
-  nameC
-FROM
-  hkjc
-UNION ALL
-SELECT
-  hkjc_id,
-  footystats_id,
-  nameC
-FROM
-  non_hkjc 
+  SELECT
+    hkjc_id,
+    footystats_id,
+    nameC
+  FROM
+    hkjc
+  UNION ALL
+  SELECT
+    hkjc_id,
+    footystats_id,
+    nameC
+  FROM
+    non_hkjc 
 )
 
 SELECT
