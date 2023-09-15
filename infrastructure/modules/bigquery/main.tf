@@ -64,3 +64,20 @@ resource "google_bigquery_routine" "routine" {
 
   depends_on = [google_bigquery_table.external_table]
 }
+
+resource "google_bigquery_data_transfer_config" "scheduled_queries" {
+  for_each               = var.scheduled_queries
+  display_name           = each.key
+  data_source_id         = "scheduled_query"
+  destination_dataset_id = google_bigquery_dataset.dataset.dataset_id
+  schedule               = each.value.schedule
+  disabled               = !var.deletion_protection
+  location               = var.location
+  service_account_name   = each.value.service_account_name
+  project                = var.project_id
+  params = {
+    destination_table_name_template = each.key
+    write_disposition               = "WRITE_TRUNCATE"
+    query                           = each.value.query
+  }
+}

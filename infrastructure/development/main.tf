@@ -4,8 +4,15 @@ module "project" {
   name            = "Football Prediction ${var.environment}"
   project_id      = "football-prediction-${var.environment}"
   billing_account = var.billing_account
+  service_accounts = {
+    bigquery-scheduled-queries = [
+      "roles/bigquery.admin",
+      "roles/storage.objectViewer"
+    ]
+  }
   activate_apis = [
     "bigquery.googleapis.com",
+    "bigquerydatatransfer.googleapis.com",
     "cloudbuild.googleapis.com",
     "cloudfunctions.googleapis.com",
     "cloudscheduler.googleapis.com",
@@ -16,6 +23,7 @@ module "project" {
     "storage.googleapis.com"
   ]
   activate_api_identities = {
+    # "bigquerydatatransfer.googleapis.com" = ["roles/iam.serviceAccountTokenCreator"]
     "compute.googleapis.com" = ["roles/secretmanager.secretAccessor"]
     "storage.googleapis.com" = ["roles/pubsub.publisher"]
   }
@@ -424,9 +432,17 @@ module "bigquery-master" {
   location            = var.region
   project_id          = module.project.project_id
   deletion_protection = false
-  views = {
-    leagues = file("../../bigquery/routine/master/leagues.sql")
-    teams   = file("../../bigquery/routine/master/teams.sql")
+  scheduled_queries = {
+    leagues = {
+      schedule             = "every 24 hours"
+      service_account_name = module.project.service_account_emails["bigquery-scheduled-queries"]
+      query                = file("../../bigquery/routine/master/leagues.sql")
+    }
+    teams = {
+      schedule             = "every 24 hours"
+      service_account_name = module.project.service_account_emails["bigquery-scheduled-queries"]
+      query                = file("../../bigquery/routine/master/teams.sql")
+    }
   }
 
   depends_on = [module.bigquery-footystats, module.bigquery-hkjc, module.bigquery-manual]

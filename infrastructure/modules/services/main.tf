@@ -22,6 +22,20 @@ resource "time_sleep" "wait_activate_api" {
   depends_on = [google_project_service.project_services]
 }
 
+resource "google_project_service_identity" "project_service_identities" {
+  for_each = {
+    for api, roles in var.activate_api_identities :
+    api => roles
+    if !contains(["compute.googleapis.com", "storage.googleapis.com"], api)
+  }
+
+  provider = google-beta
+  project  = var.project_id
+  service  = each.key
+
+  depends_on = [google_project_service.project_services]
+}
+
 data "google_compute_default_service_account" "service_account" {
   count = length([for api in var.activate_apis : api if api == "compute.googleapis.com"]) > 0 ? 1 : 0
 
@@ -40,6 +54,14 @@ data "google_storage_project_service_account" "service_account" {
 
 locals {
   add_service_roles = merge(
+    {
+      for si in local.service_identities :
+      "${si.api} ${si.role}" => {
+        email = google_project_service_identity.project_service_identities[si.api].email
+        role  = si.role
+      }
+      if !contains(["compute.googleapis.com", "storage.googleapis.com"], si.api)
+    },
     {
       for si in local.service_identities :
       "${si.api} ${si.role}" => {

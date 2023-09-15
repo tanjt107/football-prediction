@@ -17,3 +17,13 @@ output "project_number" {
     module.services.enabled_api_identities
   ]
 }
+
+output "service_account_emails" {
+  value       = { for k, v in google_service_account.service_accounts : k => v.email }
+  description = "The email of the service accounts"
+}
+
+output "enabled_api_identities" {
+  description = "Enabled API identities in the project"
+  value       = module.services.enabled_api_identities
+}

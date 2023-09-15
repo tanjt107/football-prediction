@@ -41,6 +41,12 @@ variable "routines" {
   }))
 }
 
+variable "scheduled_queries" {
+  description = "Data transfer configuration for creating scheduled queries"
+  default     = {}
+  type        = map(any)
+}
+
 variable "location" {
   description = "The regional location for the dataset"
   type        = string
