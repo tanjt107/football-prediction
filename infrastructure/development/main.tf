@@ -23,9 +23,9 @@ module "project" {
     "storage.googleapis.com"
   ]
   activate_api_identities = {
-    # "bigquerydatatransfer.googleapis.com" = ["roles/iam.serviceAccountTokenCreator"]
-    "compute.googleapis.com" = ["roles/secretmanager.secretAccessor"]
-    "storage.googleapis.com" = ["roles/pubsub.publisher"]
+    "bigquerydatatransfer.googleapis.com" = ["roles/iam.serviceAccountTokenCreator"]
+    "compute.googleapis.com"              = ["roles/secretmanager.secretAccessor"]
+    "storage.googleapis.com"              = ["roles/pubsub.publisher"]
   }
 }
 

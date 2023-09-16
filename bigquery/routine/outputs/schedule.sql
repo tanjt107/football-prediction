@@ -127,7 +127,7 @@ WITH
   )
 
 SELECT
-  FORMAT_TIMESTAMP('%F %T', matchDate, 'Asia/Hong_Kong') AS matchDate,
+  FORMAT_TIMESTAMP('%F %H:%M', matchDate, 'Asia/Hong_Kong') AS matchDate,
   leagues.transfermarkt_id AS league_logo,
   home_teams.transfermarkt_id AS home_team_logo,
   home_teams.name AS home_team_name,
@@ -149,4 +149,4 @@ JOIN `master.teams` home_teams ON matches.home_id = home_teams.id
 JOIN `master.teams` away_teams ON matches.away_id = away_teams.id
 JOIN had_probs ON matches.matchID = had_probs.matchID
 LEFT JOIN `master.leagues` leagues ON matches.league_id = leagues.id
-ORDER BY matchDate;
+ORDER BY matchDate, matches.matchID;

@@ -4,7 +4,7 @@ WITH average AS (
     AVG(defence) AS defence
   FROM `solver.teams` solver
   JOIN `master.teams` master ON solver.id = master.id
-  WHERE in_team_rating
+  WHERE in_team_rating AND type = 'Club'
 ),
 
 factors AS (
