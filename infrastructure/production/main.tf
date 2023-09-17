@@ -4,12 +4,6 @@ module "project" {
   name            = "Football Prediction ${var.environment}"
   project_id      = "football-prediction-${var.environment}"
   billing_account = var.billing_account
-  service_accounts = {
-    bigquery-scheduled-queries = [
-      "roles/bigquery.admin",
-      "roles/storage.objectViewer"
-    ]
-  }
   activate_apis = [
     "bigquery.googleapis.com",
     "bigquerydatatransfer.googleapis.com",
@@ -26,6 +20,18 @@ module "project" {
     "bigquerydatatransfer.googleapis.com" = ["roles/iam.serviceAccountTokenCreator"]
     "compute.googleapis.com"              = ["roles/secretmanager.secretAccessor"]
     "storage.googleapis.com"              = ["roles/pubsub.publisher"]
+  }
+}
+
+module "service-accounts" {
+  source = "../modules/service-accounts"
+
+  project_id = module.project.project_id
+  service_accounts = {
+    bigquery-scheduled-queries = [
+      "roles/bigquery.admin",
+      "roles/storage.objectViewer"
+    ]
   }
 }
 
@@ -423,12 +429,12 @@ module "bigquery-master" {
   scheduled_queries = {
     leagues = {
       schedule             = "every 24 hours"
-      service_account_name = module.project.service_account_emails["bigquery-scheduled-queries"]
+      service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
       query                = file("../../bigquery/routine/master/leagues.sql")
     }
     teams = {
       schedule             = "every 24 hours"
-      service_account_name = module.project.service_account_emails["bigquery-scheduled-queries"]
+      service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
       query                = file("../../bigquery/routine/master/teams.sql")
     }
   }

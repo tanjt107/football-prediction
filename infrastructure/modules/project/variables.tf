@@ -13,11 +13,6 @@ variable "billing_account" {
   type        = string
 }
 
-variable "service_accounts" {
-  default = {}
-  type    = map(list(string))
-}
-
 variable "activate_apis" {
   description = "The list of apis to activate within the project"
   type        = list(string)
