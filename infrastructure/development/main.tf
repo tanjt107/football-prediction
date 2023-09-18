@@ -23,18 +23,6 @@ module "project" {
   }
 }
 
-module "service-accounts" {
-  source = "../modules/service-accounts"
-
-  project_id = module.project.project_id
-  roles = {
-    bigquery-scheduled-queries = [
-      "roles/bigquery.admin",
-      "roles/storage.objectViewer"
-    ]
-  }
-}
-
 module "buckets" {
   source = "../modules/storage"
 
@@ -63,66 +51,6 @@ module "buckets" {
       "../../manual_files/transfermarkt_leagues.csv",
       "../../manual_files/transfermarkt_teams.csv",
     ]
-  }
-}
-
-module "bigquery-footystats" {
-  source = "../modules/bigquery"
-
-  dataset_id          = "footystats"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
-  external_tables = {
-    league_list = {
-      schema        = file("../../bigquery/schema/footystats/league_list.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-league-list"]}/league_list.json"]
-    }
-    matches = {
-      schema        = file("../../bigquery/schema/footystats/matches.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches"]}/*.json"]
-    }
-    matches_transformed = {
-      schema        = file("../../bigquery/schema/footystats/matches_transformed.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches-transformed"]}/*.json"]
-    }
-    seasons = {
-      schema        = file("../../bigquery/schema/footystats/seasons.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-seasons"]}/*.json"]
-    }
-    teams = {
-      schema        = file("../../bigquery/schema/footystats/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-teams"]}/*.json"]
-    }
-  }
-}
-
-module "bigquery-solver" {
-  source = "../modules/bigquery"
-
-  dataset_id          = "solver"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
-  tables = {
-    run_log = file("../../bigquery/schema/solver/run_log.json")
-  }
-  external_tables = {
-    leagues = {
-      schema        = file("../../bigquery/schema/solver/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["solver"]}/leagues/*.json"]
-    }
-    teams = {
-      schema        = file("../../bigquery/schema/solver/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["solver"]}/teams/*.json"]
-    }
   }
 }
 
@@ -225,6 +153,42 @@ module "footystats-transform-matches" {
   }
 }
 
+module "bigquery-footystats" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "footystats"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  external_tables = {
+    league_list = {
+      schema        = file("../../bigquery/schema/footystats/league_list.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["footystats-league-list"]}/league_list.json"]
+    }
+    matches = {
+      schema        = file("../../bigquery/schema/footystats/matches.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["footystats-matches"]}/*.json"]
+    }
+    matches_transformed = {
+      schema        = file("../../bigquery/schema/footystats/matches_transformed.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["footystats-matches-transformed"]}/*.json"]
+    }
+    seasons = {
+      schema        = file("../../bigquery/schema/footystats/seasons.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["footystats-seasons"]}/*.json"]
+    }
+    teams = {
+      schema        = file("../../bigquery/schema/footystats/teams.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["footystats-teams"]}/*.json"]
+    }
+  }
+}
+
 module "solver" {
   source = "../modules/scheduled-function"
 
@@ -258,6 +222,30 @@ resource "google_cloud_scheduler_job" "solver-international" {
   pubsub_target {
     topic_name = "projects/${module.project.project_id}/topics/${module.solver.pubsub_topic_name}"
     data       = base64encode("International")
+  }
+}
+
+module "bigquery-solver" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "solver"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  tables = {
+    run_log = file("../../bigquery/schema/solver/run_log.json")
+  }
+  external_tables = {
+    leagues = {
+      schema        = file("../../bigquery/schema/solver/leagues.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["solver"]}/leagues/*.json"]
+    }
+    teams = {
+      schema        = file("../../bigquery/schema/solver/teams.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["solver"]}/teams/*.json"]
+    }
   }
 }
 
@@ -428,6 +416,18 @@ module "bigquery-functions" {
   }
 
   depends_on = [module.bigquery-footystats.external_tables, module.bigquery-manual.external_tables]
+}
+
+module "service-accounts" {
+  source = "../modules/service-accounts"
+
+  project_id = module.project.project_id
+  roles = {
+    bigquery-scheduled-queries = [
+      "roles/bigquery.admin",
+      "roles/storage.objectViewer"
+    ]
+  }
 }
 
 module "bigquery-master" {
