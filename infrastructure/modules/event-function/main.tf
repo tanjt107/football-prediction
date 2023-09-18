@@ -27,11 +27,12 @@ resource "google_cloudfunctions2_function" "function" {
   }
 
   service_config {
-    timeout_seconds       = var.timeout_s
-    available_memory      = var.available_memory
-    available_cpu         = var.available_cpu
-    environment_variables = var.environment_variables
-    max_instance_count    = var.max_instances
+    timeout_seconds                  = var.timeout_s
+    available_memory                 = var.available_memory
+    max_instance_request_concurrency = var.max_instance_request_concurrency
+    available_cpu                    = var.available_cpu
+    environment_variables            = var.environment_variables
+    max_instance_count               = var.max_instances
     dynamic "secret_environment_variables" {
       for_each = var.secret_environment_variables
       content {

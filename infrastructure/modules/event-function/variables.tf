@@ -32,6 +32,12 @@ variable "available_memory" {
   default     = "256Mi"
 }
 
+variable "max_instance_request_concurrency" {
+  description = "The maximum number of concurrent requests that each instance can receive."
+  type        = number
+  default     = 1
+}
+
 variable "available_cpu" {
   description = "The number of CPUs used in a single container instance."
   type        = string

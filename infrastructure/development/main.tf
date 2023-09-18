@@ -121,15 +121,17 @@ module "footystats-publish-season-ids-initial-load" {
 module "footystats-get-footystats" {
   source = "../modules/event-function"
 
-  name                         = "footystats_get_data"
-  bucket_name                  = module.buckets.names["gcf"]
-  max_instances                = 3000
-  secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
-  event_type                   = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name                   = module.footystats-league-list-topic.id
-  source_directory             = "../../function_source"
-  region                       = var.region
-  project_id                   = module.project.project_id
+  name                             = "footystats_get_data"
+  bucket_name                      = module.buckets.names["gcf"]
+  available_cpu                    = 1
+  available_memory                 = "512Mi"
+  max_instance_request_concurrency = 80
+  secret_environment_variables     = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
+  event_type                       = "google.cloud.pubsub.topic.v1.messagePublished"
+  topic_name                       = module.footystats-league-list-topic.id
+  source_directory                 = "../../function_source"
+  region                           = var.region
+  project_id                       = module.project.project_id
   environment_variables = {
     MATCHES_BUCKET_NAME = module.buckets.names["footystats-matches"]
     SEASONS_BUCKET_NAME = module.buckets.names["footystats-seasons"]
