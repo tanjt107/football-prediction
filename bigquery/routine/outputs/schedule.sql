@@ -1,18 +1,22 @@
 WITH
   odds AS (
   SELECT
-    matchID,
-    matchDate,
+    odds_had.matchID,
+    odds_had.matchDate,
     home_teams.id AS home_id,
     away_teams.id AS away_id,
     CAST(SPLIT(hadodds.H, '@')[OFFSET(1)] AS FLOAT64) AS had_H,
     CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
     CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A,
-    CAST(venue IS NULL AS INT64) AS home_adv
-  FROM `hkjc.odds_had` odds
-  JOIN `master.teams` home_teams ON odds.homeTeam.teamID = home_teams.hkjc_id
-  JOIN `master.teams` away_teams ON odds.awayTeam.teamID = away_teams.hkjc_id
-  WHERE matchState = 'PreEvent' 
+    hdcodds.HG AS hdc,
+    CAST(SPLIT(hdcodds.H, '@')[OFFSET(1)] AS FLOAT64) AS hdc_H,
+    CAST(SPLIT(hdcodds.A, '@')[OFFSET(1)] AS FLOAT64) AS hdc_A,
+    CAST(odds_had.venue IS NULL AS INT64) AS home_adv
+  FROM `hkjc.odds_had` odds_had
+  JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
+  JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
+  LEFT JOIN `hkjc.odds_hdc` odds_hdc ON odds_had.matchID = odds_hdc.matchID
+  WHERE odds_had.matchState = 'PreEvent' 
   ),
 
   footystats AS (
@@ -49,6 +53,9 @@ WITH
     had_H,
     had_D,
     had_A,
+    hdc,
+    hdc_H,
+    hdc_A,
     COALESCE(footystats_home.home_exp + footystats_home.home_adv * odds.home_adv, footystats_away.away_exp + footystats_away.home_adv * odds.home_adv) AS home_exp,
     COALESCE(footystats_home.away_exp - footystats_home.home_adv * odds.home_adv, footystats_away.home_exp - footystats_away.home_adv * odds.home_adv) AS away_exp,
   FROM odds
@@ -72,6 +79,9 @@ WITH
     NULL AS had_H,
     NULL AS had_D,
     NULL AS had_A,
+    CAST(NULL AS STRING) AS hdc,
+    NULL AS hdc_H,
+    NULL AS hdc_A,
     home_exp + home_adv AS home_exp,
     away_exp - home_adv AS away_exp
   FROM footystats
@@ -92,6 +102,9 @@ WITH
     had_H,
     had_D,
     had_A,
+    hdc,
+    hdc_H,
+    hdc_A,
     GREATEST(home_exp, 0.2) AS home_exp,
     GREATEST(away_exp, 0.2) AS away_exp
   FROM hkjc
@@ -105,6 +118,9 @@ WITH
     had_H,
     had_D,
     had_A,
+    hdc,
+    hdc_H,
+    hdc_A,
     GREATEST(home_exp, 0.2) AS home_exp,
     GREATEST(away_exp, 0.2) AS away_exp
   FROM non_hkjc
@@ -113,17 +129,20 @@ WITH
   match_probs AS (
   SELECT
     matchID,
-    functions.matchProbs(home_exp, away_exp, 5) AS match_prob
+    functions.matchProbs(home_exp, away_exp, '0', 5) AS had_probs,
+    functions.matchProbs(home_exp, away_exp, hdc, 5) AS hdc_probs
   FROM matches 
   ),
 
-  had_probs AS (
+  probs AS (
   SELECT
     matchID,
-    match_prob[OFFSET(0)] AS prob_home,
-    match_prob[OFFSET(1)] AS prob_draw,
-    match_prob[OFFSET(2)] AS prob_away
-  FROM match_probs 
+    had_probs[OFFSET(0)] AS had_home,
+    had_probs[OFFSET(1)] AS had_draw,
+    had_probs[OFFSET(2)] AS had_away,
+    hdc_probs[OFFSET(0)] AS hdc_home,
+    hdc_probs[OFFSET(2)] AS hdc_away,
+  FROM match_probs
   )
 
 SELECT
@@ -135,18 +154,25 @@ SELECT
   away_teams.name AS away_team_name,
   ROUND(home_exp, 2) AS home_exp,
   ROUND(away_exp, 2) AS away_exp,
-  ROUND(prob_home, 2) AS prob_home,
-  ROUND(prob_draw, 2) AS prob_draw,
-  ROUND(prob_away, 2) AS prob_away,
+  ROUND(had_home, 2) AS had_home,
+  ROUND(had_draw, 2) AS had_draw,
+  ROUND(had_away, 2) AS had_away,
   had_H,
   had_D,
   had_A,
-  ROUND(GREATEST(prob_home - (1 - prob_home) / (had_H - 1),0), 2) AS kelly_home,
-  ROUND(GREATEST(prob_draw - (1 - prob_draw) / (had_D - 1),0), 2) AS kelly_draw,
-  ROUND(GREATEST(prob_away - (1 - prob_away) / (had_A - 1),0), 2) AS kelly_away
+  ROUND(GREATEST(had_home - (1 - had_home) / (had_H - 1),0), 2) AS kelly_had_home,
+  ROUND(GREATEST(had_draw - (1 - had_draw) / (had_D - 1),0), 2) AS kelly_had_draw,
+  ROUND(GREATEST(had_away - (1 - had_away) / (had_A - 1),0), 2) AS kelly_had_away,
+  hdc,
+  ROUND(hdc_home, 2) AS hdc_home,
+  ROUND(hdc_away, 2) AS hdc_away,
+  hdc_H,
+  hdc_A,
+  ROUND(GREATEST(hdc_home - hdc_away / (hdc_H - 1),0), 2) AS kelly_hdc_home,
+  ROUND(GREATEST(hdc_away - hdc_home / (hdc_A - 1),0), 2) AS kelly_hdc_away
 FROM matches
 JOIN `master.teams` home_teams ON matches.home_id = home_teams.id
 JOIN `master.teams` away_teams ON matches.away_id = away_teams.id
-JOIN had_probs ON matches.matchID = had_probs.matchID
+JOIN probs ON matches.matchID = probs.matchID
 LEFT JOIN `master.leagues` leagues ON matches.league_id = leagues.id
 ORDER BY matchDate, matches.matchID;

@@ -2,39 +2,46 @@
     {
         "name": "id",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "NULLABLE"
     },
     {
         "name": "name",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "NULLABLE"
     },
     {
         "name": "country",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "type",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "footystats_id",
-        "type": "INTEGER"
+        "type": "INTEGER",
+        "mode": "NULLABLE"
     },
     {
         "name": "hkjc_id",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "transfermarkt_id",
-        "type": "INTEGER"
+        "type": "INTEGER",
+        "mode": "NULLABLE"
     },
     {
         "name": "league_id",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "in_team_rating",
-        "type": "BOOLEAN"
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
     }
 ]

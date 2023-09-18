@@ -398,6 +398,10 @@ module "bigquery-functions" {
           data_type = jsonencode({ "typeKind" : "FLOAT64" })
         },
         {
+          name      = "handicap"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
           name      = "goalDiff"
           data_type = jsonencode({ "typeKind" : "INT64" })
         }

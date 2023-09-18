@@ -19,7 +19,7 @@ factors AS (
 match_probs AS (
   SELECT
     id,
-    functions.matchProbs(offence, defence, 5) AS match_prob
+    functions.matchProbs(offence, defence, '0', 5) AS match_prob
   FROM factors
 ),
 

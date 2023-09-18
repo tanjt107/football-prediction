@@ -27,27 +27,31 @@
     {
         "name": "division",
         "type": "STRING",
-        "mode": "REQUIRED"
+        "mode": "NULLABLE"
     },
     {
         "name": "footystats_division",
         "type": "INTEGER",
-        "mode": "REQUIRED"
+        "mode": "NULLABLE"
     },
     {
         "name": "type",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "latest_season_id",
-        "type": "INTEGER"
+        "type": "INTEGER",
+        "mode": "NULLABLE"
     },
     {
         "name": "hkjc_id",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     },
     {
         "name": "transfermarkt_id",
-        "type": "STRING"
+        "type": "STRING",
+        "mode": "NULLABLE"
     }
 ]
