@@ -14,9 +14,3 @@ variable "region" {
   type        = string
   default     = "asia-east2"
 }
-
-variable "footystats_api_key" {
-  description = "API key for the Footystats API."
-  type        = string
-  sensitive   = true
-}
