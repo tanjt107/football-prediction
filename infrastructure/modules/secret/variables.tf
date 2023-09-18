@@ -5,6 +5,6 @@ variable "secrets" {
 }
 
 variable "project_id" {
-  description = "Project where the secrets are created."
+  description = "The project ID to manage the Secret Manager resources."
   type        = string
 }

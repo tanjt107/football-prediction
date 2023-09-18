@@ -71,7 +71,7 @@ module "footystats-get-league-list" {
   job_paused                            = true
   topic_name                            = "footystats"
   function_source_directory             = "../../function_source"
-  function_secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  function_secret_environment_variables = [module.module.api-key.names["FOOTYSTATS_API_KEY"]]
   function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
   region                                = var.region
   project_id                            = module.project.project_id
@@ -89,7 +89,7 @@ module "footystats-publish-season-ids" {
 
   name                         = "footystats_publish_season_ids"
   bucket_name                  = module.buckets.names["gcf"]
-  secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  secret_environment_variables = [module.module.api-key.names["FOOTYSTATS_API_KEY"]]
   environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
   event_type                   = "google.cloud.storage.object.v1.finalized"
   source_directory             = "../../function_source"
@@ -111,7 +111,7 @@ module "footystats-publish-season-ids-initial-load" {
   job_paused                            = true
   topic_name                            = "footystats-initial-load"
   function_source_directory             = "../../function_source"
-  function_secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  function_secret_environment_variables = [module.module.api-key.names["FOOTYSTATS_API_KEY"]]
   function_environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
   region                                = var.region
@@ -124,7 +124,7 @@ module "footystats-get-footystats" {
   name                         = "footystats_get_data"
   bucket_name                  = module.buckets.names["gcf"]
   max_instances                = 3000
-  secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  secret_environment_variables = [module.module.api-key.names["FOOTYSTATS_API_KEY"]]
   event_type                   = "google.cloud.pubsub.topic.v1.messagePublished"
   topic_name                   = module.footystats-league-list-topic.id
   source_directory             = "../../function_source"
