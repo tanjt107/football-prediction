@@ -136,7 +136,7 @@ module "footystats-get-league-list" {
   function_name                         = "footystats_get_league_list"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats"
-  job_schedule                          = "0 */3 * * *"
+  job_schedule                          = "0 */4 * * *"
   topic_name                            = "footystats"
   function_source_directory             = "../../function_source"
   function_secret_environment_variables = ["FOOTYSTATS_API_KEY"]
@@ -229,7 +229,7 @@ module "solver" {
   function_available_memory = "1Gi"
   function_available_cpu    = 2
   job_name                  = "solver"
-  job_schedule              = "30 */3 * * *"
+  job_schedule              = "30 */4 * * *"
   message_data              = "Club"
   topic_name                = "solver"
   function_source_directory = "../../function_source"
@@ -242,10 +242,11 @@ module "solver" {
 }
 
 resource "google_cloud_scheduler_job" "solver-international" {
-  name     = "solver-international"
-  schedule = "30 */3 * 1-3,6-7,9-11 *"
-  region   = var.region
-  project  = module.project.project_id
+  name      = "solver-international"
+  schedule  = "30 */12 * 1-3,6-7,9-11 *"
+  time_zone = "Asia/Hong_Kong"
+  region    = var.region
+  project   = module.project.project_id
 
   pubsub_target {
     topic_name = "projects/${module.project.project_id}/topics/${module.solver.pubsub_topic_name}"
@@ -259,7 +260,7 @@ module "hkjc-get-odds" {
   function_name             = "hkjc_get_odds"
   bucket_name               = module.buckets.names["gcf"]
   job_name                  = "hkjc-odds"
-  job_schedule              = "45 */3 * * *"
+  job_schedule              = "45 */4 * * *"
   topic_name                = "hkjc-odds"
   function_source_directory = "../../function_source"
   function_environment_variables = {
