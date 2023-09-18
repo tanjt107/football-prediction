@@ -1,12 +1,12 @@
 resource "google_service_account" "service_accounts" {
-  for_each   = var.service_accounts
+  for_each   = var.roles
   account_id = each.key
   project    = var.project_id
 }
 
 locals {
   project_roles = { for pair in flatten([
-    for sa, roles in var.service_accounts : [
+    for sa, roles in var.roles : [
       for role in roles : {
         key = "${sa} ${role}"
         value = {

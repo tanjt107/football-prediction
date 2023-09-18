@@ -27,7 +27,7 @@ module "service-accounts" {
   source = "../modules/service-accounts"
 
   project_id = module.project.project_id
-  service_accounts = {
+  roles = {
     bigquery-scheduled-queries = [
       "roles/bigquery.admin",
       "roles/storage.objectViewer"
@@ -38,10 +38,9 @@ module "service-accounts" {
 module "buckets" {
   source = "../modules/storage"
 
-  suffix        = "${module.project.project_number}-${var.region}"
-  location      = var.region
-  project_id    = module.project.project_id
-  force_destroy = true
+  suffix     = "${module.project.project_number}-${var.region}"
+  location   = var.region
+  project_id = module.project.project_id
   names = [
     "footystats-league-list",
     "footystats-matches",
@@ -108,9 +107,7 @@ module "bigquery-solver" {
   location   = var.region
   project_id = module.project.project_id
   tables = {
-    run_log = {
-      schema = file("../../bigquery/schema/solver/run_log.json")
-    }
+    run_log = file("../../bigquery/schema/solver/run_log.json")
   }
   external_tables = {
     leagues = {
@@ -129,23 +126,23 @@ module "bigquery-solver" {
 module "api-key" {
   source = "../modules/secret"
 
-  secrets    = { "FOOTYSTATS_API_KEY" = var.footystats_api_key }
+  secrets    = { "FOOTYSTATS_API_KEY" = file("../../credentials/footystats.txt") }
   project_id = module.project.project_id
 }
 
 module "footystats-get-league-list" {
   source = "../modules/scheduled-function"
 
-  function_name                = "footystats_get_league_list"
-  bucket_name                  = module.buckets.names["gcf"]
-  job_name                     = "footystats"
-  job_schedule                 = "0 */3 * * *"
-  topic_name                   = "footystats"
-  source_directory             = "../../function_source"
-  secret_environment_variables = ["FOOTYSTATS_API_KEY"]
-  environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
-  region                       = var.region
-  project_id                   = module.project.project_id
+  function_name                         = "footystats_get_league_list"
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "footystats"
+  job_schedule                          = "0 */3 * * *"
+  topic_name                            = "footystats"
+  function_source_directory             = "../../function_source"
+  function_secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
+  region                                = var.region
+  project_id                            = module.project.project_id
 }
 
 module "footystats-league-list-topic" {
@@ -158,7 +155,7 @@ module "footystats-league-list-topic" {
 module "footystats-publish-season-ids" {
   source = "../modules/event-function"
 
-  function_name                = "footystats_publish_season_ids"
+  name                         = "footystats_publish_season_ids"
   bucket_name                  = module.buckets.names["gcf"]
   secret_environment_variables = ["FOOTYSTATS_API_KEY"]
   environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
@@ -175,23 +172,23 @@ module "footystats-publish-season-ids" {
 module "footystats-publish-season-ids-initial-load" {
   source = "../modules/scheduled-function"
 
-  function_name                = "footystats_publish_season_ids_initial_load"
-  bucket_name                  = module.buckets.names["gcf"]
-  job_name                     = "footystats-initial-load"
-  job_schedule                 = "0 7 1 * *"
-  topic_name                   = "footystats-initial-load"
-  source_directory             = "../../function_source"
-  secret_environment_variables = ["FOOTYSTATS_API_KEY"]
-  environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
-  event_trigger_failure_policy = "RETRY_POLICY_RETRY"
-  region                       = var.region
-  project_id                   = module.project.project_id
+  function_name                         = "footystats_publish_season_ids_initial_load"
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "footystats-initial-load"
+  job_schedule                          = "0 7 1 * *"
+  topic_name                            = "footystats-initial-load"
+  function_source_directory             = "../../function_source"
+  function_secret_environment_variables = ["FOOTYSTATS_API_KEY"]
+  function_environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
+  function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
+  region                                = var.region
+  project_id                            = module.project.project_id
 }
 
 module "footystats-get-footystats" {
   source = "../modules/event-function"
 
-  function_name                = "footystats_get_data"
+  name                         = "footystats_get_data"
   bucket_name                  = module.buckets.names["gcf"]
   max_instances                = 3000
   secret_environment_variables = ["FOOTYSTATS_API_KEY"]
@@ -210,7 +207,7 @@ module "footystats-get-footystats" {
 module "footystats-transform-matches" {
   source = "../modules/event-function"
 
-  function_name         = "footystats_transform_matches"
+  name                  = "footystats_transform_matches"
   bucket_name           = module.buckets.names["gcf"]
   environment_variables = { BUCKET_NAME = module.buckets.names["footystats-matches-transformed"] }
   event_type            = "google.cloud.storage.object.v1.finalized"
@@ -226,17 +223,17 @@ module "footystats-transform-matches" {
 module "solver" {
   source = "../modules/scheduled-function"
 
-  function_name    = "solver"
-  bucket_name      = module.buckets.names["gcf"]
-  timeout_s        = 540
-  available_memory = "1Gi"
-  available_cpu    = 2
-  job_name         = "solver"
-  job_schedule     = "30 */3 * * *"
-  message_data     = "Club"
-  topic_name       = "solver"
-  source_directory = "../../function_source"
-  environment_variables = {
+  function_name             = "solver"
+  bucket_name               = module.buckets.names["gcf"]
+  function_timeout_s        = 540
+  function_available_memory = "1Gi"
+  function_available_cpu    = 2
+  job_name                  = "solver"
+  job_schedule              = "30 */3 * * *"
+  message_data              = "Club"
+  topic_name                = "solver"
+  function_source_directory = "../../function_source"
+  function_environment_variables = {
     BOUND       = 10
     BUCKET_NAME = module.buckets.names["solver"]
   }
@@ -259,13 +256,13 @@ resource "google_cloud_scheduler_job" "solver-international" {
 module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
-  function_name    = "hkjc_get_odds"
-  bucket_name      = module.buckets.names["gcf"]
-  job_name         = "hkjc-odds"
-  job_schedule     = "45 */3 * * *"
-  topic_name       = "hkjc-odds"
-  source_directory = "../../function_source"
-  environment_variables = {
+  function_name             = "hkjc_get_odds"
+  bucket_name               = module.buckets.names["gcf"]
+  job_name                  = "hkjc-odds"
+  job_schedule              = "45 */3 * * *"
+  topic_name                = "hkjc-odds"
+  function_source_directory = "../../function_source"
+  function_environment_variables = {
     BUCKET_NAME = module.buckets.names["hkjc"]
     POOLS       = jsonencode(["HAD", "HDC"])
   }
@@ -276,15 +273,15 @@ module "hkjc-get-odds" {
 module "hkjc-get-content" {
   source = "../modules/scheduled-function"
 
-  function_name         = "hkjc_get_content"
-  bucket_name           = module.buckets.names["gcf"]
-  job_name              = "hkjc-get-content"
-  job_schedule          = "45 7 * * *"
-  topic_name            = "hkjc-content"
-  source_directory      = "../../function_source"
-  environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
-  region                = var.region
-  project_id            = module.project.project_id
+  function_name                  = "hkjc_get_content"
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "hkjc-get-content"
+  job_schedule                   = "45 7 * * *"
+  topic_name                     = "hkjc-content"
+  function_source_directory      = "../../function_source"
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
+  region                         = var.region
+  project_id                     = module.project.project_id
 }
 
 module "bigquery-hkjc" {
@@ -417,29 +414,28 @@ module "bigquery-functions" {
     }
   }
 
-  depends_on = [module.bigquery-footystats, module.bigquery-manual]
+  depends_on = [module.bigquery-footystats.external_tables, module.bigquery-manual.external_tables]
 }
 
 module "bigquery-master" {
   source = "../modules/bigquery"
 
-  dataset_id = "master"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id           = "master"
+  service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
+  location             = var.region
+  project_id           = module.project.project_id
   scheduled_queries = {
     leagues = {
-      schedule             = "every 24 hours"
-      service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
-      query                = file("../../bigquery/routine/master/leagues.sql")
+      schedule = "every 24 hours"
+      query    = file("../../bigquery/routine/master/leagues.sql")
     }
     teams = {
-      schedule             = "every 24 hours"
-      service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
-      query                = file("../../bigquery/routine/master/teams.sql")
+      schedule = "every 24 hours"
+      query    = file("../../bigquery/routine/master/teams.sql")
     }
   }
 
-  depends_on = [module.bigquery-footystats, module.bigquery-hkjc, module.bigquery-manual]
+  depends_on = [module.bigquery-footystats.external_tables, module.bigquery-hkjc.external_tables, module.bigquery-manual.external_tables]
 }
 
 module "bigquery-outputs" {
@@ -455,5 +451,5 @@ module "bigquery-outputs" {
     team_ratings_international = file("../../bigquery/routine/outputs/team_ratings_international.sql")
   }
 
-  depends_on = [module.bigquery-master]
+  depends_on = [module.bigquery-master.native_tables]
 }

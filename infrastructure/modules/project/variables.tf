@@ -1,5 +1,5 @@
 variable "name" {
-  description = "The name for the project"
+  description = "The name for the project."
   type        = string
 }
 
@@ -9,7 +9,7 @@ variable "project_id" {
 }
 
 variable "billing_account" {
-  description = "The ID of the billing account to associate this project with"
+  description = "The ID of the billing account to associate this project with."
   type        = string
 }
 
@@ -26,7 +26,7 @@ variable "activate_api_identities" {
 }
 
 variable "activate_api_sleep_duration" {
-  description = "The duration to sleep in seconds before activating the apis."
+  description = "The duration to sleep after activating the apis."
   type        = string
   default     = "5m"
 }

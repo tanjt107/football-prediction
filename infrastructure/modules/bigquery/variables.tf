@@ -4,14 +4,13 @@ variable "dataset_id" {
 }
 
 variable "tables" {
-  description = "A list of objects which include table_id, table_name, schema, clustering, time_partitioning, range_partitioning, expiration_time and labels."
+  description = "A map of objects which include table_id and schema."
+  type        = map(string)
   default     = {}
-  type = map(object({
-    schema = string
-  }))
 }
 
 variable "external_tables" {
+  description = "A map of objects which include table_id and external_data_configuration."
   type = map(object({
     schema        = string,
     source_format = string,
@@ -21,14 +20,13 @@ variable "external_tables" {
 }
 
 variable "views" {
-  description = "A list of objects which include view_id and view query"
+  description = "A map of objects which include view_id and view query."
   type        = map(string)
   default     = {}
 }
 
 variable "routines" {
-  description = "A list of objects which include routine_id, routine_type, routine_language, definition_body, return_type, routine_description and arguments."
-  default     = {}
+  description = "A map of objects which include routine_id, routine_type, routine_language, definition_body, return_type and arguments."
   type = map(object({
     definition_body = string,
     routine_type    = string,
@@ -39,26 +37,33 @@ variable "routines" {
       data_type = string
     })),
   }))
+  default = {}
 }
 
 variable "scheduled_queries" {
-  description = "Data transfer configuration for creating scheduled queries"
-  default     = {}
+  description = "Data transfer configuration for creating scheduled queries."
   type        = map(any)
+  default     = {}
+}
+
+variable "service_account_name" {
+  description = "Default service account to apply to the scheduled queries."
+  type        = string
+  default     = null
 }
 
 variable "location" {
-  description = "The regional location for the dataset"
+  description = "The regional location for the dataset."
   type        = string
 }
 
 variable "project_id" {
-  description = "Project where the dataset and table are created"
+  description = "Project where the dataset and table are created."
   type        = string
 }
 
 variable "deletion_protection" {
-  description = "Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail"
+  description = "Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail."
   type        = bool
   default     = true
 }

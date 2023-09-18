@@ -18,7 +18,7 @@ resource "google_storage_bucket" "buckets" {
   project       = var.project_id
 }
 
-resource "google_storage_bucket_object" "picture" {
+resource "google_storage_bucket_object" "files" {
   for_each = { for obj in local.file_list : "${obj.bucket}_${obj.file}" => obj }
 
   bucket = google_storage_bucket.buckets[each.value.bucket].name

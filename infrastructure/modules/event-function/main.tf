@@ -1,17 +1,17 @@
 data "archive_file" "file" {
   type        = "zip"
-  output_path = "${var.source_directory}/${var.function_name}.zip"
-  source_dir  = "${var.source_directory}/${var.function_name}"
+  output_path = "${var.source_directory}/${var.name}.zip"
+  source_dir  = "${var.source_directory}/${var.name}"
 }
 
 resource "google_storage_bucket_object" "object" {
   bucket = var.bucket_name
-  name   = "${var.function_name}.zip"
+  name   = "${var.name}.zip"
   source = data.archive_file.file.output_path
 }
 
 resource "google_cloudfunctions2_function" "function" {
-  name     = var.function_name
+  name     = var.name
   location = var.region
   project  = var.project_id
 

@@ -14,6 +14,12 @@ variable "location" {
   type        = string
 }
 
+variable "files" {
+  description = "Map of name => list of file objects."
+  type        = map(list(string))
+  default     = {}
+}
+
 variable "project_id" {
   description = "Bucket project id."
   type        = string
@@ -23,10 +29,4 @@ variable "force_destroy" {
   description = "Defaults to false."
   type        = bool
   default     = false
-}
-
-variable "files" {
-  description = "Map of lowercase unprefixed name => list of file objects."
-  type        = map(list(string))
-  default     = {}
 }

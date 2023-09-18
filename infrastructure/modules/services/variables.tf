@@ -1,18 +1,18 @@
 variable "project_id" {
-  description = "The GCP project you want to enable APIs on"
+  description = "The GCP project you want to enable APIs on."
   type        = string
 }
 
-variable "activate_apis" {
-  description = "The list of apis to activate within the project"
-  type        = list(string)
-  default     = []
+variable "enable_apis" {
+  description = "Whether to actually enable the APIs."
+  type        = bool
+  default     = true
 }
 
-variable "api_activated" {
-  description = "Whether the apis are already activated"
-  type        = bool
-  default     = false
+variable "activate_apis" {
+  description = "The list of apis to activate within the project."
+  type        = list(string)
+  default     = []
 }
 
 variable "activate_api_identities" {

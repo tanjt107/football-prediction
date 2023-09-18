@@ -22,21 +22,21 @@ resource "google_cloud_scheduler_job" "job" {
 module "function" {
   source = "../event-function"
 
-  function_name                = var.function_name
-  runtime                      = var.runtime
-  entry_point                  = var.entry_point
+  name                         = var.function_name
+  runtime                      = var.function_runtime
+  entry_point                  = var.function_entry_point
   bucket_name                  = var.bucket_name
-  timeout_s                    = var.timeout_s
-  available_memory             = var.available_memory
-  available_cpu                = var.available_cpu
-  environment_variables        = var.environment_variables
-  max_instances                = var.max_instances
-  secret_environment_variables = var.secret_environment_variables
+  timeout_s                    = var.function_timeout_s
+  available_memory             = var.function_available_memory
+  available_cpu                = var.function_available_cpu
+  environment_variables        = var.function_environment_variables
+  max_instances                = var.function_max_instances
+  secret_environment_variables = var.function_secret_environment_variables
   event_type                   = "google.cloud.pubsub.topic.v1.messagePublished"
-  event_filters                = var.event_filters
+  event_filters                = var.function_event_filters
   topic_name                   = module.pubsub.id
-  event_trigger_failure_policy = var.event_trigger_failure_policy
-  source_directory             = var.source_directory
+  event_trigger_failure_policy = var.function_event_trigger_failure_policy
+  source_directory             = var.function_source_directory
   region                       = var.region
   project_id                   = var.project_id
 }

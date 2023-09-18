@@ -1,4 +1,4 @@
-resource "google_secret_manager_secret" "secret" {
+resource "google_secret_manager_secret" "secrets" {
   for_each = var.secrets
 
   secret_id = each.key
@@ -8,9 +8,9 @@ resource "google_secret_manager_secret" "secret" {
   }
 }
 
-resource "google_secret_manager_secret_version" "version" {
+resource "google_secret_manager_secret_version" "versions" {
   for_each = var.secrets
 
-  secret      = google_secret_manager_secret.secret[each.key].id
+  secret      = google_secret_manager_secret.secrets[each.key].id
   secret_data = each.value
 }

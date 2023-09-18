@@ -15,7 +15,7 @@ resource "google_project_service" "project_services" {
 }
 
 resource "time_sleep" "wait_activate_api" {
-  count = var.api_activated ? 0 : 1
+  count = var.enable_apis ? 1 : 0
 
   create_duration = var.activate_api_sleep_duration
 

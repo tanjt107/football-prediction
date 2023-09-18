@@ -1,10 +1,10 @@
 variable "secrets" {
-  description = "A map of secret objects, each containing a name and the secret data, to be created in Google Secret Manager."
+  description = "A map of objects, which include the name and the secret."
   type        = map(string)
   default     = {}
 }
 
 variable "project_id" {
-  description = "The unique identifier of the Google Cloud project where the Secret Manager resources will be managed."
+  description = "Project where the secrets are created."
   type        = string
 }

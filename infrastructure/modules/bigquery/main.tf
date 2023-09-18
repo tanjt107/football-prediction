@@ -5,16 +5,16 @@ resource "google_bigquery_dataset" "dataset" {
   delete_contents_on_destroy = var.deletion_protection
 }
 
-resource "google_bigquery_table" "main" {
+resource "google_bigquery_table" "native_tables" {
   for_each            = var.tables
   dataset_id          = google_bigquery_dataset.dataset.dataset_id
   table_id            = each.key
-  schema              = each.value["schema"]
+  schema              = each.value
   project             = var.project_id
   deletion_protection = var.deletion_protection
 }
 
-resource "google_bigquery_table" "external_table" {
+resource "google_bigquery_table" "external_tables" {
   for_each            = var.external_tables
   dataset_id          = google_bigquery_dataset.dataset.dataset_id
   table_id            = each.key
@@ -29,7 +29,7 @@ resource "google_bigquery_table" "external_table" {
   }
 }
 
-resource "google_bigquery_table" "view" {
+resource "google_bigquery_table" "views" {
   for_each            = var.views
   dataset_id          = google_bigquery_dataset.dataset.dataset_id
   table_id            = each.key
@@ -41,10 +41,13 @@ resource "google_bigquery_table" "view" {
     use_legacy_sql = false
   }
 
-  depends_on = [google_bigquery_table.external_table]
+  depends_on = [
+    google_bigquery_table.native_tables,
+    google_bigquery_table.external_tables
+  ]
 }
 
-resource "google_bigquery_routine" "routine" {
+resource "google_bigquery_routine" "routines" {
   for_each        = var.routines
   dataset_id      = google_bigquery_dataset.dataset.dataset_id
   routine_id      = each.key
@@ -62,7 +65,10 @@ resource "google_bigquery_routine" "routine" {
     }
   }
 
-  depends_on = [google_bigquery_table.external_table]
+  depends_on = [
+    google_bigquery_table.native_tables,
+    google_bigquery_table.external_tables
+  ]
 }
 
 resource "google_bigquery_data_transfer_config" "scheduled_queries" {
@@ -73,11 +79,16 @@ resource "google_bigquery_data_transfer_config" "scheduled_queries" {
   schedule               = each.value.schedule
   disabled               = !var.deletion_protection
   location               = var.location
-  service_account_name   = each.value.service_account_name
+  service_account_name   = var.service_account_name
   project                = var.project_id
   params = {
     destination_table_name_template = each.key
     write_disposition               = "WRITE_TRUNCATE"
     query                           = each.value.query
   }
+
+  depends_on = [
+    google_bigquery_table.native_tables,
+    google_bigquery_table.external_tables
+  ]
 }
