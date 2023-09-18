@@ -1,0 +1,53 @@
+[
+    {
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "name",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "country",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "footystats_name",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "format",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "division",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "footystats_division",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "type",
+        "type": "STRING"
+    },
+    {
+        "name": "latest_season_id",
+        "type": "INTEGER"
+    },
+    {
+        "name": "hkjc_id",
+        "type": "STRING"
+    },
+    {
+        "name": "transfermarkt_id",
+        "type": "STRING"
+    }
+]

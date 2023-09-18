@@ -427,6 +427,10 @@ module "bigquery-master" {
   service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
   location             = var.region
   project_id           = module.project.project_id
+  tables = {
+    leagues = file("../../bigquery/schema/master/leagues.json")
+    teams   = file("../../bigquery/schema/master/teams.json")
+  }
   scheduled_queries = {
     leagues = {
       schedule = "every 24 hours"

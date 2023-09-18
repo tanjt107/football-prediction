@@ -440,6 +440,10 @@ module "bigquery-master" {
   location             = var.region
   project_id           = module.project.project_id
   deletion_protection  = false
+  tables = {
+    leagues = file("../../bigquery/schema/master/leagues.json")
+    teams   = file("../../bigquery/schema/master/teams.json")
+  }
   scheduled_queries = {
     leagues = {
       schedule = "every 24 hours"
