@@ -20,7 +20,11 @@ footystats_club AS (
     DISTINCT teams.id,
     name,
     country,
-    'Club' AS type,  
+    'Club' AS type,
+    CASE
+      WHEN latest_season_teams.id IS NOT NULL THEN CAST(teams.id AS STRING)
+      ELSE country
+    END AS solver_id,
     league_id,
     latest_season_teams.id IS NOT NULL AS in_team_rating
   FROM `footystats.teams` teams
@@ -33,7 +37,8 @@ footystats_international AS (
     DISTINCT teams.id,
     name,
     country,
-    'International' AS type,  
+    'International' AS type,
+    CAST(teams.id AS STRING) AS solver_id,
     NULL AS league_id,
     transfermarkt_id IS NOT NULL AS in_team_rating
   FROM `footystats.teams` teams
@@ -47,6 +52,7 @@ footystats AS (
     name,
     country,
     type,
+    solver_id,
     league_id,
     in_team_rating
   FROM footystats_club
@@ -56,6 +62,7 @@ footystats AS (
     name,
     country,
     type,
+    solver_id,
     CAST(league_id AS STRING) AS league_id,
     in_team_rating
   FROM footystats_international
@@ -103,6 +110,7 @@ SELECT
   footystats.id AS footystats_id,
   hkjc_id,
   transfermarkt_id,
+  solver_id,
   league_id,
   COALESCE(in_team_rating, FALSE) AS in_team_rating
 FROM footystats

@@ -3,7 +3,7 @@ WITH average AS (
     AVG(offence) AS offence,
     AVG(defence) AS defence
   FROM `solver.teams` solver
-  JOIN `master.teams` master ON solver.id = master.id
+  JOIN `master.teams` master ON solver.id = master.solver_id
   WHERE in_team_rating AND type = 'Club'
 ),
 
@@ -40,7 +40,7 @@ SELECT
   ROUND(defence, 1) AS defence,
   ROUND(rating, 1) AS rating
 FROM factors
-JOIN `master.teams` teams ON factors.id = teams.id
+JOIN `master.teams` teams ON factors.id = teams.solver_id
 JOIN `master.leagues` leagues ON teams.league_id = leagues.id
 JOIN ratings ON factors.id = ratings.id
 ORDER BY rank;

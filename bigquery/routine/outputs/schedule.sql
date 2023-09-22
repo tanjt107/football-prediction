@@ -36,8 +36,8 @@ WITH
     AND seasons.name = leagues.footystats_name
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-  LEFT JOIN `solver.teams` home_solver ON home_teams.id = home_solver.id
-  LEFT JOIN `solver.teams` away_solver ON away_teams.id = away_solver.id
+  LEFT JOIN `solver.teams` home_solver ON home_teams.solver_id = home_solver.id
+  LEFT JOIN `solver.teams` away_solver ON away_teams.solver_id = away_solver.id
   LEFT JOIN `solver.leagues` league_solver ON leagues.division = league_solver.division
     AND leagues.type = REGEXP_EXTRACT(league_solver._FILE_NAME, r".*/(.*)\.json")
   WHERE matches.status = 'incomplete' 

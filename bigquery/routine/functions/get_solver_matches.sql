@@ -1,8 +1,8 @@
 WITH matches AS (
   SELECT
   matches.id,
-  home_teams.id AS home_id,
-  away_teams.id AS away_id,
+  home_teams.solver_id AS home_id,
+  away_teams.solver_id AS away_id,
   leagues.division,
   CASE
     WHEN home_teams.country <> away_teams.country OR leagues.type = 'International'
@@ -41,3 +41,4 @@ FROM matches
 JOIN recentness ON matches.id = recentness.id
 JOIN `${project_id}.footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
 WHERE recent > 0
+  AND home_id <> away_id

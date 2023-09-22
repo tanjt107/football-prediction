@@ -35,6 +35,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "solver_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "league_id",
         "type": "STRING",
         "mode": "NULLABLE"
