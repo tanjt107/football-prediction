@@ -66,7 +66,7 @@ module "footystats-get-league-list" {
   function_name                         = "footystats_get_league_list"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats"
-  job_schedule                          = "0 */4 * * *"
+  job_schedule                          = "20 4,12,20 * * *"
   topic_name                            = "footystats"
   function_source_directory             = "../../function_source"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -105,7 +105,7 @@ module "footystats-publish-season-ids-initial-load" {
   function_name                         = "footystats_publish_season_ids_initial_load"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-initial-load"
-  job_schedule                          = "0 7 1 * *"
+  job_schedule                          = "15 23 31 1,7 *"
   topic_name                            = "footystats-initial-load"
   function_source_directory             = "../../function_source"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -196,7 +196,7 @@ module "solver" {
   function_available_memory = "1Gi"
   function_available_cpu    = 2
   job_name                  = "solver"
-  job_schedule              = "30 */4 * * *"
+  job_schedule              = "25 4,12,20 * * *"
   message_data              = "Club"
   topic_name                = "solver"
   function_source_directory = "../../function_source"
@@ -209,11 +209,10 @@ module "solver" {
 }
 
 resource "google_cloud_scheduler_job" "solver-international" {
-  name      = "solver-international"
-  schedule  = "30 */12 * 1-3,6-7,9-11 *"
-  time_zone = "Asia/Hong_Kong"
-  region    = var.region
-  project   = module.project.project_id
+  name     = "solver-international"
+  schedule = "25 20 * 1-3,6-7,9-11 *"
+  region   = var.region
+  project  = module.project.project_id
 
   pubsub_target {
     topic_name = "projects/${module.project.project_id}/topics/${module.solver.pubsub_topic_name}"
@@ -250,7 +249,7 @@ module "hkjc-get-odds" {
   function_name             = "hkjc_get_odds"
   bucket_name               = module.buckets.names["gcf"]
   job_name                  = "hkjc-odds"
-  job_schedule              = "45 */4 * * *"
+  job_schedule              = "35 4,12,20 * * *"
   topic_name                = "hkjc-odds"
   function_source_directory = "../../function_source"
   function_environment_variables = {
@@ -267,7 +266,7 @@ module "hkjc-get-content" {
   function_name                  = "hkjc_get_content"
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "hkjc-get-content"
-  job_schedule                   = "45 7 * * *"
+  job_schedule                   = "35 23 * * *"
   topic_name                     = "hkjc-content"
   function_source_directory      = "../../function_source"
   function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
@@ -437,11 +436,11 @@ module "bigquery-master" {
   }
   scheduled_queries = {
     leagues = {
-      schedule = "every 24 hours"
+      schedule = "every day 23:40"
       query    = file("../../bigquery/routine/master/leagues.sql")
     }
     teams = {
-      schedule = "every 24 hours"
+      schedule = "every day 23:40"
       query    = file("../../bigquery/routine/master/teams.sql")
     }
   }

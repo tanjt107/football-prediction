@@ -6,12 +6,11 @@ module "pubsub" {
 }
 
 resource "google_cloud_scheduler_job" "job" {
-  name      = var.job_name
-  schedule  = var.job_schedule
-  time_zone = var.time_zone
-  paused    = var.job_paused
-  region    = var.region
-  project   = var.project_id
+  name     = var.job_name
+  schedule = var.job_schedule
+  paused   = var.job_paused
+  region   = var.region
+  project  = var.project_id
 
   pubsub_target {
     topic_name = "projects/${var.project_id}/topics/${module.pubsub.topic}"

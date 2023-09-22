@@ -95,12 +95,6 @@ variable "message_data" {
   default     = "Hello World"
 }
 
-variable "time_zone" {
-  description = "The timezone to use in scheduler."
-  type        = string
-  default     = "Asia/Hong_Kong"
-}
-
 variable "topic_name" {
   description = "Name of pubsub topic connecting the scheduled job and the function."
   type        = string
