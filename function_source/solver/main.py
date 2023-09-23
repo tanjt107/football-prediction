@@ -5,7 +5,6 @@ import functions_framework
 from google.cloud import bigquery, storage
 from pulp import LpMinimize, LpProblem, lpSum, LpVariable
 
-BOUND = os.environ.get("BOUND")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 BQ_CLIENT = bigquery.Client()
 GS_CLIENT = storage.Client()
@@ -62,7 +61,7 @@ def get_latest_match_date(type):
 
 
 def get_matches(type, max_time: int):
-    sql = f"SELECT * FROM `functions.get_solver_matches`('{type}', {max_time}, 1, 5);"
+    sql = f"SELECT * FROM `functions.get_solver_matches`('{type}', {max_time});"
     query_job = BQ_CLIENT.query(sql)
     rows = query_job.result()
     return [dict(row) for row in rows]
@@ -82,10 +81,8 @@ def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
     # Dictionaries to contain all variables
     avg_goals = LpVariable.dicts("avg_goal", leagues, lowBound=0)
     home_advs = LpVariable.dict("home_adv", leagues, lowBound=0)
-    up_bound = int(BOUND) if BOUND else None
-    low_bound = -int(BOUND) if BOUND else None
-    offences = LpVariable.dicts("offence", teams, lowBound=low_bound, upBound=up_bound)
-    defences = LpVariable.dicts("defence", teams, lowBound=low_bound, upBound=up_bound)
+    offences = LpVariable.dicts("offence", teams)
+    defences = LpVariable.dicts("defence", teams)
     home_errors = LpVariable.dicts("home_error", ids)
     away_errors = LpVariable.dicts("away_error", ids)
 

@@ -194,23 +194,20 @@ module "bigquery-footystats" {
 module "solver" {
   source = "../modules/scheduled-function"
 
-  function_name             = "solver"
-  bucket_name               = module.buckets.names["gcf"]
-  function_timeout_s        = 540
-  function_available_memory = "1Gi"
-  function_available_cpu    = 2
-  job_name                  = "solver"
-  job_schedule              = "25 4,12,20 * * *"
-  job_paused                = true
-  message_data              = "Club"
-  topic_name                = "solver"
-  function_source_directory = "../../function_source"
-  function_environment_variables = {
-    BOUND       = 10
-    BUCKET_NAME = module.buckets.names["solver"]
-  }
-  region     = var.region
-  project_id = module.project.project_id
+  function_name                  = "solver"
+  bucket_name                    = module.buckets.names["gcf"]
+  function_timeout_s             = 540
+  function_available_memory      = "1Gi"
+  function_available_cpu         = 2
+  job_name                       = "solver"
+  job_schedule                   = "25 4,12,20 * * *"
+  job_paused                     = true
+  message_data                   = "Club"
+  topic_name                     = "solver"
+  function_source_directory      = "../../function_source"
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["solver"] }
+  region                         = var.region
+  project_id                     = module.project.project_id
 }
 
 resource "google_cloud_scheduler_job" "solver-international" {
@@ -360,69 +357,6 @@ module "bigquery-manual" {
   }
 }
 
-module "bigquery-functions" {
-  source = "../modules/bigquery"
-
-  dataset_id          = "functions"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
-  routines = {
-    get_solver_matches = {
-      definition_body = templatefile("../../bigquery/routine/functions/get_solver_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league_type"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "max_time"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        },
-        {
-          name      = "cut_off_year"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        },
-        {
-          name      = "inter_league_cut_off_year"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        }
-      ]
-    }
-    matchProbs = {
-      definition_body = file("../../bigquery/routine/functions/matchProbs.js")
-      routine_type    = "SCALAR_FUNCTION"
-      language        = "JAVASCRIPT"
-      return_type = jsonencode({
-        "typeKind" : "ARRAY",
-        "arrayElementType" : { "typeKind" : "FLOAT64" }
-      })
-      arguments = [
-        {
-          name      = "projScore1"
-          data_type = jsonencode({ "typeKind" : "FLOAT64" })
-        },
-        {
-          name      = "projScore2"
-          data_type = jsonencode({ "typeKind" : "FLOAT64" })
-        },
-        {
-          name      = "handicap"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "goalDiff"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        }
-      ]
-    }
-  }
-
-  depends_on = [module.bigquery-footystats.external_tables, module.bigquery-manual.external_tables]
-}
-
 module "service-accounts" {
   source = "../modules/service-accounts"
 
@@ -458,7 +392,62 @@ module "bigquery-master" {
     }
   }
 
-  depends_on = [module.bigquery-footystats.external_tables, module.bigquery-hkjc.external_tables, module.bigquery-manual.external_tables]
+  depends_on = [
+    module.bigquery-footystats.external_tables,
+    module.bigquery-hkjc.external_tables,
+    module.bigquery-manual.external_tables
+  ]
+}
+
+module "bigquery-functions" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "functions"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  routines = {
+    get_solver_matches = {
+      definition_body = templatefile("../../bigquery/routine/functions/get_solver_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "max_time"
+          data_type = jsonencode({ "typeKind" : "INT64" })
+        }
+      ]
+    }
+    matchProbs = {
+      definition_body = file("../../bigquery/routine/functions/matchProbs.js")
+      routine_type    = "SCALAR_FUNCTION"
+      language        = "JAVASCRIPT"
+      return_type = jsonencode({
+        "typeKind" : "ARRAY",
+        "arrayElementType" : { "typeKind" : "FLOAT64" }
+      })
+      arguments = [
+        {
+          name      = "projScore1"
+          data_type = jsonencode({ "typeKind" : "FLOAT64" })
+        },
+        {
+          name      = "projScore2"
+          data_type = jsonencode({ "typeKind" : "FLOAT64" })
+        },
+        {
+          name      = "handicap"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+  }
+
+  depends_on = [module.bigquery-master.native_tables]
 }
 
 module "bigquery-outputs" {
@@ -475,5 +464,8 @@ module "bigquery-outputs" {
     team_ratings_international = file("../../bigquery/routine/outputs/team_ratings_international.sql")
   }
 
-  depends_on = [module.bigquery-master.native_tables]
+  depends_on = [
+    module.bigquery-solver.external_tables,
+    module.bigquery-functions.routines
+  ]
 }

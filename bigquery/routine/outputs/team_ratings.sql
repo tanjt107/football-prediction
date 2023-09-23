@@ -1,26 +1,23 @@
-WITH average AS (
+WITH solver AS (
   SELECT
-    AVG(offence) AS offence,
-    AVG(defence) AS defence
+    solver.id,
+    teams.transfermarkt_id AS team_transfermarkt_id,
+    teams.name AS team_name,
+    leagues.transfermarkt_id AS league_transfermarkt_id,
+    leagues.name AS league_name,
+    GREATEST(1.35 + offence, 0.2) AS offence,
+    GREATEST(1.35 + defence, 0.2) AS defence
   FROM `solver.teams` solver
-  JOIN `master.teams` master ON solver.id = master.solver_id
-  WHERE in_team_rating AND type = 'Club'
-),
-
-factors AS (
-  SELECT
-    id,
-    GREATEST(1.35 + solver.offence - average.offence, 0.2) AS offence,
-    GREATEST(1.35 + solver.defence - average.defence, 0.2) AS defence
-  FROM `solver.teams` solver
-  CROSS JOIN average
+  JOIN `master.teams` teams ON solver.id = teams.solver_id
+  JOIN `master.leagues` leagues ON teams.league_id = leagues.id
+  WHERE in_team_rating AND teams.type = 'Club'
 ),
 
 match_probs AS (
   SELECT
     id,
-    functions.matchProbs(offence, defence, '0', 5) AS match_prob
-  FROM factors
+    functions.matchProbs(offence, defence, '0') AS match_prob
+  FROM solver
 ),
 
 ratings AS (
@@ -32,15 +29,13 @@ ratings AS (
 
 SELECT
   RANK() OVER(ORDER BY rating DESC) AS rank,
-  teams.transfermarkt_id AS team_icon,
-  teams.name AS team,
-  leagues.transfermarkt_id AS league_icon,
-  leagues.name AS league,
-  ROUND(offence, 1) AS offence,
-  ROUND(defence, 1) AS defence,
+  team_transfermarkt_id,
+  team_name,
+  league_transfermarkt_id,
+  league_name,
+  ROUND(offence, 2) AS offence,
+  ROUND(defence, 2) AS defence,
   ROUND(rating, 1) AS rating
-FROM factors
-JOIN `master.teams` teams ON factors.id = teams.solver_id
-JOIN `master.leagues` leagues ON teams.league_id = leagues.id
-JOIN ratings ON factors.id = ratings.id
+FROM solver
+JOIN ratings ON solver.id = ratings.id
 ORDER BY rank;

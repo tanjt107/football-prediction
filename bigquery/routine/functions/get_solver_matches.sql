@@ -5,9 +5,8 @@ WITH matches AS (
   away_teams.solver_id AS away_id,
   leagues.division,
   CASE
-    WHEN home_teams.country <> away_teams.country OR leagues.type = 'International'
-    THEN inter_league_cut_off_year
-    ELSE cut_off_year
+    WHEN home_teams.country <> away_teams.country OR leagues.type = 'International' THEN 5
+    ELSE 1
   END
   AS cut_off_year,
   date_unix
@@ -19,6 +18,7 @@ WITH matches AS (
     AND seasons.name = leagues.footystats_name
   WHERE matches.status = 'complete'
     AND leagues.type = league_type
+    AND home_teams.solver_id <> away_teams.solver_id
 ),
 
 recentness AS (
@@ -26,8 +26,9 @@ recentness AS (
     id,
     1 - (max_time - date_unix) / (31536000 * cut_off_year) AS recent,
     (1 - (max_time - date_unix) / (2160000 * cut_off_year)) * 0.25 AS recent_bonus
-  FROM
-    matches )
+  FROM matches
+  WHERE max_time - date_unix < 31536000 * cut_off_year
+  )
 
 SELECT
   matches.id,
@@ -40,5 +41,3 @@ SELECT
 FROM matches
 JOIN recentness ON matches.id = recentness.id
 JOIN `${project_id}.footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
-WHERE recent > 0
-  AND home_id <> away_id
