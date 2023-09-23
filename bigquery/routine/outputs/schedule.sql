@@ -170,16 +170,16 @@ SELECT
   had_H,
   had_D,
   had_A,
-  ROUND(GREATEST(had_home - (1 - had_home) / (had_H - 1),0), 2) AS kelly_had_home,
-  ROUND(GREATEST(had_draw - (1 - had_draw) / (had_D - 1),0), 2) AS kelly_had_draw,
-  ROUND(GREATEST(had_away - (1 - had_away) / (had_A - 1),0), 2) AS kelly_had_away,
+  ROUND(GREATEST(had_home - (1 - had_home) / (had_H - 1), 0), 2) AS kelly_had_home,
+  ROUND(GREATEST(had_draw - (1 - had_draw) / (had_D - 1), 0), 2) AS kelly_had_draw,
+  ROUND(GREATEST(had_away - (1 - had_away) / (had_A - 1), 0), 2) AS kelly_had_away,
   hdc,
   ROUND(hdc_home, 2) AS hdc_home,
   ROUND(hdc_away, 2) AS hdc_away,
   hdc_H,
   hdc_A,
-  ROUND(GREATEST(hdc_home - hdc_away / (hdc_H - 1),0), 2) AS kelly_hdc_home,
-  ROUND(GREATEST(hdc_away - hdc_home / (hdc_A - 1),0), 2) AS kelly_hdc_away
+  ROUND(GREATEST(hdc_home - hdc_away / (hdc_H - 1), 0), 2) AS kelly_hdc_home,
+  ROUND(GREATEST(hdc_away - hdc_home / (hdc_A - 1), 0), 2) AS kelly_hdc_away
 FROM matches
 JOIN probs ON matches.matchID = probs.matchID
 ORDER BY matchDate, matches.matchID;
