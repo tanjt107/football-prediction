@@ -3,5 +3,6 @@
 .vscode
 *.zip
 *terraform*
+credentials
 env
 tmp
