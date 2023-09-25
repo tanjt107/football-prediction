@@ -14,7 +14,10 @@ variable "external_tables" {
   type = map(object({
     schema        = string,
     source_format = string,
-    source_uris   = list(string)
+    source_uris   = optional(list(string))
+    hive_partitioning_options = optional(object({
+      source_uri_prefix = string,
+    }))
   }))
   default = {}
 }

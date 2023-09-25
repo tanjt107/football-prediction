@@ -19,13 +19,21 @@ resource "google_bigquery_table" "external_tables" {
   dataset_id          = google_bigquery_dataset.dataset.dataset_id
   table_id            = each.key
   project             = var.project_id
-  deletion_protection = var.deletion_protection
+  deletion_protection = false
 
   external_data_configuration {
     autodetect    = false
     schema        = each.value["schema"]
     source_format = each.value["source_format"]
     source_uris   = each.value["source_uris"]
+
+    dynamic "hive_partitioning_options" {
+      for_each = each.value["hive_partitioning_options"] != null ? [each.value["hive_partitioning_options"]] : []
+      content {
+        mode              = "CUSTOM"
+        source_uri_prefix = hive_partitioning_options.value["source_uri_prefix"]
+      }
+    }
   }
 }
 
@@ -34,7 +42,7 @@ resource "google_bigquery_table" "views" {
   dataset_id          = google_bigquery_dataset.dataset.dataset_id
   table_id            = each.key
   project             = var.project_id
-  deletion_protection = var.deletion_protection
+  deletion_protection = false
 
   view {
     query          = each.value

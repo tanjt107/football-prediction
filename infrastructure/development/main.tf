@@ -237,14 +237,16 @@ module "bigquery-solver" {
   }
   external_tables = {
     leagues = {
-      schema        = file("../../bigquery/schema/solver/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["solver"]}/leagues/*.json"]
+      schema                    = file("../../bigquery/schema/solver/leagues.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["solver"]}/*/leagues.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{type:STRING}" }
     }
     teams = {
-      schema        = file("../../bigquery/schema/solver/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["solver"]}/teams/*.json"]
+      schema                    = file("../../bigquery/schema/solver/teams.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["solver"]}/*/teams.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{type:STRING}" }
     }
   }
 }

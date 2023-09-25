@@ -105,7 +105,7 @@ WITH
     avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence AS away_exp
   FROM matches
   LEFT JOIN `solver.leagues` league_solver ON matches.league_division = league_solver.division
-    AND matches.league_type = REGEXP_EXTRACT(league_solver._FILE_NAME, r".*/(.*)\.json")
+    AND matches.league_type = league_solver.type
   LEFT JOIN `solver.teams` home_solver ON matches.home_solver_id = home_solver.id
   LEFT JOIN `solver.teams` away_solver ON matches.away_solver_id = away_solver.id
   ),

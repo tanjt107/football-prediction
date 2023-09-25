@@ -23,8 +23,8 @@ def main(cloud_event):
     leagues = convert_to_newline_delimited_json(leagues)
     teams = convert_to_newline_delimited_json(teams)
 
-    upload_to_gcs(BUCKET_NAME, leagues, f"leagues/{_type}.json")
-    upload_to_gcs(BUCKET_NAME, teams, f"teams/{_type}.json")
+    upload_to_gcs(BUCKET_NAME, leagues, f"type={_type}/leagues.json")
+    upload_to_gcs(BUCKET_NAME, teams, f"type={_type}/teams.json")
 
     insert_run_log(_type, latest_match_date)
 
