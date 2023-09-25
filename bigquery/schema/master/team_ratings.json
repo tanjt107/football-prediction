@@ -1,0 +1,22 @@
+[
+    {
+        "name": "id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "offence",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "defence",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "rating",
+        "type": "FLOAT",
+        "mode": "NULLABLE"
+    }
+]

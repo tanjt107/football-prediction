@@ -1,0 +1,124 @@
+[
+    {
+        "name": "team",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "positions",
+        "type": "RECORD",
+        "fields": [
+            {
+                "name": "1",
+                "type": "FLOAT"
+            },
+            {
+                "name": "2",
+                "type": "FLOAT"
+            },
+            {
+                "name": "3",
+                "type": "FLOAT"
+            },
+            {
+                "name": "4",
+                "type": "FLOAT"
+            },
+            {
+                "name": "5",
+                "type": "FLOAT"
+            },
+            {
+                "name": "6",
+                "type": "FLOAT"
+            },
+            {
+                "name": "7",
+                "type": "FLOAT"
+            },
+            {
+                "name": "8",
+                "type": "FLOAT"
+            },
+            {
+                "name": "9",
+                "type": "FLOAT"
+            },
+            {
+                "name": "10",
+                "type": "FLOAT"
+            },
+            {
+                "name": "11",
+                "type": "FLOAT"
+            },
+            {
+                "name": "12",
+                "type": "FLOAT"
+            },
+            {
+                "name": "13",
+                "type": "FLOAT"
+            },
+            {
+                "name": "14",
+                "type": "FLOAT"
+            },
+            {
+                "name": "15",
+                "type": "FLOAT"
+            },
+            {
+                "name": "16",
+                "type": "FLOAT"
+            },
+            {
+                "name": "17",
+                "type": "FLOAT"
+            },
+            {
+                "name": "18",
+                "type": "FLOAT"
+            },
+            {
+                "name": "19",
+                "type": "FLOAT"
+            },
+            {
+                "name": "20",
+                "type": "FLOAT"
+            }
+        ]
+    },
+    {
+        "name": "table",
+        "type": "RECORD",
+        "fields": [
+            {
+                "name": "wins",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "draws",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "losses",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "scored",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            }
+        ]
+    }
+]

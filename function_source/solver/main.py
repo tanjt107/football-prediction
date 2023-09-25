@@ -12,42 +12,45 @@ GS_CLIENT = storage.Client()
 
 @functions_framework.cloud_event
 def main(cloud_event):
-    type = get_message(cloud_event)
-    last_run = get_last_run(type) or -1
-    latest_match_date = get_latest_match_date(type)
+    _type = get_message(cloud_event)
+    last_run = get_last_run(_type) or -1
+    latest_match_date = get_latest_match_date(_type)
     if last_run >= latest_match_date:
         return
 
-    matches = get_matches(type, latest_match_date)
+    matches = get_matches(_type, latest_match_date)
     leagues, teams = solver(matches)
     leagues = convert_to_newline_delimited_json(leagues)
     teams = convert_to_newline_delimited_json(teams)
 
-    upload_to_gcs(BUCKET_NAME, leagues, f"leagues/{type}.json")
-    upload_to_gcs(BUCKET_NAME, teams, f"teams/{type}.json")
+    upload_to_gcs(BUCKET_NAME, leagues, f"leagues/{_type}.json")
+    upload_to_gcs(BUCKET_NAME, teams, f"teams/{_type}.json")
 
-    insert_run_log(type, latest_match_date)
+    insert_run_log(_type, latest_match_date)
 
 
 def get_message(cloud_event) -> str:
     return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
 
 
-def get_last_run(type):
-    sql = (
-        f"SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = '{type}'"
+def get_last_run(_type):
+    query = (
+        f"SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
     )
-    return bq_fetch_one(sql)
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
+    )
+    if result := fetch_bq(query, job_config):
+        return result[0][0]
 
 
-def bq_fetch_one(sql: str):
-    query_job = BQ_CLIENT.query(sql)
-    rows = query_job.result()
-    return next(iter(rows), [None])[0]
+def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
+    query_job = BQ_CLIENT.query(query, job_config)
+    return list(query_job.result())
 
 
-def get_latest_match_date(type):
-    sql = f"""
+def get_latest_match_date(_type):
+    query = f"""
     SELECT
         MAX(date_unix)
     FROM `footystats.matches` matches
@@ -55,14 +58,17 @@ def get_latest_match_date(type):
     JOIN `master.leagues` leagues ON seasons.country = leagues.country
         AND seasons.name = leagues.footystats_name
     WHERE matches.status = 'complete'
-        AND leagues.type = '{type}'
+        AND leagues.type = @type
     """
-    return bq_fetch_one(sql)
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
+    )
+    return fetch_bq(query, job_config)[0][0]
 
 
-def get_matches(type, max_time: int):
-    sql = f"SELECT * FROM `functions.get_solver_matches`('{type}', {max_time});"
-    query_job = BQ_CLIENT.query(sql)
+def get_matches(_type, max_time: int):
+    query = f"SELECT * FROM `functions.get_solver_matches`('{_type}', {max_time});"
+    query_job = BQ_CLIENT.query(query)
     rows = query_job.result()
     return [dict(row) for row in rows]
 
@@ -145,7 +151,7 @@ def upload_to_gcs(bucket_name: str, content: str, destination: str):
     GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)
 
 
-def insert_run_log(type, match_date):
-    sql = f"INSERT INTO solver.run_log VALUES ('{type}', {match_date})"
-    query_job = BQ_CLIENT.query(sql)
+def insert_run_log(_type, date_unix):
+    query = f"INSERT INTO solver.run_log VALUES ('{_type}', {date_unix})"
+    query_job = BQ_CLIENT.query(query)
     query_job.result()

@@ -1,0 +1,4 @@
+functions-framework
+numpy
+google-cloud-bigquery
+google-cloud-storage
