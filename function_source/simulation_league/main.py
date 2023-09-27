@@ -151,7 +151,7 @@ class Team:
 def get_teams(league: str, country: str) -> list[Team]:
     query = """
     SELECT
-        solver.id,
+        CAST(solver.id AS INT64),
         offence,
         defence
     FROM solver.teams solver

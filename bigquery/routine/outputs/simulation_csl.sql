@@ -8,9 +8,9 @@ WITH result AS (
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws AS points,
     COALESCE(positions.1, 0) AS champ,
-    COALESCE(positions.1 + positions.2 * 0.5, 0) AS acle,
-    COALESCE(positions.2 * 0.5 + positions.3, 0) AS acl2,
-    COALESCE(positions.15 + positions.16, 0) AS relegation
+    COALESCE(positions.1, 0) + COALESCE(positions.2, 0) * 0.5 AS acle,
+    COALESCE(positions.2, 0) * 0.5 + COALESCE(positions.3, 0) AS acl2,
+    COALESCE(positions.15, 0) + COALESCE(positions.16, 0) AS relegation
   FROM `simulation.csl` sim
   JOIN `master.teams` teams ON sim.team = teams.solver_id
   JOIN `master.team_ratings` ratings ON sim.team = ratings.id

@@ -14,7 +14,7 @@ PUBLISHER = pubsub_v1.PublisherClient()
 def main(cloud_event):
     data = cloud_event.data
     blob_name = data["name"]
-    table, _type = re.match(r"(\w+)/(\w+)\.json", blob_name).groups()
+    _type, table = re.match(r"type=(\w+)/(\w+)\.json", blob_name).groups()
     if table != "teams":
         return
     params = get_params(_type)

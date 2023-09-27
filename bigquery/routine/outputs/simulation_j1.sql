@@ -8,7 +8,7 @@ WITH result AS (
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws AS points,
     COALESCE(positions.1, 0) AS champ,
-    COALESCE(positions.1 + positions.2 , 0) AS acle,
+    COALESCE(positions.1, 0) + COALESCE(positions.2 , 0) AS acle,
     COALESCE(positions.3, 0) AS acl2,
     COALESCE(positions.18, 0) AS relegation
   FROM `simulation.j1` sim
