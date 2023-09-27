@@ -3,9 +3,9 @@ WITH latest_seasons AS (
     latest_season_id AS season_id,
     id AS league_id
   FROM `master.leagues`
-  WHERE type = 'Club'
+  WHERE format = 'Domestic League'
     AND footystats_division > 0
-    AND format = 'Domestic League' ),
+    AND type = 'Club'),
 
 latest_season_teams AS (
   SELECT

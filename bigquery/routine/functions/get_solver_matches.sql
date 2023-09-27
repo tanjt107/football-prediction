@@ -17,8 +17,8 @@ WITH matches AS (
   JOIN `${project_id}.master.leagues` leagues ON seasons.country = leagues.country
     AND seasons.name = leagues.footystats_name
   WHERE matches.status = 'complete'
-    AND leagues.type = league_type
     AND home_teams.solver_id <> away_teams.solver_id
+    AND leagues.type = league_type
 ),
 
 recentness AS (

@@ -20,9 +20,9 @@ WITH
     CAST(SPLIT(hdcodds.H, '@')[OFFSET(1)] AS FLOAT64) AS hdc_H,
     CAST(SPLIT(hdcodds.A, '@')[OFFSET(1)] AS FLOAT64) AS hdc_A
   FROM `hkjc.odds_had` odds_had
-  JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
   JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
   JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
+  JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
   LEFT JOIN `hkjc.odds_hdc` odds_hdc ON odds_had.matchID = odds_hdc.matchID
   WHERE odds_had.matchState = 'PreEvent'
   ),
@@ -41,12 +41,11 @@ WITH
     away_teams.transfermarkt_id AS away_transfermarkt_id,
     away_teams.name AS away_name
   FROM `footystats.matches` matches
-  JOIN `footystats.seasons` seasons ON competition_id = seasons.id
-  JOIN `master.leagues` leagues
-  ON seasons.country = leagues.country
-    AND seasons.name = leagues.footystats_name
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
+  JOIN `footystats.seasons` seasons ON competition_id = seasons.id
+  JOIN `master.leagues` leagues ON seasons.country = leagues.country
+    AND seasons.name = leagues.footystats_name
   WHERE matches.status = 'incomplete'
     AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 5 DAY))
     AND ( home_teams.country = 'Hong Kong'
@@ -104,10 +103,10 @@ WITH
     avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence AS home_exp,
     avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence AS away_exp
   FROM matches
-  LEFT JOIN `solver.leagues` league_solver ON matches.league_division = league_solver.division
-    AND matches.league_type = league_solver.type
   LEFT JOIN `solver.teams` home_solver ON matches.home_solver_id = home_solver.id
   LEFT JOIN `solver.teams` away_solver ON matches.away_solver_id = away_solver.id
+  LEFT JOIN `solver.leagues` league_solver ON matches.league_division = league_solver.division
+    AND matches.league_type = league_solver.type
   ),
 
   match_probs AS (
