@@ -22,11 +22,11 @@ SELECT
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,
-  ROUND(goal_diff) AS goal_diff,
-  ROUND(points) AS points,
-  ROUND(champ, 2) AS champ,
-  ROUND(acle, 2) AS acle,
-  ROUND(acl2, 2) AS acl2,
-  ROUND(relegation, 2) AS relegation
+  ROUND(goal_diff, 1) AS goal_diff,
+  ROUND(points, 1) AS points,
+  ROUND(champ, 3) AS champ,
+  ROUND(acle, 3) AS acle,
+  ROUND(acl2, 3) AS acl2,
+  ROUND(relegation, 3) AS relegation
 FROM result
 ORDER BY points DESC

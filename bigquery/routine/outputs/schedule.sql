@@ -12,6 +12,8 @@ WITH
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
     odds_had.awayTeam.teamNameCH AS away_name,
+    home_ratings.rating AS home_rating,
+    away_ratings.rating AS away_rating,
     CAST(odds_had.venue IS NULL AS INT64) AS home_adv,
     CAST(SPLIT(hadodds.H, '@')[OFFSET(1)] AS FLOAT64) AS had_H,
     CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
@@ -22,6 +24,8 @@ WITH
   FROM `hkjc.odds_had` odds_had
   JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
   JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
+  JOIN `master.team_ratings` home_ratings ON home_teams.solver_id = home_ratings.id
+  JOIN `master.team_ratings` away_ratings ON away_teams.solver_id = away_ratings.id
   JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
   LEFT JOIN `hkjc.odds_hdc` odds_hdc ON odds_had.matchID = odds_hdc.matchID
   WHERE odds_had.matchState = 'PreEvent'
@@ -39,10 +43,14 @@ WITH
     home_teams.name AS home_name,
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
-    away_teams.name AS away_name
+    away_teams.name AS away_name,
+    home_ratings.rating AS home_rating,
+    away_ratings.rating AS away_rating
   FROM `footystats.matches` matches
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
+  JOIN `master.team_ratings` home_ratings ON home_teams.solver_id = home_ratings.id
+  JOIN `master.team_ratings` away_ratings ON away_teams.solver_id = away_ratings.id
   JOIN `footystats.seasons` seasons ON competition_id = seasons.id
   JOIN `master.leagues` leagues ON seasons.country = leagues.country
     AND seasons.name = leagues.footystats_name
@@ -65,6 +73,8 @@ WITH
     away_solver_id,
     away_transfermarkt_id,
     away_name,
+    home_rating,
+    away_rating,
     home_adv,
     had_H,
     had_D,
@@ -86,6 +96,8 @@ WITH
     away_solver_id,
     away_transfermarkt_id,
     away_name,
+    home_rating,
+    away_rating,
     1,
     NULL,
     NULL,
@@ -139,6 +151,8 @@ SELECT
   home_name,
   away_transfermarkt_id,
   away_name,
+  ROUND(home_rating, 1) AS home_rating,
+  ROUND(away_rating, 1) AS away_rating,
   ROUND(home_exp, 2) AS home_exp,
   ROUND(away_exp, 2) AS away_exp,
   ROUND(had_home, 2) AS had_home,
