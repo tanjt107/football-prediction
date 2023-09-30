@@ -62,21 +62,6 @@ module "api-key" {
   project_id = module.project.project_id
 }
 
-module "footystats-get-league-list" {
-  source = "../modules/scheduled-function"
-
-  function_name                         = "footystats_get_league_list"
-  bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "footystats"
-  job_schedule                          = "35 4,12,20 * * *"
-  topic_name                            = "footystats"
-  function_source_directory             = "../../function_source"
-  function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
-  function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
-  region                                = var.region
-  project_id                            = module.project.project_id
-}
-
 module "footystats-league-list-topic" {
   source = "../modules/pubsub"
 
@@ -84,10 +69,40 @@ module "footystats-league-list-topic" {
   project_id = module.project.project_id
 }
 
-module "footystats-publish-season-ids" {
+module "footystats-delta-load" {
+  source = "../modules/scheduled-function"
+
+  function_name                         = "footystats_publish_season_ids_delta"
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "footystats-delta-load"
+  job_schedule                          = "35 4 * * *"
+  topic_name                            = "footystats-delta-load"
+  function_source_directory             = "../../function_source"
+  function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
+  function_environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
+  region                                = var.region
+  project_id                            = module.project.project_id
+}
+
+module "footystats-get-league-list" {
+  source = "../modules/scheduled-function"
+
+  function_name                         = "footystats_get_league_list"
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "footystats-initial-load"
+  job_schedule                          = "15 23 1,15 * *"
+  topic_name                            = "footystats-initial-load"
+  function_source_directory             = "../../function_source"
+  function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
+  function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
+  region                                = var.region
+  project_id                            = module.project.project_id
+}
+
+module "footystats-initial-load" {
   source = "../modules/event-function"
 
-  name                         = "footystats_publish_season_ids"
+  name                         = "footystats_publish_season_ids_initial"
   bucket_name                  = module.buckets.names["gcf"]
   secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
   environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
@@ -99,22 +114,6 @@ module "footystats-publish-season-ids" {
     attribute = "bucket"
     value     = module.buckets.names["footystats-league-list"]
   }
-}
-
-module "footystats-publish-season-ids-initial-load" {
-  source = "../modules/scheduled-function"
-
-  function_name                         = "footystats_publish_season_ids_initial_load"
-  bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "footystats-initial-load"
-  job_schedule                          = "15 23 31 1,7 *"
-  topic_name                            = "footystats-initial-load"
-  function_source_directory             = "../../function_source"
-  function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
-  function_environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
-  function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
-  region                                = var.region
-  project_id                            = module.project.project_id
 }
 
 module "footystats-get-footystats" {
@@ -129,6 +128,7 @@ module "footystats-get-footystats" {
   event_type                       = "google.cloud.pubsub.topic.v1.messagePublished"
   topic_name                       = module.footystats-league-list-topic.id
   source_directory                 = "../../function_source"
+  event_trigger_failure_policy     = "RETRY_POLICY_RETRY"
   region                           = var.region
   project_id                       = module.project.project_id
   environment_variables = {
@@ -247,12 +247,13 @@ module "bigquery-solver" {
 module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
-  function_name             = "hkjc_get_odds"
-  bucket_name               = module.buckets.names["gcf"]
-  job_name                  = "hkjc-odds"
-  job_schedule              = "55 4,12,20 * * *"
-  topic_name                = "hkjc-odds"
-  function_source_directory = "../../function_source"
+  function_name                         = "hkjc_get_odds"
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "hkjc-odds"
+  job_schedule                          = "55 4,12,20 * * *"
+  topic_name                            = "hkjc-odds"
+  function_source_directory             = "../../function_source"
+  function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
   function_environment_variables = {
     BUCKET_NAME = module.buckets.names["hkjc"]
     POOLS       = jsonencode(["HAD", "HDC"])

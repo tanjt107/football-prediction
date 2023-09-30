@@ -19,8 +19,8 @@ def main(cloud_event):
     data = get_message(cloud_event)
     message = json.loads(data)
     endpoint, season_id = message["endpoint"], message["season_id"]
-    fetched_data = fetch_footystats(endpoint, API_KEY, season_id=season_id)
     print(f"Getting data for endpoint: {endpoint}, season_id: {season_id}")
+    fetched_data = fetch_footystats(endpoint, API_KEY, season_id=season_id)
     formatted_data = format_data(fetched_data)
     destination = f"{season_id}.json"
     upload_to_gcs(BUCKET_NAMES[endpoint], formatted_data, destination)

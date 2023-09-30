@@ -13,11 +13,10 @@ def main(cloud_event):
     season_ids = get_latest_season_ids()
 
     for season_id in season_ids:
-        for endpoint in ["matches", "season", "teams"]:
-            future = publish_json(
-                TOPIC_NAME,
-                {"endpoint": endpoint, "season_id": season_id},
-            )
+        future = publish_json(
+            TOPIC_NAME,
+            {"endpoint": "matches", "season_id": season_id},
+        )
 
     future.result()
 
@@ -25,12 +24,10 @@ def main(cloud_event):
 def get_latest_season_ids() -> list[int]:
     query = """
     SELECT
-      season.id
-    FROM
-      `footystats.league_list`,
-      UNNEST(season) AS season
-    WHERE
-      MOD(season.year, 10000) >= EXTRACT(YEAR FROM CURRENT_DATE())
+      DISTINCT competition_id
+    FROM `footystats.matches`
+    WHERE status = 'incomplete'
+      AND date_unix < UNIX_SECONDS(CURRENT_TIMESTAMP())
     """
     query_job = BQ_CLIENT.query(query)
     return [row[0] for row in query_job]
