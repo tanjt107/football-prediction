@@ -75,7 +75,7 @@ module "footystats-delta-load" {
   function_name                         = "footystats_publish_season_ids_delta"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-delta-load"
-  job_schedule                          = "35 4 * * *"
+  job_schedule                          = "35 4-20/8 * * *"
   topic_name                            = "footystats-delta-load"
   function_source_directory             = "../../function_source"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -198,7 +198,7 @@ module "solver" {
   function_available_memory      = "1Gi"
   function_available_cpu         = 2
   job_name                       = "solver"
-  job_schedule                   = "45 4 * * *"
+  job_schedule                   = "45 4-20/8 * * *"
   message_data                   = "Club"
   topic_name                     = "solver"
   function_source_directory      = "../../function_source"
@@ -209,7 +209,7 @@ module "solver" {
 
 resource "google_cloud_scheduler_job" "solver-international" {
   name     = "solver-international"
-  schedule = "45 4 * 1-3,6-7,9-11 *"
+  schedule = "45 20 * 1-3,6-7,9-11 *"
   region   = var.region
   project  = module.project.project_id
 
@@ -381,7 +381,7 @@ module "bigquery-master" {
       query    = file("../../bigquery/routine/master/leagues.sql")
     }
     team_ratings = {
-      schedule = "every day 04:55"
+      schedule = "every 8 hours from 04:55 to 20:55"
       query    = file("../../bigquery/routine/master/team_ratings.sql")
     }
     teams = {
