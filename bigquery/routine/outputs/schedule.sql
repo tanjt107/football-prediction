@@ -85,7 +85,7 @@ WITH
   FROM hkjc
   UNION ALL
   SELECT
-    CAST(footystats.id AS STRING) AS matchID,
+    LPAD(CAST(footystats.id AS STRING), 8, '0') AS matchID,
     TIMESTAMP_SECONDS(date_unix) AS matchDate,
     league_division,
     league_type,
