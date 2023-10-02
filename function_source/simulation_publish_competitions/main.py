@@ -44,6 +44,7 @@ def get_params(_type: str):
     )
     if result := fetch_bq(query, job_config):
         return result
+    return []
 
 
 def get_topic_path(topic_id):

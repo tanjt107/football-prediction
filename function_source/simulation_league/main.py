@@ -4,15 +4,184 @@ import json
 import os
 import numpy as np
 from google.cloud import bigquery, storage
-from abc import ABC, abstractmethod
 from collections import defaultdict
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from itertools import combinations, permutations
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 NO_OF_SIMULATIONS = 10000
 BQ_CLIENT = bigquery.Client()
 GS_CLIENT = storage.Client()
+
+
+@dataclass
+class Table:
+    wins: int = 0
+    draws: int = 0
+    losses: int = 0
+    scored: int = 0
+    conceded: int = 0
+
+    @property
+    def points(self) -> int:
+        return self.wins * 3 + self.draws
+
+    @property
+    def goal_diff(self) -> int:
+        return self.scored - self.conceded
+
+    def reset(self):
+        self.wins = 0
+        self.draws = 0
+        self.losses = 0
+        self.scored = 0
+        self.conceded = 0
+
+    def __truediv__(self, other):
+        self.wins /= other
+        self.draws /= other
+        self.losses /= other
+        self.scored /= other
+        self.conceded /= other
+        return self
+
+
+@dataclass
+class Team:
+    name: str
+    offence: float
+    defence: float
+
+    def __post_init__(self):
+        self.table = Table()
+        self.h2h_table = Table()
+        self.sim_table = Table()
+        self.sim_positions = defaultdict(int)
+        self.sim_rounds = defaultdict(int)
+
+    def reset(self):
+        self.table.reset()
+        self.h2h_table.reset()
+
+
+@dataclass
+class Match:
+    home_team: Team
+    away_team: Team
+    home_score: int = 0
+    away_score: int = 0
+
+    def simulate(self, avg_goal: float, home_adv: float):
+        home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
+        away_exp = avg_goal - home_adv + self.away_team.offence + self.home_team.defence
+        home_exp = max(home_exp, 0.2)
+        away_exp = max(away_exp, 0.2)
+        self.home_score = np.random.poisson(home_exp)
+        self.away_score = np.random.poisson(away_exp)
+
+    def update_teams(self, h2h=False):
+        table = "table" if h2h else "h2h_table"
+        home_table: Table = getattr(self.home_team, table)
+        away_table: Table = getattr(self.away_team, table)
+
+        if self.home_score > self.away_score:
+            home_table.wins += 1
+            away_table.losses += 1
+        elif self.home_score < self.away_score:
+            away_table.wins += 1
+            home_table.losses += 1
+        else:
+            home_table.draws += 1
+            away_table.draws += 1
+
+        home_table.scored += self.home_score
+        away_table.scored += self.away_score
+        home_table.conceded += self.away_score
+        away_table.conceded += self.home_score
+
+
+@dataclass
+class Season:
+    teams: list[Team]
+    completed: dict[
+        tuple[str],
+        tuple[int],
+    ] | None = None
+    round: int = 2
+
+    def __post_init__(self):
+        self._completed = self.completed.copy() if self.completed else {}
+
+    @property
+    def scheduling(self):
+        return combinations if self.round == 1 else permutations
+
+    def simulate(self, avg_goal, home_adv):
+        for home_team, away_team in self.scheduling(self.teams, 2):
+            key = (home_team.name, away_team.name)
+            if key in self._completed:
+                home_score, away_score = self._completed[key]
+                game = Match(home_team, away_team, home_score, away_score)
+            elif self.round == 1 and key[::-1] in self._completed:
+                away_score, home_score = self._completed[key[::-1]]
+                game = Match(away_team, home_team, away_score, home_score)
+            else:
+                game = Match(home_team, away_team)
+                game.simulate(avg_goal, home_adv)
+                self._completed[key] = (
+                    game.home_score,
+                    game.away_score,
+                )
+            game.update_teams()
+
+    def rank_teams(self, h2h: bool) -> list[Team]:
+        tiebreaker = head_to_head_criterias if h2h else goal_diff_criterias
+        points: dict[int, list[Team]] = defaultdict(list)
+        for team in self.teams:
+            points[team.table.points].append(team)
+
+        for _teams in points.values():
+            for home_team, away_team in self.scheduling(_teams, 2):
+                key = (home_team.name, away_team.name)
+                if key in self._completed:
+                    home_score, away_score = self._completed[key]
+                    game = Match(home_team, away_team, home_score, away_score)
+                else:
+                    away_score, home_score = self._completed[key[::-1]]
+                    game = Match(away_team, home_team, away_score, home_score)
+                game.update_teams(h2h=True)
+
+        return sorted(
+            self.teams,
+            key=tiebreaker,
+            reverse=True,
+        )
+
+    def reset(self):
+        for team in self.teams:
+            team.reset()
+
+
+def head_to_head_criterias(team: Team) -> tuple:
+    return (
+        team.table.points,
+        team.h2h_table.points,
+        team.h2h_table.goal_diff,
+        team.h2h_table.scored,
+        team.table.goal_diff,
+        team.table.scored,
+    )
+
+
+def goal_diff_criterias(team: Team) -> tuple:
+    return (
+        team.table.points,
+        team.table.goal_diff,
+        team.table.scored,
+        team.h2h_table.points,
+        team.h2h_table.goal_diff,
+        team.h2h_table.scored,
+    )
 
 
 @functions_framework.cloud_event
@@ -105,49 +274,6 @@ def get_avg_goal_home_adv(league: str, country: str) -> tuple[float]:
     return fetch_bq(query, job_config)[0]
 
 
-@dataclass
-class Table:
-    wins: int = 0
-    draws: int = 0
-    losses: int = 0
-    scored: int = 0
-    conceded: int = 0
-
-    @property
-    def points(self) -> int:
-        return self.wins * 3 + self.draws
-
-    @property
-    def goal_diff(self) -> int:
-        return self.scored - self.conceded
-
-    def reset(self):
-        self.wins = 0
-        self.draws = 0
-        self.losses = 0
-        self.scored = 0
-        self.conceded = 0
-
-    def __truediv__(self, other):
-        self.wins /= other
-        self.draws /= other
-        self.losses /= other
-        self.scored /= other
-        self.conceded /= other
-        return self
-
-
-@dataclass
-class Team:
-    name: str
-    offence: str
-    defence: str
-    table: Table = field(default_factory=Table)
-    h2h_table: Table = field(default_factory=Table)
-    sim_table: Table = field(default_factory=Table)
-    sim_positions: dict = field(default_factory=lambda: defaultdict(int))
-
-
 def get_teams(league: str, country: str) -> list[Team]:
     query = """
     SELECT
@@ -194,8 +320,8 @@ def simulate_season(
         season = Season(teams, completed, round_robin)
         season.simulate(avg_goal, home_adv)
         result = season.rank_teams(h2h)
-        for i, team in enumerate(result):
-            update_team(team, i + 1)
+        for position, team in enumerate(result, 1):
+            update_team(team, position)
 
         season.reset()
 
@@ -230,135 +356,6 @@ def get_completed_matches(league: str, country: str) -> dict[tuple[int], tuple[i
         (home_team, away_team): (home_score, away_score)
         for home_team, away_team, home_score, away_score in fetch_bq(query, job_config)
     }
-
-
-@dataclass
-class Match:
-    home_team: Team
-    away_team: Team
-    home_score: int = 0
-    away_score: int = 0
-
-    def simulate(self, avg_goal: float, home_adv: float):
-        home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
-        away_exp = avg_goal - home_adv + self.away_team.offence + self.home_team.defence
-        home_exp = max(home_exp, 0.2)
-        away_exp = max(away_exp, 0.2)
-        self.home_score = np.random.poisson(home_exp)
-        self.away_score = np.random.poisson(away_exp)
-
-    def update_teams(self, h2h=False):
-        table = "table" if h2h else "h2h_table"
-        home_table: Table = getattr(self.home_team, table)
-        away_table: Table = getattr(self.away_team, table)
-
-        if self.home_score > self.away_score:
-            home_table.wins += 1
-            away_table.losses += 1
-        elif self.home_score < self.away_score:
-            away_table.wins += 1
-            home_table.losses += 1
-        else:
-            home_table.draws += 1
-            away_table.draws += 1
-
-        home_table.scored += self.home_score
-        away_table.scored += self.away_score
-        home_table.conceded += self.away_score
-        away_table.conceded += self.home_score
-
-
-@dataclass
-class Season:
-    teams: list[Team]
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
-    round: int = 2
-
-    def __post_init__(self):
-        self._completed = self.completed.copy()
-
-    @property
-    def scheduling(self):
-        return combinations if self.round == 1 else permutations
-
-    def simulate(self, avg_goal, home_adv):
-        for home_team, away_team in self.scheduling(self.teams, 2):
-            key = (home_team.name, away_team.name)
-            if key in self._completed:
-                home_score, away_score = self._completed[key]
-                game = Match(home_team, away_team, home_score, away_score)
-            elif self.round == 1 and key[::-1] in self._completed:
-                away_score, home_score = self._completed[key[::-1]]
-                game = Match(away_team, home_team, away_score, home_score)
-            else:
-                game = Match(home_team, away_team)
-                game.simulate(avg_goal, home_adv)
-                self._completed[key] = (
-                    game.home_score,
-                    game.away_score,
-                )
-            game.update_teams()
-
-    def rank_teams(self, h2h: bool) -> list[Team]:
-        tiebreaker = HeadToHead() if h2h else GoalDifference()
-        points: dict[int, list[Team]] = defaultdict(list)
-        for team in self.teams:
-            points[team.table.points].append(team)
-
-        for _teams in points.values():
-            for home_team, away_team in self.scheduling(_teams, 2):
-                key = (home_team.name, away_team.name)
-                if key in self._completed:
-                    home_score, away_score = self._completed[key]
-                    game = Match(home_team, away_team, home_score, away_score)
-                else:
-                    away_score, home_score = self._completed[key[::-1]]
-                    game = Match(away_team, home_team, away_score, home_score)
-                game.update_teams(h2h=True)
-
-        return sorted(
-            self.teams,
-            key=tiebreaker.criterias,
-            reverse=True,
-        )
-
-    def reset(self):
-        for team in self.teams:
-            team.table.reset()
-            team.h2h_table.reset()
-
-
-class Tiebreaker(ABC):
-    @abstractmethod
-    def criterias(self, team: Team) -> tuple:
-        pass
-
-
-class HeadToHead(Tiebreaker):
-    def criterias(self, team: Team) -> tuple:
-        return (
-            team.table.points,
-            team.h2h_table.points,
-            team.h2h_table.goal_diff,
-            team.h2h_table.scored,
-            team.table.goal_diff,
-            team.table.scored,
-        )
-
-
-class GoalDifference(Tiebreaker):
-    def criterias(self, team: Team) -> tuple:
-        return (
-            team.table.points,
-            team.table.goal_diff,
-            team.table.scored,
-            team.h2h_table.points,
-            team.h2h_table.goal_diff,
-            team.h2h_table.scored,
-        )
 
 
 def format_data(data):
