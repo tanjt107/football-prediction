@@ -1,12 +1,13 @@
-import base64
-import functions_framework
 import json
 import os
-import numpy as np
-from google.cloud import bigquery, storage
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 from itertools import combinations, permutations
+
+import base64
+import functions_framework
+import numpy as np
+from google.cloud import bigquery, storage
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 NO_OF_SIMULATIONS = 10000
@@ -124,7 +125,12 @@ class Season:
                 game = Match(home_team, away_team, home_score, away_score)
             elif self.round == 1 and key[::-1] in self._completed:
                 away_score, home_score = self._completed[key[::-1]]
-                game = Match(away_team, home_team, away_score, home_score)
+                game = Match(
+                    home_team=away_team,
+                    away_team=home_team,
+                    home_score=away_score,
+                    away_score=home_score,
+                )
             else:
                 game = Match(home_team, away_team)
                 game.simulate(avg_goal, home_adv)
@@ -148,7 +154,12 @@ class Season:
                     game = Match(home_team, away_team, home_score, away_score)
                 else:
                     away_score, home_score = self._completed[key[::-1]]
-                    game = Match(away_team, home_team, away_score, home_score)
+                    game = Match(
+                        home_team=away_team,
+                        away_team=home_team,
+                        home_score=away_score,
+                        away_score=home_score,
+                    )
                 game.update_teams(h2h=True)
 
         return sorted(
@@ -225,7 +236,11 @@ def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
 
 
 def get_last_run(league: str, country: str):
-    sql = f"SELECT MAX(date_unix) AS last_run FROM `simulation.run_log` WHERE league = @league AND country = @country"
+    sql = """
+    SELECT MAX(date_unix) AS last_run
+    FROM `simulation.run_log`
+    WHERE league = @league
+        AND country = @country"""
     job_config = bigquery.QueryJobConfig(
         query_parameters=[
             bigquery.ScalarQueryParameter("league", "STRING", league),
@@ -237,7 +252,7 @@ def get_last_run(league: str, country: str):
 
 
 def get_latest_match_date(league: str, country: str):
-    sql = f"""
+    sql = """
     SELECT
         MAX(date_unix)
     FROM `footystats.matches` matches

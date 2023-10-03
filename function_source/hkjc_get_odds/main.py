@@ -1,7 +1,8 @@
-import base64
-import functions_framework
 import json
 import os
+
+import base64
+import functions_framework
 import requests
 from google.cloud import storage
 
@@ -28,6 +29,7 @@ def get_message(cloud_event) -> str:
 def fetch_hkjc(pool: str) -> dict:
     response = requests.get(
         f"https://bet.hkjc.com/football/getJSON.aspx?jsontype=odds_{pool}.aspx",
+        timeout=5,
     )
     response.raise_for_status()
     return response.json()["matches"]

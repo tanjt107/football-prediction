@@ -1,6 +1,7 @@
-import functions_framework
 import json
 import os
+
+import functions_framework
 import requests
 from google.cloud import storage
 
@@ -21,6 +22,7 @@ def fetch_footystats(endpoint: str, key: str, **kwargs) -> dict:
     response = requests.get(
         f"https://api.football-data-api.com/league-{endpoint}",
         params={"key": key, **kwargs},
+        timeout=5,
     )
     response.raise_for_status()
     return response.json()["data"]

@@ -1,7 +1,7 @@
-import base64
-import functions_framework
 import json
 import os
+
+import functions_framework
 import requests
 from google.cloud import storage
 
@@ -20,7 +20,7 @@ def main(cloud_event):
 
 def fetch_hkjc(content: str) -> dict:
     response = requests.get(
-        f"https://bet.hkjc.com/contentserver/jcbw/cmc/fb/{content}",
+        f"https://bet.hkjc.com/contentserver/jcbw/cmc/fb/{content}", timeout=5
     )
     response.raise_for_status()
     data = response.content.decode("utf-8-sig")

@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+
 import functions_framework
 from google.cloud import bigquery, storage
 from pulp import LpMinimize, LpProblem, lpSum, LpVariable
@@ -34,9 +35,7 @@ def get_message(cloud_event) -> str:
 
 
 def get_last_run(_type):
-    query = (
-        f"SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
-    )
+    query = "SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
     )
@@ -50,7 +49,7 @@ def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
 
 
 def get_latest_match_date(_type):
-    query = f"""
+    query = """
     SELECT
         MAX(date_unix)
     FROM `footystats.matches` matches

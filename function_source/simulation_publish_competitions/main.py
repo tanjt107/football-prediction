@@ -1,7 +1,8 @@
-import functions_framework
 import json
 import os
 import re
+
+import functions_framework
 from google.cloud import bigquery, pubsub_v1, storage
 
 GCP_PROJECT = os.getenv("GCP_PROJECT")
@@ -30,7 +31,7 @@ def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
 
 
 def get_params(_type: str):
-    query = f"""
+    query = """
     SELECT
         topic,
         league,
