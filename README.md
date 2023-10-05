@@ -1,22 +1,22 @@
 # Multiplicative Rating Model for Football
 
 ## Introduction
-This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver for non-linear problems from `scipy.optimize` which is much times faster in some cases.
+This model makes reference to the [course material](https://www.coursera.org/learn/mathematics-sport/lecture/nR8wd/8-4-multiplicative-rating-models-for-soccer) of Math behind Moneyball instructed by Professor Wayne Winston and FiveThirtyEight's [club soccer predictions](https://projects.fivethirtyeight.com/soccer-predictions). In the lecture, Professor used solver add-in in Excel for calculation, which takes a long time in finding solutions. To speed up the process, this python script uses a solver from `pulp` which is much times faster in some cases.
 
 ## Result
-[Hong Kong Football Prediction (in Traditional Chinese)](https://docs.google.com/spreadsheets/d/180Jymgg3SNaZb4SD6YERDgkOAdcxnYAkTrNPXtVDK4Q/edit?usp=sharing)
+[Hong Kong Football Prediction (in Traditional Chinese)](https://docs.google.com/spreadsheets/d/1mlWjjkJEDogGUujwi0ShMBhc36J1-il67fTG8ldaZqg/)
 
 ## Methodology
 The expected goals for home team and away team are calculated as follows:
 ```
-home_team_forecasted_goals = average_goals * home_advantage * home_team_offensive_rating / away_team_defensive_rating
-away_team_forecasted_goals = average_goals / home_advantage * away_team_offensive_rating / home_team_defensive_rating
+home_team_forecasted_goals = average_goals + home_advantage + home_team_offensive_rating + away_team_defensive_rating
+away_team_forecasted_goals = average_goals - home_advantage + away_team_offensive_rating + home_team_defensive_rating
 ```
 And the solver finds the best values for each rating by minimising the following function:
 ```
-objective_function = (home_team_forecasted_goals - home_team_adjusted_goals)^2 + (away_team_forecasted_goals - awya_team_adjusted_goals)^2
+objective_function = abs(home_team_forecasted_goals - home_team_adjusted_goals) + abs(away_team_forecasted_goals - awya_team_adjusted_goals)
 ```
-A 1.35 offensive rating means the team is expected to score 35% more and a 1.35 defensive rating means the team is expected to concede 35% more compared to an average team.
+A 0.35 offensive rating means the team is expected to score 0.35 more goal and a 0.35 defensive rating means the team is expected to concede 0.35 more goal compared to an average team.
 
 Unlike the 
 [Elo rating system](https://en.wikipedia.org/wiki/Elo_rating_system), a team rating does not necessarily improve whenever it wins a match. If the team performs worse than the model expected, its ratings can decline.
@@ -32,21 +32,9 @@ Soccer is a tricky sport to model because there are so few goals scored in each 
 
 The average of the above two metrics is used as `forecasted goals` in the calculation.
 
-## Inter-league Matches
-Matches played between teams from two different leagues, like those in the UEFA Champions League and AFC Champions league are used to calculate the relative strength of different leagues. Matches of the last five years are used for calculation. The country ratings are found as follows:
-```
-home_team_forecasted_goals = average_goals * home_advantage * home_team_offensive_rating / away_team_defensive_rating + home_country_rating - away_country_rating
-away_team_forecasted_goals = average_goals / home_advantage * away_team_offensive_rating / home_team_defensive_rating + away_country_rating - away_country_rating
-```
-`team_rating` factors are constants calculated domestically.
 
 ## Simulating Matches
-There are debates about the best statistical model to forecast the number of goals scored by both teams. Poisson distributions with diagonal inflation are used here. The forecasted goals calculated above are used as parameters and draw probabilities are then increased by around 9 percent to avoid undercounting draws.
-
-![alt text](https://fivethirtyeight.com/wp-content/uploads/2018/08/boice-CLUBSOCCER-02.png?w=1150)
-Source: [FiveThirtyEight](https://projects.fivethirtyeight.com/soccer-predictions)
-
-From the matrix, win probabilities of both teams and draw probabilities can be found.
+Poisson distributions are used here.
 
 ## Team Rating
 To calculate team rating, the expected goal to score and expected goal concede of each team against an average team in the model can be calculated using the same formula above. The percentage of possible points against an average team is the team rating. For example, if a team is forecast to have a 50% probability to win (scoring three points), 25% to draw (scoring one point), 25% to lose (scoring no points) against an average team. The team rating of the team is:
