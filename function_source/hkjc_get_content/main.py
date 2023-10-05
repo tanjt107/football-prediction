@@ -3,19 +3,20 @@ import os
 
 import functions_framework
 import requests
-from google.cloud import storage
+
+import util
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 CONTENTS = ["leaguelist.json", "teamlist.json"]
-GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
-def main(cloud_event):
+def main(_):
+    gs_client = util.StorageClient()
     for content in CONTENTS:
         fetched_data = fetch_hkjc(content)
-        formatted_data = format_data(fetched_data)
-        upload_to_gcs(BUCKET_NAME, formatted_data, content)
+        formatted_data = util.convert_to_newline_delimited_json(fetched_data)
+        gs_client.upload(BUCKET_NAME, formatted_data, content)
 
 
 def fetch_hkjc(content: str) -> dict:
@@ -25,13 +26,3 @@ def fetch_hkjc(content: str) -> dict:
     response.raise_for_status()
     data = response.content.decode("utf-8-sig")
     return json.loads(data)
-
-
-def format_data(data):
-    if isinstance(data, list):
-        return "\n".join([json.dumps(d) for d in data])
-    return json.dumps(data)
-
-
-def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

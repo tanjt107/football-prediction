@@ -1,8 +1,11 @@
 import json
 import os
 import re
+
+from cloudevents.http.event import CloudEvent
 import functions_framework
-from google.cloud import storage
+
+import util
 
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
@@ -10,20 +13,20 @@ REDUCE_FROM_MINUTE = 70
 REDUCE_GOAL_VALUE = 0.5
 ADJ_FACTOR = 1.05
 XG_WEIGHT = 0.67
-GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
-def main(cloud_event):
+def main(cloud_event: CloudEvent):
     data = cloud_event.data
-    blob = GS_CLIENT.bucket(data["bucket"]).blob(data["name"])
+    gs_client = util.StorageClient()
+    blob = gs_client.bucket(data["bucket"]).blob(data["name"])
     raw_data = blob.download_as_text()
 
     transformed_data = [
         transform_matches(json.loads(line)) for line in raw_data.splitlines()
     ]
-    formatted_data = format_data(transformed_data)
-    upload_to_gcs(BUCKET_NAME, formatted_data, blob.name)
+    formatted_data = util.convert_to_newline_delimited_json(transformed_data)
+    gs_client.upload(BUCKET_NAME, formatted_data, blob.name)
 
 
 def transform_matches(
@@ -94,13 +97,3 @@ def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
                     * (1 - REDUCE_GOAL_VALUE)
                 )
     return home_adj, away_adj
-
-
-def format_data(data):
-    if isinstance(data, list):
-        return "\n".join([json.dumps(d) for d in data])
-    return json.dumps(data)
-
-
-def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)

@@ -1,28 +1,27 @@
-import json
 import os
+
 import functions_framework
-from google.cloud import bigquery, pubsub_v1
+
+import util
 
 TOPIC_NAME = os.getenv("TOPIC_NAME")
-BQ_CLIENT = bigquery.Client()
-PUBLISHER = pubsub_v1.PublisherClient()
 
 
 @functions_framework.cloud_event
-def main(cloud_event):
-    season_ids = get_latest_season_ids()
+def main(_):
+    bq_client = util.BigQueryClient()
+    season_ids = get_latest_season_ids(bq_client)
 
+    publisher = util.PublisherClient()
     for season_id in season_ids:
         for endpoint in ["matches", "season", "teams"]:
-            future = publish_json(
+            publisher.publish_json_message(
                 TOPIC_NAME,
                 {"endpoint": endpoint, "season_id": season_id},
             )
 
-    future.result()
 
-
-def get_latest_season_ids() -> list[int]:
+def get_latest_season_ids(client: util.BigQueryClient) -> list[int]:
     query = """
     SELECT
       season.id
@@ -30,9 +29,4 @@ def get_latest_season_ids() -> list[int]:
       `footystats.league_list`,
       UNNEST(season) AS season
     """
-    query_job = BQ_CLIENT.query(query)
-    return [row[0] for row in query_job]
-
-
-def publish_json(topic_path: str, message: str):
-    return PUBLISHER.publish(topic_path, json.dumps(message).encode())
+    return [row["id"] for row in client.query_dict(query)]

@@ -1,57 +1,49 @@
-import base64
-import json
 import os
 
 import functions_framework
-from google.cloud import bigquery, storage
-from pulp import LpMinimize, LpProblem, lpSum, LpVariable
+from cloudevents.http.event import CloudEvent
+from google.cloud import bigquery
+
+import solver
+import util
 
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
-BQ_CLIENT = bigquery.Client()
-GS_CLIENT = storage.Client()
 
 
 @functions_framework.cloud_event
-def main(cloud_event):
-    _type = get_message(cloud_event)
-    last_run = get_last_run(_type) or -1
-    latest_match_date = get_latest_match_date(_type)
+def main(cloud_event: CloudEvent):
+    _type = util.decode_message(cloud_event)
+    bq_client = util.BigQueryClient()
+    last_run = get_last_run(_type, bq_client) or -1
+    latest_match_date = get_latest_match_date(_type, bq_client)
     if last_run >= latest_match_date:
         return
 
-    matches = get_matches(_type, latest_match_date)
-    leagues, teams = solver(matches)
-    leagues = convert_to_newline_delimited_json(leagues)
-    teams = convert_to_newline_delimited_json(teams)
+    matches = get_matches(_type, latest_match_date, bq_client)
+    leagues, teams = solver.solver(matches)
+    leagues = util.convert_to_newline_delimited_json(leagues)
+    teams = util.convert_to_newline_delimited_json(teams)
 
-    upload_to_gcs(BUCKET_NAME, leagues, f"type={_type}/leagues.json")
-    upload_to_gcs(BUCKET_NAME, teams, f"type={_type}/teams.json")
+    gs_client = util.StorageClient()
+    gs_client.upload(BUCKET_NAME, leagues, f"type={_type}/leagues.json")
+    gs_client.upload(BUCKET_NAME, teams, f"type={_type}/teams.json")
 
-    insert_run_log(_type, latest_match_date)
-
-
-def get_message(cloud_event) -> str:
-    return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
+    insert_run_log(_type, latest_match_date, bq_client)
 
 
-def get_last_run(_type):
+def get_last_run(_type: str, client: util.BigQueryClient) -> int:
     query = "SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
     )
-    if result := fetch_bq(query, job_config):
-        return result[0][0]
+    if rows := client.query_dict(query, job_config):
+        return rows[0]["last_run"]
 
 
-def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
-    query_job = BQ_CLIENT.query(query, job_config)
-    return list(query_job.result())
-
-
-def get_latest_match_date(_type):
+def get_latest_match_date(_type: str, client: util.BigQueryClient) -> int:
     query = """
     SELECT
-        MAX(date_unix)
+        MAX(date_unix) AS max_date_unix
     FROM `footystats.matches` matches
     JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
     JOIN `master.leagues` leagues ON seasons.country = leagues.country
@@ -62,95 +54,26 @@ def get_latest_match_date(_type):
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
     )
-    return fetch_bq(query, job_config)[0][0]
+    return client.query_dict(query, job_config)[0]["max_date_unix"]
 
 
-def get_matches(_type, max_time: int):
-    query = f"SELECT * FROM `functions.get_solver_matches`('{_type}', {max_time});"
-    query_job = BQ_CLIENT.query(query)
-    rows = query_job.result()
-    return [dict(row) for row in rows]
-
-
-def solver(matches: list[dict]) -> dict[str, list[dict[str, float]]]:
-    prob = LpProblem(sense=LpMinimize)
-
-    # Lists to contain all leagues, teams and match ids
-    leagues = list({match["league_name"] for match in matches})
-    teams = list(
-        {match["home_id"] for match in matches}
-        | {match["away_id"] for match in matches}
+def get_matches(_type: str, max_time: int, client: util.BigQueryClient) -> dict:
+    query = "SELECT * FROM `functions.get_solver_matches`(@type, @max_time);"
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("type", "STRING", _type),
+            bigquery.ScalarQueryParameter("max_time", "INT64", max_time),
+        ]
     )
-    ids = [match["id"] for match in matches]
+    return client.query_dict(query, job_config)
 
-    # Dictionaries to contain all variables
-    avg_goals = LpVariable.dicts("avg_goal", leagues, lowBound=0)
-    home_advs = LpVariable.dict("home_adv", leagues, lowBound=0)
-    offences = LpVariable.dicts("offence", teams)
-    defences = LpVariable.dicts("defence", teams)
-    home_errors = LpVariable.dicts("home_error", ids)
-    away_errors = LpVariable.dicts("away_error", ids)
 
-    for match in matches:
-        home_error = (
-            avg_goals[match["league_name"]]
-            + home_advs[match["league_name"]]
-            + offences[match["home_id"]]
-            + defences[match["away_id"]]
-            - float(match["home_avg"])
-        ) * float(match["recent"])
-        away_error = (
-            avg_goals[match["league_name"]]
-            - home_advs[match["league_name"]]
-            + offences[match["away_id"]]
-            + defences[match["home_id"]]
-            - float(match["away_avg"])
-        ) * float(match["recent"])
-
-        # Constraints for absolute values
-        prob += home_errors[match["id"]] >= home_error
-        prob += home_errors[match["id"]] >= -home_error
-        prob += away_errors[match["id"]] >= away_error
-        prob += away_errors[match["id"]] >= -away_error
-
-    # Objective function
-    prob += lpSum(home_errors) + lpSum(away_errors)
-
-    # Other constraints
-    prob += lpSum(offences) == 0
-    prob += lpSum(defences) == 0
-
-    prob.solve()
-
-    return (
-        [
-            {
-                "division": league,
-                "avg_goal": avg_goals[league].varValue,
-                "home_adv": home_advs[league].varValue,
-            }
-            for league in leagues
-        ],
-        [
-            {
-                "id": team,
-                "offence": offences[team].varValue,
-                "defence": defences[team].varValue,
-            }
-            for team in teams
-        ],
+def insert_run_log(_type: str, date_unix: int, client: util.BigQueryClient):
+    query = "INSERT INTO solver.run_log VALUES (@type, @date_unix)"
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("type", "STRING", _type),
+            bigquery.ScalarQueryParameter("date_unix", "INT64", date_unix),
+        ]
     )
-
-
-def convert_to_newline_delimited_json(data: list) -> str:
-    return "\n".join([json.dumps(d) for d in data])
-
-
-def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)
-
-
-def insert_run_log(_type, date_unix):
-    query = f"INSERT INTO solver.run_log VALUES ('{_type}', {date_unix})"
-    query_job = BQ_CLIENT.query(query)
-    query_job.result()
+    client.query_dict(query, job_config)

@@ -1,216 +1,35 @@
 import json
 import os
-from collections import defaultdict
-from dataclasses import asdict, dataclass
-from itertools import combinations, permutations
+from dataclasses import asdict
 
-import base64
 import functions_framework
-import numpy as np
-from google.cloud import bigquery, storage
+from cloudevents.http.event import CloudEvent
+from google.cloud import bigquery
+
+import simulation
+import util
+from simulation import Round, Team
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
-NO_OF_SIMULATIONS = 10000
-BQ_CLIENT = bigquery.Client()
-GS_CLIENT = storage.Client()
-
-
-@dataclass
-class Table:
-    wins: int = 0
-    draws: int = 0
-    losses: int = 0
-    scored: int = 0
-    conceded: int = 0
-
-    @property
-    def points(self) -> int:
-        return self.wins * 3 + self.draws
-
-    @property
-    def goal_diff(self) -> int:
-        return self.scored - self.conceded
-
-    def reset(self):
-        self.wins = 0
-        self.draws = 0
-        self.losses = 0
-        self.scored = 0
-        self.conceded = 0
-
-    def __truediv__(self, other):
-        self.wins /= other
-        self.draws /= other
-        self.losses /= other
-        self.scored /= other
-        self.conceded /= other
-        return self
-
-
-@dataclass
-class Team:
-    name: str
-    offence: float
-    defence: float
-
-    def __post_init__(self):
-        self.table = Table()
-        self.h2h_table = Table()
-        self.sim_table = Table()
-        self.sim_positions = defaultdict(int)
-        self.sim_rounds = defaultdict(int)
-
-    def reset(self):
-        self.table.reset()
-        self.h2h_table.reset()
-
-
-@dataclass
-class Match:
-    home_team: Team
-    away_team: Team
-    home_score: int = 0
-    away_score: int = 0
-
-    def simulate(self, avg_goal: float, home_adv: float):
-        home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
-        away_exp = avg_goal - home_adv + self.away_team.offence + self.home_team.defence
-        home_exp = max(home_exp, 0.2)
-        away_exp = max(away_exp, 0.2)
-        self.home_score = np.random.poisson(home_exp)
-        self.away_score = np.random.poisson(away_exp)
-
-    def update_teams(self, h2h=False):
-        table = "table" if h2h else "h2h_table"
-        home_table: Table = getattr(self.home_team, table)
-        away_table: Table = getattr(self.away_team, table)
-
-        if self.home_score > self.away_score:
-            home_table.wins += 1
-            away_table.losses += 1
-        elif self.home_score < self.away_score:
-            away_table.wins += 1
-            home_table.losses += 1
-        else:
-            home_table.draws += 1
-            away_table.draws += 1
-
-        home_table.scored += self.home_score
-        away_table.scored += self.away_score
-        home_table.conceded += self.away_score
-        away_table.conceded += self.home_score
-
-
-@dataclass
-class Season:
-    teams: list[Team]
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
-    round: int = 2
-
-    def __post_init__(self):
-        self._completed = self.completed.copy() if self.completed else {}
-
-    @property
-    def scheduling(self):
-        return combinations if self.round == 1 else permutations
-
-    def simulate(self, avg_goal, home_adv):
-        for home_team, away_team in self.scheduling(self.teams, 2):
-            key = (home_team.name, away_team.name)
-            if key in self._completed:
-                home_score, away_score = self._completed[key]
-                game = Match(home_team, away_team, home_score, away_score)
-            elif self.round == 1 and key[::-1] in self._completed:
-                away_score, home_score = self._completed[key[::-1]]
-                game = Match(
-                    home_team=away_team,
-                    away_team=home_team,
-                    home_score=away_score,
-                    away_score=home_score,
-                )
-            else:
-                game = Match(home_team, away_team)
-                game.simulate(avg_goal, home_adv)
-                self._completed[key] = (
-                    game.home_score,
-                    game.away_score,
-                )
-            game.update_teams()
-
-    def rank_teams(self, h2h: bool) -> list[Team]:
-        tiebreaker = head_to_head_criterias if h2h else goal_diff_criterias
-        points: dict[int, list[Team]] = defaultdict(list)
-        for team in self.teams:
-            points[team.table.points].append(team)
-
-        for _teams in points.values():
-            for home_team, away_team in self.scheduling(_teams, 2):
-                key = (home_team.name, away_team.name)
-                if key in self._completed:
-                    home_score, away_score = self._completed[key]
-                    game = Match(home_team, away_team, home_score, away_score)
-                else:
-                    away_score, home_score = self._completed[key[::-1]]
-                    game = Match(
-                        home_team=away_team,
-                        away_team=home_team,
-                        home_score=away_score,
-                        away_score=home_score,
-                    )
-                game.update_teams(h2h=True)
-
-        return sorted(
-            self.teams,
-            key=tiebreaker,
-            reverse=True,
-        )
-
-    def reset(self):
-        for team in self.teams:
-            team.reset()
-
-
-def head_to_head_criterias(team: Team) -> tuple:
-    return (
-        team.table.points,
-        team.h2h_table.points,
-        team.h2h_table.goal_diff,
-        team.h2h_table.scored,
-        team.table.goal_diff,
-        team.table.scored,
-    )
-
-
-def goal_diff_criterias(team: Team) -> tuple:
-    return (
-        team.table.points,
-        team.table.goal_diff,
-        team.table.scored,
-        team.h2h_table.points,
-        team.h2h_table.goal_diff,
-        team.h2h_table.scored,
-    )
 
 
 @functions_framework.cloud_event
-def main(cloud_event):
-    data = get_message(cloud_event)
+def main(cloud_event: CloudEvent):
+    data = util.decode_message(cloud_event)
     message = json.loads(data)
-    league, country, h2h = message["league"], message["country"], message["h2h"]
-    last_run = get_last_run(league, country) or -1
-    latest_match_date = get_latest_match_date(league, country)
+    league, country = message["league"], message["country"]
+
+    bq_client = util.BigQueryClient()
+    last_run = get_last_run(league, country, bq_client) or -1
+    latest_match_date = get_latest_match_date(league, country, bq_client)
     if last_run >= latest_match_date:
         return
-    avg_goal, home_adv = get_avg_goal_home_adv(league, country)
-    teams = get_teams(league, country)
-    completed = get_completed_matches(league, country)
 
-    results = simulate_season(
-        teams, avg_goal, home_adv, completed, h2h, NO_OF_SIMULATIONS
-    )
+    avg_goal, home_adv = get_avg_goal_home_adv(league, country, bq_client)
+    teams = get_teams(league, country, bq_client)
+    completed = get_completed_matches(league, country, bq_client)
+
+    results = simulate_season(teams, avg_goal, home_adv, completed, message["h2h"])
     results = [
         {
             "team": team.name,
@@ -219,23 +38,44 @@ def main(cloud_event):
         }
         for team in results
     ]
-    formatted_data = format_data(results)
+    formatted_data = util.convert_to_newline_delimited_json(results)
     destination = f"{league}.json"
-    upload_to_gcs(BUCKET_NAME, formatted_data, destination)
+    gs_client = util.StorageClient()
+    gs_client.upload(BUCKET_NAME, formatted_data, destination)
 
-    insert_run_log(league, country, latest_match_date)
-
-
-def get_message(cloud_event) -> str:
-    return base64.b64decode(cloud_event.data["message"]["data"]).decode("utf-8")
+    insert_run_log(league, country, latest_match_date, bq_client)
 
 
-def fetch_bq(query: str, job_config: bigquery.QueryJobConfig = None):
-    query_job = BQ_CLIENT.query(query, job_config)
-    return list(query_job.result())
+def simulate_season(
+    teams: list[Team],
+    avg_goal: float,
+    home_adv: float,
+    completed: dict[
+        tuple[str],
+        tuple[int],
+    ]
+    | None = None,
+    h2h: bool = False,
+    no_of_simulations: int = 10000,
+    round_robin: int = Round.DOUBLE,
+) -> list[Team]:
+    for _ in range(no_of_simulations):
+        season = simulation.RoundRobinTournament(teams, completed, round_robin)
+        season.simulate(avg_goal, home_adv)
+        result = season.rank_teams(h2h)
+        for position, team in enumerate(result, 1):
+            simulation.update_sim_table(team, position)
+
+        season.reset()
+
+    for team in teams:
+        team.sim_table /= no_of_simulations
+        team.sim_positions /= no_of_simulations
+
+    return teams
 
 
-def get_last_run(league: str, country: str):
+def get_last_run(league: str, country: str, client: util.BigQueryClient) -> int:
     sql = """
     SELECT MAX(date_unix) AS last_run
     FROM `simulation.run_log`
@@ -247,14 +87,15 @@ def get_last_run(league: str, country: str):
             bigquery.ScalarQueryParameter("country", "STRING", country),
         ]
     )
-    if result := fetch_bq(sql, job_config):
-        return result[0][0]
+    client.query_dict(sql, job_config)[0]["last_run"]
 
 
-def get_latest_match_date(league: str, country: str):
+def get_latest_match_date(
+    league: str, country: str, client: util.BigQueryClient
+) -> int:
     sql = """
     SELECT
-        MAX(date_unix)
+        MAX(date_unix) AS max_date_unix
     FROM `footystats.matches` matches
     JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
     WHERE matches.status = 'complete'
@@ -267,10 +108,12 @@ def get_latest_match_date(league: str, country: str):
             bigquery.ScalarQueryParameter("country", "STRING", country),
         ]
     )
-    return fetch_bq(sql, job_config)[0][0]
+    return client.query_dict(sql, job_config)[0]["max_date_unix"]
 
 
-def get_avg_goal_home_adv(league: str, country: str) -> tuple[float]:
+def get_avg_goal_home_adv(
+    league: str, country: str, client: util.BigQueryClient
+) -> tuple[float]:
     query = """
     SELECT
         avg_goal,
@@ -286,13 +129,14 @@ def get_avg_goal_home_adv(league: str, country: str) -> tuple[float]:
             bigquery.ScalarQueryParameter("country", "STRING", country),
         ]
     )
-    return fetch_bq(query, job_config)[0]
+    factors = client.query_dict(query, job_config)[0]
+    return factors["avg_goal"], factors["home_adv"]
 
 
-def get_teams(league: str, country: str) -> list[Team]:
+def get_teams(league: str, country: str, client: util.BigQueryClient) -> list[Team]:
     query = """
     SELECT
-        CAST(solver.id AS INT64),
+        CAST(solver.id AS INT64) AS name,
         offence,
         defence
     FROM solver.teams solver
@@ -307,48 +151,12 @@ def get_teams(league: str, country: str) -> list[Team]:
             bigquery.ScalarQueryParameter("country", "STRING", country),
         ]
     )
-    return [Team(*team) for team in fetch_bq(query, job_config)]
+    return [Team(**team) for team in client.query_dict(query, job_config)]
 
 
-def simulate_season(
-    teams: list[Team],
-    avg_goal: float,
-    home_adv: float,
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ]
-    | None = None,
-    h2h: bool = False,
-    no_of_simulations: int = 10000,
-    round_robin: int = 2,
-) -> list[Team]:
-    def update_team(team: Team, position: int):
-        team.sim_positions[position] += 1
-        team.sim_table.wins += team.table.wins
-        team.sim_table.draws += team.table.draws
-        team.sim_table.losses += team.table.losses
-        team.sim_table.scored += team.table.scored
-        team.sim_table.conceded += team.table.conceded
-
-    for _ in range(no_of_simulations):
-        season = Season(teams, completed, round_robin)
-        season.simulate(avg_goal, home_adv)
-        result = season.rank_teams(h2h)
-        for position, team in enumerate(result, 1):
-            update_team(team, position)
-
-        season.reset()
-
-    for team in teams:
-        team.sim_table /= no_of_simulations
-        for position in team.sim_positions:
-            team.sim_positions[position] /= no_of_simulations
-
-    return teams
-
-
-def get_completed_matches(league: str, country: str) -> dict[tuple[int], tuple[int]]:
+def get_completed_matches(
+    league: str, country: str, client: util.BigQueryClient
+) -> dict[tuple[int], tuple[int]]:
     query = """
     SELECT
         homeId,
@@ -368,24 +176,20 @@ def get_completed_matches(league: str, country: str) -> dict[tuple[int], tuple[i
         ]
     )
     return {
-        (home_team, away_team): (home_score, away_score)
-        for home_team, away_team, home_score, away_score in fetch_bq(query, job_config)
+        (row["homeId"], row["awayId"]): (row["homeGoalCount"], row["awayGoalCount"])
+        for row in client.query_dict(query, job_config)
     }
 
 
-def format_data(data):
-    if isinstance(data, list):
-        return "\n".join([json.dumps(d) for d in data])
-    return json.dumps(data)
-
-
-def upload_to_gcs(bucket_name: str, content: str, destination: str):
-    GS_CLIENT.bucket(bucket_name).blob(destination).upload_from_string(content)
-
-
-def insert_run_log(league: str, country: str, date_unix: int):
-    sql = (
-        f"INSERT INTO simulation.run_log VALUES ('{league}', '{country}', {date_unix})"
+def insert_run_log(
+    league: str, country: str, date_unix: int, client: util.BigQueryClient
+):
+    query = "INSERT INTO simulation.run_log VALUES (@league, @country, @date_unix)"
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("league", "STRING", league),
+            bigquery.ScalarQueryParameter("country", "STRING", country),
+            bigquery.ScalarQueryParameter("date_unix", "INT64", date_unix),
+        ]
     )
-    query_job = BQ_CLIENT.query(sql)
-    query_job.result()
+    client.query_dict(query, job_config)
