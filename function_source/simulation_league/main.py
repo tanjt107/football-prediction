@@ -4,11 +4,10 @@ from dataclasses import asdict
 
 import functions_framework
 from cloudevents.http.event import CloudEvent
-from google.cloud import bigquery
 
 import simulation
 import util
-from simulation import Round, Team
+from simulation import Team, TournamentRules
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
@@ -28,17 +27,10 @@ def main(cloud_event: CloudEvent):
     avg_goal, home_adv = get_avg_goal_home_adv(league, country, bq_client)
     teams = get_teams(league, country, bq_client)
     completed = get_completed_matches(league, country, bq_client)
+    rule = TournamentRules(message["h2h"])
 
-    results = simulate_season(teams, avg_goal, home_adv, completed, message["h2h"])
-    results = [
-        {
-            "team": team.name,
-            "positions": dict(team.sim_positions),
-            "table": asdict(team.sim_table),
-        }
-        for team in results
-    ]
-    formatted_data = util.convert_to_newline_delimited_json(results)
+    result = simulate_season(teams, avg_goal, home_adv, rule, completed)
+    formatted_data = util.convert_to_newline_delimited_json(result)
     destination = f"{league}.json"
     gs_client = util.StorageClient()
     gs_client.upload(BUCKET_NAME, formatted_data, destination)
@@ -50,21 +42,21 @@ def simulate_season(
     teams: list[Team],
     avg_goal: float,
     home_adv: float,
+    rule: TournamentRules,
     completed: dict[
         tuple[str],
         tuple[int],
     ]
     | None = None,
-    h2h: bool = False,
     no_of_simulations: int = 10000,
-    round_robin: int = Round.DOUBLE,
 ) -> list[Team]:
+    season = simulation.RoundRobinTournament(teams, avg_goal, home_adv, rule, completed)
     for _ in range(no_of_simulations):
-        season = simulation.RoundRobinTournament(teams, completed, round_robin)
-        season.simulate(avg_goal, home_adv)
-        result = season.rank_teams(h2h)
+        season.simulate()
+        result = season.rank_teams()
         for position, team in enumerate(result, 1):
-            simulation.update_sim_table(team, position)
+            team.update_sim_table()
+            team.update_sim_positions(position)
 
         season.reset()
 
@@ -72,22 +64,24 @@ def simulate_season(
         team.sim_table /= no_of_simulations
         team.sim_positions /= no_of_simulations
 
-    return teams
+    return [
+        {
+            "team": team.name,
+            "positions": dict(team.sim_positions),
+            "table": asdict(team.sim_table),
+        }
+        for team in teams
+    ]
 
 
 def get_last_run(league: str, country: str, client: util.BigQueryClient) -> int:
-    sql = """
+    query = """
     SELECT MAX(date_unix) AS last_run
     FROM `simulation.run_log`
     WHERE league = @league
         AND country = @country"""
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-        ]
-    )
-    client.query_dict(sql, job_config)[0]["last_run"]
+    params = {"league": league, "country": country}
+    client.query_dict(query, params)[0]["last_run"]
 
 
 def get_latest_match_date(
@@ -102,13 +96,8 @@ def get_latest_match_date(
         AND seasons.name = @league
         AND seasons.country = @country
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-        ]
-    )
-    return client.query_dict(sql, job_config)[0]["max_date_unix"]
+    params = {"league": league, "country": country}
+    return client.query_dict(sql, params)[0]["max_date_unix"]
 
 
 def get_avg_goal_home_adv(
@@ -123,13 +112,8 @@ def get_avg_goal_home_adv(
     WHERE footystats_name = @league
         AND country = @country
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-        ]
-    )
-    factors = client.query_dict(query, job_config)[0]
+    params = {"league": league, "country": country}
+    factors = client.query_dict(query, params)[0]
     return factors["avg_goal"], factors["home_adv"]
 
 
@@ -145,13 +129,8 @@ def get_teams(league: str, country: str, client: util.BigQueryClient) -> list[Te
     WHERE master_leagues.footystats_name = @league
         AND master_leagues.country = @country
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-        ]
-    )
-    return [Team(**team) for team in client.query_dict(query, job_config)]
+    params = {"league": league, "country": country}
+    return [Team(**team) for team in client.query_dict(query, params)]
 
 
 def get_completed_matches(
@@ -169,15 +148,10 @@ def get_completed_matches(
         AND footystats_name = @league
         AND country = @country
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-        ]
-    )
+    params = {"league": league, "country": country}
     return {
         (row["homeId"], row["awayId"]): (row["homeGoalCount"], row["awayGoalCount"])
-        for row in client.query_dict(query, job_config)
+        for row in client.query_dict(query, params)
     }
 
 
@@ -185,11 +159,5 @@ def insert_run_log(
     league: str, country: str, date_unix: int, client: util.BigQueryClient
 ):
     query = "INSERT INTO simulation.run_log VALUES (@league, @country, @date_unix)"
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("league", "STRING", league),
-            bigquery.ScalarQueryParameter("country", "STRING", country),
-            bigquery.ScalarQueryParameter("date_unix", "INT64", date_unix),
-        ]
-    )
-    client.query_dict(query, job_config)
+    params = {"league": league, "country": country, "date_unix": date_unix}
+    client.query_dict(query, params)

@@ -2,7 +2,6 @@ import os
 
 import functions_framework
 from cloudevents.http.event import CloudEvent
-from google.cloud import bigquery
 
 import solver
 import util
@@ -33,10 +32,8 @@ def main(cloud_event: CloudEvent):
 
 def get_last_run(_type: str, client: util.BigQueryClient) -> int:
     query = "SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
-    )
-    if rows := client.query_dict(query, job_config):
+    params = {"type": _type}
+    if rows := client.query_dict(query, params):
         return rows[0]["last_run"]
 
 
@@ -51,29 +48,17 @@ def get_latest_match_date(_type: str, client: util.BigQueryClient) -> int:
     WHERE matches.status = 'complete'
         AND leagues.type = @type
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
-    )
-    return client.query_dict(query, job_config)[0]["max_date_unix"]
+    params = {"type": _type}
+    return client.query_dict(query, params)[0]["max_date_unix"]
 
 
 def get_matches(_type: str, max_time: int, client: util.BigQueryClient) -> dict:
     query = "SELECT * FROM `functions.get_solver_matches`(@type, @max_time);"
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("type", "STRING", _type),
-            bigquery.ScalarQueryParameter("max_time", "INT64", max_time),
-        ]
-    )
-    return client.query_dict(query, job_config)
+    params = {"type": _type, "max_time": max_time}
+    return client.query_dict(query, params)
 
 
 def insert_run_log(_type: str, date_unix: int, client: util.BigQueryClient):
     query = "INSERT INTO solver.run_log VALUES (@type, @date_unix)"
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("type", "STRING", _type),
-            bigquery.ScalarQueryParameter("date_unix", "INT64", date_unix),
-        ]
-    )
-    client.query_dict(query, job_config)
+    params = {"type": _type, "date_unix": date_unix}
+    client.query_dict(query, params)

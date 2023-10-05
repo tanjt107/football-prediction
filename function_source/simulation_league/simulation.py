@@ -6,10 +6,8 @@ from itertools import combinations, permutations
 
 import numpy as np
 
-NO_OF_SIMULATIONS = 10000
 
-
-class Round(Enum):
+class RoundRobin(Enum):
     SINGLE = 1
     DOUBLE = 2
 
@@ -37,6 +35,14 @@ class Table:
         self.scored = 0
         self.conceded = 0
 
+    def __add__(self, other):
+        self.wins += other.wins
+        self.draws += other.draws
+        self.losses += other.losses
+        self.scored += other.scored
+        self.conceded += other.conceded
+        return self
+
     def __truediv__(self, other):
         self.wins /= other
         self.draws /= other
@@ -46,7 +52,7 @@ class Table:
         return self
 
 
-class Occurance(defaultdict):
+class Outcome(defaultdict):
     def __init__(self):
         super().__init__(int)
 
@@ -66,8 +72,17 @@ class Team:
         self.table = Table()
         self.h2h_table = Table()
         self.sim_table = Table()
-        self.sim_positions = Occurance()
-        self.sim_rounds = Occurance()
+        self.sim_positions = Outcome()
+        self.sim_rounds = Outcome()
+
+    def update_sim_table(self):
+        self.sim_table += self.table
+
+    def update_sim_positions(self, position: int):
+        self.sim_positions[position] += 1
+
+    def update_sim_rounds(self, round: str):
+        self.sim_rounds[round] += 1
 
     def __eq__(self, other) -> bool:
         return other and self.name == other.name
@@ -81,8 +96,39 @@ class Team:
 class Match:
     home_team: Team
     away_team: Team
-    home_score: int = 0
-    away_score: int = 0
+    home_score: int | None = None
+    away_score: int | None = None
+
+    @property
+    def completed(self) -> bool:
+        return self.home_score is not None and self.away_score is not None
+
+    @property
+    def winner(self):
+        if not self.completed:
+            return
+        if self.home_score > self.away_score:
+            return self.home_team
+        if self.away_score > self.home_score:
+            return self.away_team
+
+    def update_score(
+        self,
+        completed: dict[
+            tuple[str],
+            tuple[int],
+        ]
+        | None = None,
+        round: int = RoundRobin.DOUBLE,
+    ) -> tuple[int] | None:
+        if not completed:
+            return
+        key = (self.home_team.name, self.away_team.name)
+        key_reversed = (self.away_team.name, self.home_team.name)
+        if key in completed:
+            self.home_score, self.away_score = completed[key]
+        if round == RoundRobin.SINGLE and key_reversed in completed:
+            self.away_score, self.home_score = completed[key_reversed]
 
     def simulate(self, avg_goal: float, home_adv: float, extra_time: bool = False):
         home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
@@ -94,13 +140,6 @@ class Match:
         away_exp = max(away_exp, 0.2)
         self.home_score = np.random.poisson(home_exp)
         self.away_score = np.random.poisson(away_exp)
-
-    @property
-    def winner(self):
-        if self.home_score > self.away_score:
-            return self.home_team
-        if self.away_score > self.home_score:
-            return self.away_team
 
     def update_teams(self, h2h=False):
         if h2h:
@@ -127,51 +166,15 @@ class Match:
 
 
 @dataclass
-class RoundRobinTournament:
-    teams: list[Team]
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
-    round: int = Round.DOUBLE
+class TournamentRules:
+    h2h: bool = False
+    round_robin: RoundRobin = RoundRobin.DOUBLE
+    round_robin_final: RoundRobin = RoundRobin.SINGLE
+    away_goal: bool = True
 
     def __post_init__(self):
-        self._completed = self.completed.copy() if self.completed else {}
-
-    @property
-    def scheduling(self):
-        return combinations if self.round == Round.SINGLE else permutations
-
-    def simulate(self, avg_goal, home_adv):
-        for home_team, away_team in self.scheduling(self.teams, 2):
-            if _game := get_match_if_completed(
-                home_team, away_team, self._completed, self.round
-            ):
-                game = _game
-            else:
-                game = Match(home_team, away_team)
-                game.simulate(avg_goal, home_adv)
-                self._completed[(home_team.name, away_team.name)] = (
-                    game.home_score,
-                    game.away_score,
-                )
-            game.update_teams()
-
-    def rank_teams(self, h2h: bool) -> list[Team]:
-        tiebreaker = self.head_to_head_criterias if h2h else self.goal_diff_criterias
-        points = defaultdict(list)
-        for team in self.teams:
-            points[team.table.points].append(team)
-
-        for teams in points.values():
-            for home_team, away_team in self.scheduling(teams, 2):
-                game = get_match_if_completed(home_team, away_team, self._completed)
-                game.update_teams(h2h=True)
-
-        return sorted(
-            self.teams,
-            key=tiebreaker,
-            reverse=True,
+        self.tiebreaker = (
+            self.head_to_head_criterias if self.h2h else self.goal_diff_criterias
         )
 
     @staticmethod
@@ -187,16 +190,57 @@ class RoundRobinTournament:
 
     @staticmethod
     def goal_diff_criterias(team: Team) -> tuple:
-        return (
-            team.table.points,
-            team.table.goal_diff,
-            team.table.scored,
-            team.h2h_table.points,
-            team.h2h_table.goal_diff,
-            team.h2h_table.scored,
+        return (team.table.points, team.table.goal_diff, team.table.scored)
+
+
+@dataclass
+class RoundRobinTournament:
+    teams: list[Team]
+    avg_goal: float
+    home_adv: float
+    rule: TournamentRules
+    completed: dict[
+        tuple[str],
+        tuple[int],
+    ] | None = None
+
+    def __post_init__(self):
+        self._completed = self.completed.copy() if self.completed else {}
+        self.scheduling = (
+            combinations if self.rule.round_robin == RoundRobin.SINGLE else permutations
+        )
+
+    def simulate(self):
+        for home_team, away_team in self.scheduling(self.teams, 2):
+            game = Match(home_team, away_team)
+            game.update_score(self._completed, self.rule.round_robin)
+            if not game.completed:
+                game.simulate(self.avg_goal, self.home_adv)
+                self._completed[(home_team.name, away_team.name)] = (
+                    game.home_score,
+                    game.away_score,
+                )
+            game.update_teams()
+
+    def rank_teams(self) -> list[Team]:
+        points = defaultdict(list)
+        for team in self.teams:
+            points[team.table.points].append(team)
+
+        for teams in points.values():
+            for home_team, away_team in self.scheduling(teams, 2):
+                game = Match(home_team, away_team)
+                game.update_score(self._completed, self.rule.round_robin)
+                game.update_teams(self.rule.h2h)
+
+        return sorted(
+            self.teams,
+            key=self.rule.tiebreaker,
+            reverse=True,
         )
 
     def reset(self):
+        self._completed = self.completed.copy() if self.completed else {}
         for team in self.teams:
             team.reset()
 
@@ -204,131 +248,116 @@ class RoundRobinTournament:
 @dataclass
 class EliminationTournament:
     teams: list[Team]
+    avg_goal: float
+    home_adv: float
+    rule: TournamentRules
     completed: dict[
         tuple[str],
         tuple[int],
     ] | None = None
-    round: int = Round.DOUBLE
+    drawing_results: dict[int, list[tuple[str]]] | None = None
 
-    @property
-    def scheduling(self):
+    def __post_init__(self):
+        self.drawing_results = self.drawing_results or {}
+
+        team_mapping = {team.name: team for team in self.teams}
+        self._drawing_results = {
+            _round: [
+                (team_mapping[home_team], team_mapping[away_team])
+                for (home_team, away_team) in matchups
+            ]
+            for _round, matchups in self.drawing_results.items()
+        }
+
+    def get_winner(self, home_team: Team, away_team: Team, round_robin: RoundRobin):
         return (
-            self.get_single_legged_winner
-            if self.round == Round.SINGLE
-            else self.get_double_legged_winner
+            self.get_single_legged_winner(home_team, away_team)
+            if round_robin == RoundRobin.SINGLE
+            else self.get_double_legged_winner(home_team, away_team)
         )
 
-    def simulate(self, avg_goal: float, home_adv: float):
+    def simulate(self):
         for team in self.teams:
-            team.sim_rounds[len(self.teams)] += 1
+            team.update_sim_rounds(len(self.teams))
 
         qualified = self.teams
         while len(qualified) > 1:
-            matchups = self.draw_matchup(qualified)
-            qualified = [
-                self.scheduling(home_team, away_team, avg_goal, home_adv)
-                for home_team, away_team in matchups
-            ]
+            if len(qualified) == 2:
+                qualified = self.simulate_final(qualified)
+            else:
+                qualified = self.simulate_round(qualified)
 
             for team in qualified:
-                team.sim_rounds[len(qualified)] += 1
+                team.update_sim_rounds(len(qualified))
+
+    def simulate_round(self, teams: list[Team]):
+        _round = len(teams)
+        matchups = self._drawing_results.get(_round) or self.draw_matchup(teams)
+        return [
+            self.get_winner(home_team, away_team, self.rule.round_robin)
+            for home_team, away_team in matchups
+        ]
+
+    def simulate_final(self, teams: list[Team]):
+        if self.rule.round_robin_final == RoundRobin.SINGLE:
+            self.home_adv = 0
+        home_team, away_team = teams
+        return [self.get_winner(home_team, away_team, self.rule.round_robin_final)]
 
     @staticmethod
     def draw_matchup(teams: list[Team]) -> list[tuple[Team]]:
         random.shuffle(teams)
         return list(zip(teams[::2], teams[1::2]))
 
-    def get_single_legged_winner(
+    def get_single_legged_winner(self, home_team: Team, away_team: Team):
+        game = Match(home_team, away_team)
+        game.update_score(self.completed, self.rule.round_robin)
+        if not game.completed:
+            game.simulate(self.avg_goal, self.home_adv)
+
+        return game.winner or self.get_extra_time_winner(home_team, away_team)
+
+    def get_double_legged_winner(
         self,
         home_team: Team,
         away_team: Team,
-        avg_goal: float,
-        home_adv: float,
     ):
-        if _game := get_match_if_completed(
-            home_team, away_team, self.completed, round=Round.SINGLE
-        ):
-            game = _game
-        else:
-            game = Match(home_team, away_team)
-            game.simulate(avg_goal, home_adv)
+        first_leg = Match(home_team, away_team)
+        second_leg = Match(home_team=away_team, away_team=home_team)
 
-        return game.winner or self.get_extra_time_winner(
-            home_team, away_team, avg_goal, home_adv
-        )
-
-    def get_double_legged_winner(
-        self, home_team: Team, away_team: Team, avg_goal: float, home_adv: float
-    ):
-        if game := get_match_if_completed(home_team, away_team, self.completed):
-            first_leg = game
-        else:
-            first_leg = Match(home_team, away_team)
-            first_leg.simulate(avg_goal, home_adv)
-
-        if game := get_match_if_completed(away_team, home_team, self.completed):
-            second_leg = game
-        else:
-            second_leg = Match(home_team=away_team, away_team=home_team)
-            second_leg.simulate(avg_goal, home_adv)
+        for game in [first_leg, second_leg]:
+            game.update_score(self.completed, self.rule.round_robin)
+            if not game.completed:
+                game.simulate(self.avg_goal, self.home_adv)
 
         game = Match(
-            home_team=away_team,
-            away_team=home_team,
+            home_team,
+            away_team,
             home_score=first_leg.home_score + second_leg.away_score,
             away_score=first_leg.away_score + second_leg.home_score,
         )
 
+        if game.winner:
+            return game.winner
+
+        if self.rule.away_goal:
+            game = Match(
+                home_team,
+                away_team,
+                home_score=second_leg.away_score,
+                away_score=first_leg.away_score,
+            )
+
         return game.winner or self.get_extra_time_winner(
             home_team=away_team,
             away_team=home_team,
-            avg_goal=avg_goal,
-            home_adv=home_adv,
         )
 
-    @staticmethod
     def get_extra_time_winner(
+        self,
         home_team: Team,
         away_team: Team,
-        avg_goal: float,
-        home_adv: float,
     ):
         game = Match(home_team, away_team)
-        game.simulate(avg_goal, home_adv, extra_time=True)
+        game.simulate(self.avg_goal, self.home_adv, extra_time=True)
         return game.winner or random.choice([home_team, away_team])
-
-
-def get_match_if_completed(
-    home_team: Team,
-    away_team: Team,
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ]
-    | None = None,
-    round: int = Round.DOUBLE,
-) -> Match | None:
-    if not completed:
-        return
-    key = (home_team.name, away_team.name)
-    key_reversed = (away_team.name, home_team.name)
-    if key in completed:
-        home_score, away_score = completed[key]
-        return Match(home_team, away_team, home_score, away_score)
-    if round == Round.SINGLE and key_reversed in completed:
-        away_score, home_score = completed[key_reversed]
-        return Match(
-            home_team=away_team,
-            away_team=home_team,
-            home_score=away_score,
-            away_score=home_score,
-        )
-
-
-def update_sim_table(team: Team, position: int):
-    team.sim_positions[position] += 1
-    team.sim_table.wins += team.table.wins
-    team.sim_table.draws += team.table.draws
-    team.sim_table.losses += team.table.losses
-    team.sim_table.scored += team.table.scored
-    team.sim_table.conceded += team.table.conceded

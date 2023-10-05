@@ -2,7 +2,6 @@ import re
 
 import functions_framework
 from cloudevents.http.event import CloudEvent
-from google.cloud import bigquery
 
 import util
 
@@ -38,7 +37,5 @@ def get_params(_type: str, client: util.BigQueryClient):
     FROM `simulation.params`
     WHERE type = @type
     """
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[bigquery.ScalarQueryParameter("type", "STRING", _type)]
-    )
-    return client.query_dict(query, job_config)
+    params = {"type": _type}
+    return client.query_dict(query, params)
