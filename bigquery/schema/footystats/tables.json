@@ -1,0 +1,979 @@
+[
+    {
+        "name": "league_table",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "points",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ppg_overall",
+                "type": "FLOAT"
+            },
+            {
+                "name": "seasonGoalDifference",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "matchesPlayed",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "country",
+                "type": "STRING"
+            },
+            {
+                "name": "cleanName",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shortHand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_overall",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_home",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_away",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "zone",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "number",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    }
+                ]
+            },
+            {
+                "name": "corrections",
+                "type": "INTEGER"
+            }
+        ]
+    },
+    {
+        "name": "specific_tables",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "round",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "table",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "id",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonGoals_home",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonConceded",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonGoals_away",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonConceded_away",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonConceded_home",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonGoals",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "points",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "ppg_overall",
+                        "type": "FLOAT"
+                    },
+                    {
+                        "name": "seasonGoalDifference",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonWins_home",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonWins_away",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonWins_overall",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonDraws_home",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonDraws_away",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonDraws_overall",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonLosses_away",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonLosses_home",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonLosses_overall",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "matchesPlayed",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "name",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "country",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "cleanName",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "shortHand",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "url",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonURL_overall",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonURL_home",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "seasonURL_away",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "position",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "zone",
+                        "type": "RECORD",
+                        "mode": "REPEATED",
+                        "fields": [
+                            {
+                                "name": "name",
+                                "type": "STRING"
+                            },
+                            {
+                                "name": "number",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "corrections",
+                        "type": "INTEGER"
+                    },
+                    {
+                        "name": "wdl_record",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "points_original",
+                        "type": "INTEGER"
+                    }
+                ]
+            },
+            {
+                "name": "name",
+                "type": "STRING"
+            },
+            {
+                "name": "groups",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "table",
+                        "type": "RECORD",
+                        "mode": "REPEATED",
+                        "fields": [
+                            {
+                                "name": "id",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonGoals_home",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonConceded",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonGoals_away",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonConceded_away",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonConceded_home",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonGoals",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "points",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "ppg_overall",
+                                "type": "FLOAT"
+                            },
+                            {
+                                "name": "seasonGoalDifference",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonWins_home",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonWins_away",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonWins_overall",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonDraws_home",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonDraws_away",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonDraws_overall",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonLosses_away",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonLosses_home",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonLosses_overall",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "matchesPlayed",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "name",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "country",
+                                "type": "STRING"
+                            },
+                            {
+                                "name": "cleanName",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "shortHand",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "url",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonURL_overall",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonURL_home",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "seasonURL_away",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "position",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "zone",
+                                "type": "RECORD",
+                                "mode": "REPEATED",
+                                "fields": [
+                                    {
+                                        "name": "name",
+                                        "type": "STRING"
+                                    },
+                                    {
+                                        "name": "number",
+                                        "type": "INTEGER",
+                                        "mode": "REQUIRED"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "corrections",
+                                "type": "INTEGER"
+                            },
+                            {
+                                "name": "wdl_record",
+                                "type": "STRING"
+                            },
+                            {
+                                "name": "points_original",
+                                "type": "INTEGER"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "corrections",
+                        "type": "INTEGER"
+                    },
+                    {
+                        "name": "wdl_record",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "group_id",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    }
+                ]
+            },
+            {
+                "name": "description",
+                "type": "STRING"
+            },
+            {
+                "name": "round_id",
+                "type": "INTEGER"
+            }
+        ]
+    },
+    {
+        "name": "all_matches_table_overall",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "points",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ppg_overall",
+                "type": "FLOAT"
+            },
+            {
+                "name": "seasonGoalDifference",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "matchesPlayed",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "country",
+                "type": "STRING"
+            },
+            {
+                "name": "cleanName",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shortHand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_overall",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_home",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_away",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "zone",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "number",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    }
+                ]
+            },
+            {
+                "name": "corrections",
+                "type": "INTEGER"
+            }
+        ]
+    },
+    {
+        "name": "all_matches_table_home",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "points",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ppg_overall",
+                "type": "FLOAT"
+            },
+            {
+                "name": "seasonGoalDifference",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "matchesPlayed",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "country",
+                "type": "STRING"
+            },
+            {
+                "name": "cleanName",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shortHand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_overall",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_home",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_away",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "zone",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "number",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "all_matches_table_away",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonGoals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonConceded",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "points",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ppg_overall",
+                "type": "FLOAT"
+            },
+            {
+                "name": "seasonGoalDifference",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonWins",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonDraws",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonLosses_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "matchesPlayed",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "country",
+                "type": "STRING"
+            },
+            {
+                "name": "cleanName",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shortHand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_overall",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_home",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "seasonURL_away",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "zone",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "name",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "number",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    }
+                ]
+            }
+        ]
+    }
+]
