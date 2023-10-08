@@ -5,6 +5,10 @@
         "mode": "REQUIRED"
     },
     {
+        "name": "group",
+        "type": "STRING"
+    },
+    {
         "name": "positions",
         "type": "RECORD",
         "fields": [
@@ -86,6 +90,32 @@
             },
             {
                 "name": "20",
+                "type": "FLOAT"
+            }
+        ]
+    },
+    {
+        "name": "rounds",
+        "type": "RECORD",
+        "fields": [
+            {
+                "name": "R16",
+                "type": "FLOAT"
+            },
+            {
+                "name": "QF",
+                "type": "FLOAT"
+            },
+            {
+                "name": "SF",
+                "type": "FLOAT"
+            },
+            {
+                "name": "F",
+                "type": "FLOAT"
+            },
+            {
+                "name": "CHAMP",
                 "type": "FLOAT"
             }
         ]

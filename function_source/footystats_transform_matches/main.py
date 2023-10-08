@@ -5,10 +5,9 @@ import re
 from cloudevents.http.event import CloudEvent
 import functions_framework
 
-import util
+from gcp import storage
 
 
-BUCKET_NAME = os.environ.get("BUCKET_NAME")
 REDUCE_FROM_MINUTE = 70
 REDUCE_GOAL_VALUE = 0.5
 ADJ_FACTOR = 1.05
@@ -17,16 +16,13 @@ XG_WEIGHT = 0.67
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
-    data = cloud_event.data
-    gs_client = util.StorageClient()
-    blob = gs_client.bucket(data["bucket"]).blob(data["name"])
-    raw_data = blob.download_as_text()
-
-    transformed_data = [
-        transform_matches(json.loads(line)) for line in raw_data.splitlines()
-    ]
-    formatted_data = util.convert_to_newline_delimited_json(transformed_data)
-    gs_client.upload(BUCKET_NAME, formatted_data, blob.name)
+    message = cloud_event.data
+    bucket_name, blob_name = message["bucket"], message["name"]
+    data = storage.download_bolb(blob_name, bucket_name)
+    data = [transform_matches(json.loads(line)) for line in data.splitlines()]
+    storage.upload_json_to_bucket(
+        data, blob_name, bucket_name=os.environ["BUCKET_NAME"]
+    )
 
 
 def transform_matches(
@@ -78,22 +74,19 @@ def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
     home = home_adj = away = away_adj = 0
     for timing, team in goal_timings:
         timing = min(timing, 90)
+        adj_val = (
+            max(timing - REDUCE_FROM_MINUTE, 0)
+            / (90 - REDUCE_FROM_MINUTE)
+            * REDUCE_GOAL_VALUE
+        )
         if team == "away":
             away += 1
             away_adj += 1
             if timing > REDUCE_FROM_MINUTE and away - home > 1:
-                away_adj -= (
-                    (timing - REDUCE_FROM_MINUTE)
-                    / (90 - REDUCE_FROM_MINUTE)
-                    * (1 - REDUCE_GOAL_VALUE)
-                )
+                away_adj -= adj_val
         elif team == "home":
             home += 1
             home_adj += 1
             if timing > REDUCE_FROM_MINUTE and home - away > 1:
-                home_adj -= (
-                    (timing - REDUCE_FROM_MINUTE)
-                    / (90 - REDUCE_FROM_MINUTE)
-                    * (1 - REDUCE_GOAL_VALUE)
-                )
+                home_adj -= adj_val
     return home_adj, away_adj

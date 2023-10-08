@@ -35,8 +35,7 @@
     },
     {
         "name": "founded",
-        "type": "STRING",
-        "mode": "REQUIRED"
+        "type": "STRING"
     },
     {
         "name": "image",

@@ -12,8 +12,8 @@ WITH result AS (
     COALESCE(positions.5, 0) AS uel,
     COALESCE(positions.18, 0) + COALESCE(positions.19, 0) + COALESCE(positions.20, 0) AS relegation
   FROM `simulation.sea` sim
-  JOIN `master.teams` teams ON sim.team = teams.solver_id
-  JOIN `master.team_ratings` ratings ON sim.team = ratings.id
+  JOIN `master.teams` teams ON CAST(sim.team AS INT64) = teams.footystats_id
+  JOIN `master.team_ratings` ratings ON teams.solver_id = ratings.id
 )
 
 SELECT

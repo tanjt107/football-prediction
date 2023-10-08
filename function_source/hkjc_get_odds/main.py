@@ -4,28 +4,26 @@ import os
 import functions_framework
 import requests
 
-import util
-
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-POOLS = os.getenv("POOLS")
+from gcp import storage
 
 
 @functions_framework.cloud_event
 def main(_):
-    gs_client = util.StorageClient()
-    pools = json.loads(POOLS)
-    for pool in pools:
+    for pool in json.loads(os.environ["POOLS"]):
         pool = pool.lower()
-        fetched_data = fetch_hkjc(pool)
-        formatted_data = util.convert_to_newline_delimited_json(fetched_data)
-        destination = f"odds_{pool}.json"
-        gs_client.upload(BUCKET_NAME, formatted_data, destination)
+        data = get_hkjc_odds(pool)
+        storage.upload_json_to_bucket(
+            data, blob_name=f"odds_{pool}.json", bucket_name=os.environ["BUCKET_NAME"]
+        )
 
 
-def fetch_hkjc(pool: str) -> dict:
+def get_hkjc_odds(pool: str) -> dict:
+    print(f"Getting HKJC data: {pool=}")
     response = requests.get(
         f"https://bet.hkjc.com/football/getJSON.aspx?jsontype=odds_{pool}.aspx",
         timeout=5,
     )
     response.raise_for_status()
-    return response.json()["matches"]
+    matches = response.json()["matches"]
+    print(f"Got HKJC data: {pool=}")
+    return matches

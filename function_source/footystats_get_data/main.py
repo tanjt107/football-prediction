@@ -1,39 +1,42 @@
-import json
 import os
 
 import functions_framework
 import requests
 from cloudevents.http.event import CloudEvent
 
-import util
+from gcp import storage
+from gcp.util import decode_message
+
 
 BUCKET_NAMES = {
-    "matches": os.getenv("MATCHES_BUCKET_NAME"),
-    "season": os.getenv("SEASONS_BUCKET_NAME"),
-    "teams": os.getenv("TEAMS_BUCKET_NAME"),
+    "matches": os.environ["MATCHES_BUCKET_NAME"],
+    "season": os.environ["SEASONS_BUCKET_NAME"],
+    "teams": os.environ["TEAMS_BUCKET_NAME"],
 }
-API_KEY = os.getenv("FOOTYSTATS_API_KEY")
 
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
-    gs_client = util.StorageClient()
-    data = util.decode_message(cloud_event)
-    message = json.loads(data)
+    message = decode_message(cloud_event)
     endpoint, season_id = message["endpoint"], message["season_id"]
-    print(f"Getting data for endpoint: {endpoint}, season_id: {season_id}")
-    fetched_data = fetch_footystats(endpoint, API_KEY, season_id=season_id)
-    formatted_data = util.convert_to_newline_delimited_json(fetched_data)
-    destination = f"{season_id}.json"
-    gs_client.upload(BUCKET_NAMES[endpoint], formatted_data, destination)
-    print(f"Got data for endpoint: {endpoint}, season_id: {season_id}")
+    data = get_footystats(
+        endpoint, key=os.environ["FOOTYSTATS_API_KEY"], season_id=season_id
+    )
+    storage.upload_json_to_bucket(
+        data,
+        blob_name=f"{season_id}.json",
+        bucket_name=BUCKET_NAMES[endpoint],
+    )
 
 
-def fetch_footystats(endpoint: str, key: str, **kwargs) -> dict:
+def get_footystats(endpoint: str, key: str, **kwargs) -> dict:
+    print(f"Getting footystats data: {endpoint=}, {kwargs=}")
     response = requests.get(
         f"https://api.football-data-api.com/league-{endpoint}",
         params={"key": key, **kwargs},
         timeout=5,
     )
     response.raise_for_status()
-    return response.json()["data"]
+    data = response.json()["data"]
+    print(f"Got footystats data: {endpoint=}, {kwargs=}")
+    return data

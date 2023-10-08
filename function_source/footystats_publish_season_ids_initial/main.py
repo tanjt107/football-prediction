@@ -1,27 +1,23 @@
 import os
+import time
 
 import functions_framework
 
-import util
-
-TOPIC_NAME = os.getenv("TOPIC_NAME")
+from gcp import bigquery, pubsub
 
 
 @functions_framework.cloud_event
 def main(_):
-    bq_client = util.BigQueryClient()
-    season_ids = get_latest_season_ids(bq_client)
-
-    publisher = util.PublisherClient()
-    for season_id in season_ids:
+    for season_id in get_latest_season_ids():
         for endpoint in ["matches", "season", "teams"]:
-            publisher.publish_json_message(
-                TOPIC_NAME,
-                {"endpoint": endpoint, "season_id": season_id},
+            pubsub.publish_json_message(
+                topic=os.environ["TOPIC_NAME"],
+                data={"endpoint": endpoint, "season_id": season_id},
             )
+            time.sleep(0.1)
 
 
-def get_latest_season_ids(client: util.BigQueryClient) -> list[int]:
+def get_latest_season_ids() -> list[int]:
     query = """
     SELECT
       season.id
@@ -29,4 +25,4 @@ def get_latest_season_ids(client: util.BigQueryClient) -> list[int]:
       `footystats.league_list`,
       UNNEST(season) AS season
     """
-    return [row["id"] for row in client.query_dict(query)]
+    return [row["id"] for row in bigquery.query_dict(query)]

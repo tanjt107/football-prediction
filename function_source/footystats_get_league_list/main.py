@@ -3,26 +3,31 @@ import os
 import functions_framework
 import requests
 
-import util
-
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-API_KEY = os.getenv("FOOTYSTATS_API_KEY")
+from gcp import storage
 
 
 @functions_framework.cloud_event
 def main(_):
-    gs_client = util.StorageClient()
-    league_data = fetch_footystats("list", API_KEY, chosen_leagues_only="true")
-    formatted_data = util.convert_to_newline_delimited_json(league_data)
-    destination = "league_list.json"
-    gs_client.upload(BUCKET_NAME, formatted_data, destination)
+    data = get_footystats(
+        endpoint="list",
+        key=os.environ["FOOTYSTATS_API_KEY"],
+        chosen_leagues_only="true",
+    )
+    storage.upload_json_to_bucket(
+        data,
+        blob_name="league_list.json",
+        bucket_name=os.environ["BUCKET_NAME"],
+    )
 
 
-def fetch_footystats(endpoint: str, key: str, **kwargs) -> dict:
+def get_footystats(endpoint: str, key: str, **kwargs) -> dict:
+    print(f"Getting footystats data: {endpoint=}, {kwargs=}")
     response = requests.get(
         f"https://api.football-data-api.com/league-{endpoint}",
         params={"key": key, **kwargs},
         timeout=5,
     )
     response.raise_for_status()
-    return response.json()["data"]
+    data = response.json()["data"]
+    print(f"Got footystats data: {endpoint=}, {kwargs=}")
+    return data

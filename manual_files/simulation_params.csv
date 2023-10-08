@@ -1,9 +1,12 @@
-Club,Bundesliga,Germany,simulation-league,false
-Club,China League One,China,simulation-league,true
-Club,Chinese Super League,China,simulation-league,true
-Club,Hong Kong Premier League,Hong Kong,simulation-league,true
-Club,J1 League,Japan,simulation-league,true
-Club,La Liga,Spain,simulation-league,true
-Club,Ligue 1,France,simulation-league,false
-Club,Premier League,England,simulation-league,false
-Club,Serie A,Italy,simulation-league,true
+International,AFC Asian Cup,International,simulation-cup,"{""h2h"": true, ""leg"": 1, ""leg_final"": 1, ""away_goal"": false}",16,"{""A"": [8585, 8600, 8589, 8591], ""B"": [8582, 8581, 8590, 8615], ""C"": [8618, 8607, 8594, 8611], ""D"": [8737, 8606, 8579, 8612], ""E"": [8584, 8580, 8601, 8619], ""F"": [8621, 8595, 8588, 8613]}",
+Club,AFC Champions League,Asia,simulation-cup,"{""h2h"": true, ""leg"": 2, ""leg_final"": 2, ""away_goal"": true}",8,"{""F"": [3837, 1173, 1514, 1335], ""G"": [1002, 844, 2102, 3840], ""H"": [1186, 1014, 602, 839], ""I"": [3836, 1013, 138, 1182], ""J"": [672253, 3835, 4006, 1003]}",
+Club,Bundesliga,Germany,simulation-league,"{""h2h"": false, ""leg"": 2}",,,
+Club,China League One,China,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,Chinese Super League,China,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,Hong Kong Premier League,Hong Kong,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,J1 League,Japan,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,La Liga,Spain,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,Ligue 1,France,simulation-league,"{""h2h"": false, ""leg"": 2}",,,
+Club,Premier League,England,simulation-league,"{""h2h"": false, ""leg"": 2}",,,
+Club,Serie A,Italy,simulation-league,"{""h2h"": true, ""leg"": 2}",,,
+Club,UEFA Champions League,Europe,simulation-cup,"{""h2h"": true, ""leg"": 2, ""leg_final"": 1, ""away_goal"": false}",16,"{""A"": [38, 187, 55, 149], ""B"": [449, 59, 98, 121], ""C"": [84, 74, 172, 541], ""D"": [290, 470, 100, 78], ""E"": [463, 117, 367, 23], ""F"": [157, 68, 461, 33], ""G"": [93, 46, 70, 94], ""H"": [83, 82, 80, 1048]}",

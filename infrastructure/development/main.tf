@@ -492,6 +492,16 @@ module "bigquery-simulation" {
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["simulation"]}/simulation_params.csv"]
     }
+    ac = {
+      schema        = file("../../bigquery/schema/simulation/leagues.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["simulation"]}/AFC Asian Cup.json"]
+    }
+    acl = {
+      schema        = file("../../bigquery/schema/simulation/leagues.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["simulation"]}/AFC Champions League.json"]
+    }
     bun = {
       schema        = file("../../bigquery/schema/simulation/leagues.json")
       source_format = "NEWLINE_DELIMITED_JSON"
@@ -537,6 +547,11 @@ module "bigquery-simulation" {
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["simulation"]}/Serie A.json"]
     }
+    ucl = {
+      schema        = file("../../bigquery/schema/simulation/leagues.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["simulation"]}/UEFA Champions League.json"]
+    }
   }
 }
 
@@ -561,6 +576,27 @@ module "simulation-league" {
   project_id            = module.project.project_id
 }
 
+module "pubsub-simulation-cup" {
+  source = "../modules/pubsub"
+
+  topic      = "simulation-cup"
+  project_id = module.project.project_id
+}
+
+module "simulation-cup" {
+  source = "../modules/event-function"
+
+  name                  = "simulation_cup"
+  bucket_name           = module.buckets.names["gcf"]
+  timeout_s             = 300
+  environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
+  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
+  topic_name            = module.pubsub-simulation-cup.id
+  source_directory      = "../../function_source"
+  region                = var.region
+  project_id            = module.project.project_id
+}
+
 module "bigquery-outputs" {
   source = "../modules/bigquery"
 
@@ -571,6 +607,8 @@ module "bigquery-outputs" {
   views = {
     results                    = file("../../bigquery/routine/outputs/results.sql")
     schedule                   = file("../../bigquery/routine/outputs/schedule.sql")
+    simulation_ac              = file("../../bigquery/routine/outputs/simulation_ac.sql")
+    simulation_acl             = file("../../bigquery/routine/outputs/simulation_acl.sql")
     simulation_bun             = file("../../bigquery/routine/outputs/simulation_bun.sql")
     simulation_cl1             = file("../../bigquery/routine/outputs/simulation_cl1.sql")
     simulation_csl             = file("../../bigquery/routine/outputs/simulation_csl.sql")
@@ -580,6 +618,7 @@ module "bigquery-outputs" {
     simulation_li1             = file("../../bigquery/routine/outputs/simulation_li1.sql")
     simulation_ll              = file("../../bigquery/routine/outputs/simulation_ll.sql")
     simulation_sea             = file("../../bigquery/routine/outputs/simulation_sea.sql")
+    simulation_ucl             = file("../../bigquery/routine/outputs/simulation_ucl.sql")
     team_ratings               = file("../../bigquery/routine/outputs/team_ratings.sql")
     team_ratings_international = file("../../bigquery/routine/outputs/team_ratings_international.sql")
   }

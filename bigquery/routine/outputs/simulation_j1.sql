@@ -12,8 +12,8 @@ WITH result AS (
     COALESCE(positions.3, 0) AS acl2,
     COALESCE(positions.18, 0) AS relegation
   FROM `simulation.j1` sim
-  JOIN `master.teams` teams ON sim.team = teams.solver_id
-  JOIN `master.team_ratings` ratings ON sim.team = ratings.id
+  JOIN `master.teams` teams ON CAST(sim.team AS INT64) = teams.footystats_id
+  JOIN `master.team_ratings` ratings ON teams.solver_id = ratings.id
 )
 
 SELECT
