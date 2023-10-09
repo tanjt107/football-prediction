@@ -6,9 +6,9 @@ WITH result AS (
     rating,
     offence,
     defence,
+    table.wins * 3 + table.draws AS points,
     COALESCE(positions.1, 0) AS _1st,
     COALESCE(positions.2, 0) AS _2nd,
-    COALESCE(positions.3, 0) AS _3rd,
     COALESCE(rounds.QF, 0) AS r16,
     COALESCE(rounds.SF, 0) AS qf,
     COALESCE(rounds.F, 0) AS sf,
@@ -32,4 +32,4 @@ SELECT
   ROUND(sf, 3) AS sf,
   ROUND(f, 3) AS f,
 FROM result
-ORDER BY result.group, _1st DESC, _2nd DESC, _3rd DESC
+ORDER BY result.group, points DESC
