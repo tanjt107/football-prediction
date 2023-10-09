@@ -5,7 +5,7 @@ WITH matches AS (
   away_teams.solver_id AS away_id,
   leagues.division,
   CASE
-    WHEN home_teams.country <> away_teams.country OR leagues.type = 'International' THEN 5
+    WHEN home_teams.country <> away_teams.country OR league_type = 'International' THEN 5
     ELSE 1
   END
   AS cut_off_year,
