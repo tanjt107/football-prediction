@@ -34,7 +34,7 @@ class Season:
         game = Match(home_team, away_team)
         game.update_score(self._completed, self.rule.leg)
         if not game.completed:
-            game.simulate(self.avg_goal, self.home_adv)
+            game.simulate(self.avg_goal, self._home_adv)
             self._completed[game.teams] = game.score
         game.update_teams()
 
