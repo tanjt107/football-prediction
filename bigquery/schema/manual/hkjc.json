@@ -1,12 +1,12 @@
 [
     {
         "name": "footystats_id",
-        "type": "INTEGER",
+        "type": "STRING",
         "mode": "REQUIRED"
     },
     {
-        "name": "transfermarkt_id",
-        "type": "INTEGER",
+        "name": "hkjc_id",
+        "type": "STRING",
         "mode": "REQUIRED"
     }
 ]

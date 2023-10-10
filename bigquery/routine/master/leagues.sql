@@ -1,85 +1,74 @@
-WITH max_division AS (
+WITH footystats AS (
   SELECT 
-    country,
-    MAX(division) AS division
-  FROM `footystats.seasons`
-  GROUP BY country
-),
-
-footystats AS (
-  SELECT 
-    country,
-    name,
+    _COUNTRY,
+    _NAME,
     id,
-    division,
     format,
+    division,
     CASE
-      WHEN country = 'International' AND name NOT IN (
+      WHEN _COUNTRY = 'International' AND name NOT IN (
       SELECT name FROM `manual.intl_club_competitions`
       )
       THEN 'International'
       ELSE 'Club'
     END AS type
   FROM `footystats.seasons`
-  QUALIFY ROW_NUMBER() OVER (PARTITION BY country, name ORDER BY ending_year DESC, starting_year DESC) = 1
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC) = 1
+),
+
+max_division AS (
+  SELECT 
+    _COUNTRY,
+    MAX(division) AS division
+  FROM footystats
+  GROUP BY _COUNTRY
 ),
 
 hkjc AS (
   SELECT DISTINCT
-    hkjc.code,
-    country,
-    name,
+    hkjc_id,
+    footystats_id,
     nameC
   FROM `hkjc.leagues` hkjc
-  LEFT JOIN `manual.hkjc_leagues` mapping_hkjc ON hkjc.code = mapping_hkjc.code
+  JOIN `manual.hkjc_leagues` mapping_hkjc ON hkjc.code = mapping_hkjc.hkjc_id
 ),
 
 non_hkjc AS (
   SELECT 
-    CAST(NULL AS STRING) AS code,
-    country,
-    name,
+    CAST(NULL AS STRING) AS hkjc_id,
+    footystats_id,
     nameC
   FROM `manual.non_hkjc_leagues`
 ),
 
 hk AS (
   SELECT 
-    code,
-    country,
-    name,
+    hkjc_id,
+    footystats_id,
     nameC
   FROM hkjc
   UNION ALL
   SELECT 
-    code,
-    country,
-    name,
+    hkjc_id,
+    footystats_id,
     nameC
   FROM non_hkjc
 )
 
 SELECT 
-  COALESCE(CONCAT('JC', hk.code), CONCAT('FS', footystats.country, REPLACE(footystats.name, ' ', ''))) AS id,
-  COALESCE(nameC, CONCAT(footystats.country, ' ', footystats.name)) AS name,
-  footystats.country,
-  footystats.name AS footystats_name,
-  format,
+  COALESCE(nameC, CONCAT(footystats._NAME)) AS name,
+  footystats._COUNTRY AS country,
   CASE
     WHEN max_division.division > 1 AND footystats.division > 1 
-    THEN CONCAT(footystats.country, footystats.division)
-    ELSE footystats.country
+    THEN CONCAT(footystats._COUNTRY, footystats.division)
+    ELSE footystats._COUNTRY
   END AS division,
-  footystats.division AS footystats_division,
-  type,
+  format = 'Domestic League' AND footystats.division > 0 AS is_league,
   footystats.id AS latest_season_id,
-  hk.code AS hkjc_id,
+  footystats._NAME AS footystats_id,
+  hkjc_id,
   transfermarkt_id
 FROM footystats
-JOIN max_division ON footystats.country = max_division.country
-LEFT JOIN `manual.transfermarkt_leagues` transfermarkt 
-  ON footystats.country = transfermarkt.country
-  AND footystats.name = transfermarkt.name
-FULL OUTER JOIN hk 
-  ON footystats.country = hk.country
-  AND footystats.name = hk.name
+JOIN max_division ON footystats._COUNTRY = max_division._COUNTRY
+LEFT JOIN `manual.transfermarkt_leagues` transfermarkt ON footystats._NAME = transfermarkt.footystats_id
+LEFT JOIN hk ON footystats._NAME = hk.footystats_id

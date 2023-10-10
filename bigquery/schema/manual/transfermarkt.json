@@ -1,11 +1,11 @@
 [
     {
         "name": "footystats_id",
-        "type": "INTEGER",
+        "type": "STRING",
         "mode": "REQUIRED"
     },
     {
-        "name": "nameC",
+        "name": "transfermarkt_id",
         "type": "STRING",
         "mode": "REQUIRED"
     }

@@ -35,10 +35,10 @@ variable "routines" {
     routine_type    = string,
     language        = string,
     return_type     = optional(string),
-    arguments = list(object({
+    arguments = optional(list(object({
       name      = string,
       data_type = string
-    })),
+    }))),
   }))
   default = {}
 }

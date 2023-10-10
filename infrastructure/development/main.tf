@@ -171,24 +171,40 @@ module "bigquery-footystats" {
       source_uris   = ["${module.buckets.urls["footystats-league-list"]}/league_list.json"]
     }
     matches = {
-      schema        = file("../../bigquery/schema/footystats/matches.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/matches.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-matches"]}/*/matches.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-matches"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     matches_transformed = {
-      schema        = file("../../bigquery/schema/footystats/matches_transformed.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches-transformed"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/matches_transformed.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-matches-transformed"]}/*/matches.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-matches-transformed"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     seasons = {
-      schema        = file("../../bigquery/schema/footystats/seasons.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-seasons"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/seasons.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-seasons"]}/*/season.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-seasons"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     teams = {
-      schema        = file("../../bigquery/schema/footystats/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-teams"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/teams.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-teams"]}/*/teams.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-teams"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
+    }
+  }
+  routines = {
+    get_season_id_delta = {
+      definition_body = templatefile("../../bigquery/routine/functions/footystats/get_season_id_delta.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+    }
+    get_season_id_initial = {
+      definition_body = templatefile("../../bigquery/routine/functions/footystats/get_season_id_initial.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
     }
   }
 }
@@ -249,6 +265,23 @@ module "bigquery-solver" {
       hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{type:STRING}" }
     }
   }
+  routines = {
+    get_matches = {
+      definition_body = templatefile("../../bigquery/routine/functions/solver/get_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "max_time"
+          data_type = jsonencode({ "typeKind" : "INT64" })
+        }
+      ]
+    }
+  }
 }
 
 module "hkjc-get-odds" {
@@ -299,14 +332,16 @@ module "bigquery-hkjc" {
       source_uris   = ["${module.buckets.urls["hkjc"]}/leaguelist.json"]
     },
     odds_had = {
-      schema        = file("../../bigquery/schema/hkjc/odds_had.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_had.json"]
+      schema                    = file("../../bigquery/schema/hkjc/odds_had.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_had.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     odds_hdc = {
-      schema        = file("../../bigquery/schema/hkjc/odds_hdc.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_hdc.json"]
+      schema                    = file("../../bigquery/schema/hkjc/odds_hdc.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_hdc.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     teams = {
       schema        = file("../../bigquery/schema/hkjc/content.json")
@@ -325,12 +360,12 @@ module "bigquery-manual" {
   deletion_protection = false
   external_tables = {
     hkjc_leagues = {
-      schema        = file("../../bigquery/schema/manual/hkjc_leagues.json")
+      schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_leagues.csv"]
     }
     hkjc_teams = {
-      schema        = file("../../bigquery/schema/manual/hkjc_teams.json")
+      schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
     }
@@ -340,22 +375,22 @@ module "bigquery-manual" {
       source_uris   = ["${module.buckets.urls["manual"]}/intl_club_competitions.csv"]
     }
     non_hkjc_leagues = {
-      schema        = file("../../bigquery/schema/manual/non_hkjc_leagues.json")
+      schema        = file("../../bigquery/schema/manual/non_hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_leagues.csv"]
     }
     non_hkjc_teams = {
-      schema        = file("../../bigquery/schema/manual/non_hkjc_teams.json")
+      schema        = file("../../bigquery/schema/manual/non_hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_teams.csv"]
     }
     transfermarkt_leagues = {
-      schema        = file("../../bigquery/schema/manual/transfermarkt_leagues.json")
+      schema        = file("../../bigquery/schema/manual/transfermarkt.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_leagues.csv"]
     }
     transfermarkt_teams = {
-      schema        = file("../../bigquery/schema/manual/transfermarkt_teams.json")
+      schema        = file("../../bigquery/schema/manual/transfermarkt.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_teams.csv"]
     }
@@ -417,21 +452,6 @@ module "bigquery-functions" {
   project_id          = module.project.project_id
   deletion_protection = false
   routines = {
-    get_solver_matches = {
-      definition_body = templatefile("../../bigquery/routine/functions/get_solver_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league_type"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "max_time"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        }
-      ]
-    }
     matchProbs = {
       definition_body = file("../../bigquery/routine/functions/matchProbs.js")
       routine_type    = "SCALAR_FUNCTION"
