@@ -1,10 +1,5 @@
 [
     {
-        "name": "id",
-        "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
         "name": "name",
         "type": "STRING",
         "mode": "NULLABLE"
@@ -31,7 +26,7 @@
     },
     {
         "name": "transfermarkt_id",
-        "type": "INTEGER",
+        "type": "STRING",
         "mode": "NULLABLE"
     },
     {
@@ -40,13 +35,8 @@
         "mode": "NULLABLE"
     },
     {
-        "name": "league_id",
+        "name": "league_name",
         "type": "STRING",
-        "mode": "NULLABLE"
-    },
-    {
-        "name": "in_team_rating",
-        "type": "BOOLEAN",
         "mode": "NULLABLE"
     }
 ]

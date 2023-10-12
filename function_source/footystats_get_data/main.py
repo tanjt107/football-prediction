@@ -30,7 +30,7 @@ def main(cloud_event: CloudEvent):
             "_COUNTRY": message["country"],
             "_NAME": message["name"],
             "_YEAR": message["year"],
-            "_SEASON_ID": message["season_id"],
+            "_SEASON_ID": season_id,
         },
     )
 

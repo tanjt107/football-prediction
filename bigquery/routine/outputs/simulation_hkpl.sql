@@ -8,9 +8,11 @@ WITH result AS (
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws AS points,
     COALESCE(positions.1, 0) AS champ
-  FROM `simulation.hkpl` sim
-  JOIN `master.teams` teams ON CAST(sim.team AS INT64) = teams.footystats_id
-  JOIN `master.team_ratings` ratings ON teams.solver_id = ratings.id
+  FROM `simulation.leagues_latest` leagues
+  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  WHERE _LEAGUE = 'Hong Kong Hong Kong Premier League'
+  AND ratings._TYPE = 'Club'
 )
 
 SELECT

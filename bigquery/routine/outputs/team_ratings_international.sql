@@ -5,7 +5,7 @@ SELECT
   ROUND(offence, 1) AS offence,
   ROUND(defence, 1) AS defence,
   ROUND(rating, 1) AS rating
-FROM `master.team_ratings` ratings
+FROM `solver.team_ratings` ratings
 JOIN `master.teams` teams ON ratings.id = teams.solver_id
-WHERE in_team_rating AND type = 'International'
+WHERE transfermarkt_id IS NOT NULL AND type = 'International'
 ORDER BY rank;

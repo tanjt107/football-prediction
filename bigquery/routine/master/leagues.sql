@@ -1,74 +1,25 @@
-WITH footystats AS (
-  SELECT 
-    _COUNTRY,
-    _NAME,
-    id,
-    format,
-    division,
-    CASE
-      WHEN _COUNTRY = 'International' AND name NOT IN (
-      SELECT name FROM `manual.intl_club_competitions`
-      )
-      THEN 'International'
-      ELSE 'Club'
-    END AS type
-  FROM `footystats.seasons`
-  QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC) = 1
-),
-
-max_division AS (
-  SELECT 
-    _COUNTRY,
-    MAX(division) AS division
-  FROM footystats
-  GROUP BY _COUNTRY
-),
-
-hkjc AS (
-  SELECT DISTINCT
-    hkjc_id,
-    footystats_id,
-    nameC
-  FROM `hkjc.leagues` hkjc
-  JOIN `manual.hkjc_leagues` mapping_hkjc ON hkjc.code = mapping_hkjc.hkjc_id
-),
-
-non_hkjc AS (
-  SELECT 
-    CAST(NULL AS STRING) AS hkjc_id,
-    footystats_id,
-    nameC
-  FROM `manual.non_hkjc_leagues`
-),
-
-hk AS (
-  SELECT 
-    hkjc_id,
-    footystats_id,
-    nameC
-  FROM hkjc
-  UNION ALL
-  SELECT 
-    hkjc_id,
-    footystats_id,
-    nameC
-  FROM non_hkjc
-)
-
-SELECT 
-  COALESCE(nameC, CONCAT(footystats._NAME)) AS name,
+SELECT
+  COALESCE(hkjc.nameC, non_hkjc.nameC, _NAME) AS name,
   footystats._COUNTRY AS country,
   CASE
-    WHEN max_division.division > 1 AND footystats.division > 1 
-    THEN CONCAT(footystats._COUNTRY, footystats.division)
-    ELSE footystats._COUNTRY
+    WHEN _COUNTRY = 'International' AND intl.name IS NULL
+    THEN 'International'
+    ELSE 'Club'
+  END AS type,
+  CASE
+    WHEN MAX(division) OVER (PARTITION BY _COUNTRY) > 1 AND division > 1 
+    THEN CONCAT(_COUNTRY, division)
+    ELSE _COUNTRY
   END AS division,
-  format = 'Domestic League' AND footystats.division > 0 AS is_league,
+  format = 'Domestic League' AND division > 0 AS is_league,
   footystats.id AS latest_season_id,
-  footystats._NAME AS footystats_id,
+  _NAME AS footystats_id,
   hkjc_id,
   transfermarkt_id
-FROM footystats
-JOIN max_division ON footystats._COUNTRY = max_division._COUNTRY
+FROM `footystats.seasons` footystats
+LEFT JOIN `manual.hkjc_leagues` mapping_hkjc ON footystats._NAME = mapping_hkjc.footystats_id 
+LEFT JOIN `hkjc.leagues` hkjc ON hkjc.code = mapping_hkjc.hkjc_id
 LEFT JOIN `manual.transfermarkt_leagues` transfermarkt ON footystats._NAME = transfermarkt.footystats_id
-LEFT JOIN hk ON footystats._NAME = hk.footystats_id
+LEFT JOIN `manual.non_hkjc_leagues` non_hkjc ON footystats._NAME = non_hkjc.footystats_id
+LEFT JOIN `manual.intl_club_competitions` intl ON footystats._NAME = intl.name
+QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC) = 1

@@ -3,31 +3,23 @@ from gcp import bigquery
 
 
 def get_last_run(_type: str) -> int:
-    query = "SELECT MAX(date_unix) AS last_run FROM `solver.run_log` WHERE type = @type"
     if rows := bigquery.query_dict(
-        query=query,
+        query="SELECT * FROM `solver.get_last_run`(@type);",
         params={"type": _type},
     ):
         return rows[0]["last_run"]
 
 
 def get_latest_match_date(_type: str) -> dict[str, League | Match | Team]:
-    query = """
-    SELECT
-        MAX(date_unix) AS max_date_unix
-    FROM `footystats.matches` matches
-    JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
-    JOIN `master.leagues` leagues ON seasons.country = leagues.country
-        AND seasons.name = leagues.footystats_name
-    WHERE matches.status = 'complete'
-        AND leagues.type = @type
-    """
-    return bigquery.query_dict(query, params={"type": _type})[0]["max_date_unix"]
+    return bigquery.query_dict(
+        query="SELECT * FROM `solver.get_latest_match_date`(@type);",
+        params={"type": _type},
+    )[0]["max_date_unix"]
 
 
 def get_matches(_type: str, max_time: int) -> dict:
     data = bigquery.query_dict(
-        query="SELECT * FROM `solver.get_solver_matches`(@type, @max_time);",
+        query="SELECT * FROM `solver.get_matches`(@type, @max_time);",
         params={"type": _type, "max_time": max_time},
     )
     league_names = {match["league_name"] for match in data}
@@ -52,8 +44,3 @@ def get_matches(_type: str, max_time: int) -> dict:
             for match in data
         ],
     }
-
-
-def insert_run_log(_type: str, date_unix: int):
-    query = "INSERT INTO solver.run_log VALUES (@type, @date_unix)"
-    bigquery.query_dict(query, params={"type": _type, "date_unix": date_unix})

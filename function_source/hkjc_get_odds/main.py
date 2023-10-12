@@ -10,13 +10,14 @@ from gcp import storage
 
 @functions_framework.cloud_event
 def main(_):
+    timestamp = get_current_timestamp()
     for pool in json.loads(os.environ["POOLS"]):
         pool = pool.lower()
         storage.upload_json_to_bucket(
             data=get_hkjc_odds(pool),
             blob_name=f"odds_{pool}.json",
             bucket_name=os.environ["BUCKET_NAME"],
-            hive_partitioning={"_TIMESTAMP": get_current_timestamp()},
+            hive_partitioning={"_TIMESTAMP": timestamp},
         )
 
 

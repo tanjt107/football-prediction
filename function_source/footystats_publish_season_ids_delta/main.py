@@ -14,6 +14,6 @@ def main(_):
     for season_id in season_ids:
         pubsub.publish_json_message(
             topic=os.environ["TOPIC_NAME"],
-            data={"endpoint": "matches", "season_id": season_id},
+            data={"endpoint": "matches", **season_id},
         )
         time.sleep(0.1)

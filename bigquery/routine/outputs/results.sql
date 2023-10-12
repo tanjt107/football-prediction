@@ -10,9 +10,7 @@ SELECT
 FROM `footystats.matches` matches
 JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
 JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
-JOIN `master.leagues` leagues ON seasons.country = leagues.country
-  AND seasons.name = leagues.footystats_name
+JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
 WHERE
   matches.status = 'complete'
   AND TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), TIMESTAMP_SECONDS(date_unix), DAY) < 30
