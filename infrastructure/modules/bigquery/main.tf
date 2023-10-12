@@ -66,7 +66,7 @@ resource "google_bigquery_routine" "routines" {
   project         = var.project_id
 
   dynamic "arguments" {
-    for_each = each.value["arguments"]
+    for_each = each.value["arguments"] == null ? [] : each.value["arguments"]
     content {
       name      = arguments.value["name"]
       data_type = arguments.value["data_type"]

@@ -24,8 +24,14 @@ def main(cloud_event: CloudEvent):
     )
     storage.upload_json_to_bucket(
         data,
-        blob_name=f"{season_id}.json",
+        blob_name=f"{endpoint}.json",
         bucket_name=BUCKET_NAMES[endpoint],
+        hive_partitioning={
+            "_COUNTRY": message["country"],
+            "_NAME": message["name"],
+            "_YEAR": message["year"],
+            "_SEASON_ID": season_id,
+        },
     )
 
 

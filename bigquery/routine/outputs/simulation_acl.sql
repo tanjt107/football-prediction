@@ -2,7 +2,7 @@ WITH result AS (
   SELECT
     teams.transfermarkt_id,
     teams.name,
-    sim.group,
+    leagues.group,
     rating,
     offence,
     defence,
@@ -13,9 +13,11 @@ WITH result AS (
     COALESCE(rounds.SF, 0) AS qf,
     COALESCE(rounds.F, 0) AS sf,
     COALESCE(rounds.CHAMP, 0) AS f
-  FROM `simulation.acl` sim
-  JOIN `master.teams` teams ON CAST(sim.team AS INT64) = teams.footystats_id
-  JOIN `master.team_ratings` ratings ON teams.solver_id = ratings.id
+  FROM `simulation.leagues_latest` leagues
+  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  WHERE _LEAGUE = 'Asia AFC Champions League'
+  AND ratings._TYPE = 'Club'
 )
 
 SELECT

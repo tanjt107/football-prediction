@@ -167,24 +167,40 @@ module "bigquery-footystats" {
       source_uris   = ["${module.buckets.urls["footystats-league-list"]}/league_list.json"]
     }
     matches = {
-      schema        = file("../../bigquery/schema/footystats/matches.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/matches.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-matches"]}/*/matches.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-matches"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     matches_transformed = {
-      schema        = file("../../bigquery/schema/footystats/matches_transformed.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-matches-transformed"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/matches_transformed.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-matches-transformed"]}/*/matches.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-matches-transformed"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     seasons = {
-      schema        = file("../../bigquery/schema/footystats/seasons.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-seasons"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/seasons.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-seasons"]}/*/season.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-seasons"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     teams = {
-      schema        = file("../../bigquery/schema/footystats/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["footystats-teams"]}/*.json"]
+      schema                    = file("../../bigquery/schema/footystats/teams.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-teams"]}/*/teams.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-teams"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
+    }
+  }
+  routines = {
+    get_season_id_delta = {
+      definition_body = templatefile("../../bigquery/routine/footystats/get_season_id_delta.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+    }
+    get_season_id_initial = {
+      definition_body = templatefile("../../bigquery/routine/footystats/get_season_id_initial.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
     }
   }
 }
@@ -225,22 +241,63 @@ module "bigquery-solver" {
   dataset_id = "solver"
   location   = var.region
   project_id = module.project.project_id
-  tables = {
-    run_log = file("../../bigquery/schema/solver/run_log.json")
-  }
   external_tables = {
     leagues = {
       schema                    = file("../../bigquery/schema/solver/leagues.json")
       source_format             = "NEWLINE_DELIMITED_JSON"
       source_uris               = ["${module.buckets.urls["solver"]}/*/leagues.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{type:STRING}" }
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{_TYPE:STRING}/{_DATE_UNIX:INTEGER}" }
     }
     teams = {
       schema                    = file("../../bigquery/schema/solver/teams.json")
       source_format             = "NEWLINE_DELIMITED_JSON"
       source_uris               = ["${module.buckets.urls["solver"]}/*/teams.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{type:STRING}" }
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["solver"]}/{_TYPE:STRING}/{_DATE_UNIX:INTEGER}" }
     }
+  }
+  routines = {
+    get_last_run = {
+      definition_body = templatefile("../../bigquery/routine/solver/get_last_run.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_latest_match_date = {
+      definition_body = templatefile("../../bigquery/routine/solver/get_latest_match_date.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_matches = {
+      definition_body = templatefile("../../bigquery/routine/solver/get_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "max_time"
+          data_type = jsonencode({ "typeKind" : "INT64" })
+        }
+      ]
+    }
+  }
+  views = {
+    leagues_latest = file("../../bigquery/routine/solver/leagues_latest.sql")
+    teams_latest   = file("../../bigquery/routine/solver/teams_latest.sql")
+    team_ratings   = file("../../bigquery/routine/solver/team_ratings.sql")
   }
 }
 
@@ -289,20 +346,26 @@ module "bigquery-hkjc" {
       source_uris   = ["${module.buckets.urls["hkjc"]}/leaguelist.json"]
     },
     odds_had = {
-      schema        = file("../../bigquery/schema/hkjc/odds_had.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_had.json"]
+      schema                    = file("../../bigquery/schema/hkjc/odds_had.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_had.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     odds_hdc = {
-      schema        = file("../../bigquery/schema/hkjc/odds_hdc.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/odds_hdc.json"]
+      schema                    = file("../../bigquery/schema/hkjc/odds_hdc.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_hdc.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     teams = {
       schema        = file("../../bigquery/schema/hkjc/content.json")
       source_format = "NEWLINE_DELIMITED_JSON"
       source_uris   = ["${module.buckets.urls["hkjc"]}/teamlist.json"]
     }
+  }
+  views = {
+    odds_had_latest = file("../../bigquery/routine/hkjc/odds_had_latest.sql")
+    odds_hdc_latest = file("../../bigquery/routine/hkjc/odds_hdc_latest.sql")
   }
 }
 
@@ -314,12 +377,12 @@ module "bigquery-manual" {
   project_id = module.project.project_id
   external_tables = {
     hkjc_leagues = {
-      schema        = file("../../bigquery/schema/manual/hkjc_leagues.json")
+      schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_leagues.csv"]
     }
     hkjc_teams = {
-      schema        = file("../../bigquery/schema/manual/hkjc_teams.json")
+      schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
     }
@@ -329,22 +392,22 @@ module "bigquery-manual" {
       source_uris   = ["${module.buckets.urls["manual"]}/intl_club_competitions.csv"]
     }
     non_hkjc_leagues = {
-      schema        = file("../../bigquery/schema/manual/non_hkjc_leagues.json")
+      schema        = file("../../bigquery/schema/manual/non_hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_leagues.csv"]
     }
     non_hkjc_teams = {
-      schema        = file("../../bigquery/schema/manual/non_hkjc_teams.json")
+      schema        = file("../../bigquery/schema/manual/non_hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_teams.csv"]
     }
     transfermarkt_leagues = {
-      schema        = file("../../bigquery/schema/manual/transfermarkt_leagues.json")
+      schema        = file("../../bigquery/schema/manual/transfermarkt.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_leagues.csv"]
     }
     transfermarkt_teams = {
-      schema        = file("../../bigquery/schema/manual/transfermarkt_teams.json")
+      schema        = file("../../bigquery/schema/manual/transfermarkt.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_teams.csv"]
     }
@@ -371,21 +434,16 @@ module "bigquery-master" {
   location             = var.region
   project_id           = module.project.project_id
   tables = {
-    leagues      = file("../../bigquery/schema/master/leagues.json")
-    team_ratings = file("../../bigquery/schema/master/team_ratings.json")
-    teams        = file("../../bigquery/schema/master/teams.json")
+    leagues = file("../../bigquery/schema/master/leagues.json")
+    teams   = file("../../bigquery/schema/master/teams.json")
   }
   scheduled_queries = {
     leagues = {
-      schedule = "every day 23:40"
+      schedule = "1,15 of month 23:40"
       query    = file("../../bigquery/routine/master/leagues.sql")
     }
-    team_ratings = {
-      schedule = "every 8 hours from 04:55 to 20:55"
-      query    = file("../../bigquery/routine/master/team_ratings.sql")
-    }
     teams = {
-      schedule = "every day 23:40"
+      schedule = "1,15 of month 23:40"
       query    = file("../../bigquery/routine/master/teams.sql")
     }
   }
@@ -404,21 +462,6 @@ module "bigquery-functions" {
   location   = var.region
   project_id = module.project.project_id
   routines = {
-    get_solver_matches = {
-      definition_body = templatefile("../../bigquery/routine/functions/get_solver_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league_type"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "max_time"
-          data_type = jsonencode({ "typeKind" : "INT64" })
-        }
-      ]
-    }
     matchProbs = {
       definition_body = file("../../bigquery/routine/functions/matchProbs.js")
       routine_type    = "SCALAR_FUNCTION"
@@ -469,115 +512,129 @@ module "bigquery-simulation" {
   dataset_id = "simulation"
   location   = var.region
   project_id = module.project.project_id
-  tables = {
-    run_log = file("../../bigquery/schema/simulation/run_log.json")
-  }
   external_tables = {
     params = {
       schema        = file("../../bigquery/schema/simulation/params.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["simulation"]}/simulation_params.csv"]
     }
-    ac = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/AFC Asian Cup.json"]
+    leagues = {
+      schema                    = file("../../bigquery/schema/simulation/leagues.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["simulation"]}/*/league.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["simulation"]}/{_LEAGUE:STRING}/{_DATE_UNIX:INTEGER}" }
     }
-    acl = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/AFC Champions League.json"]
+  }
+  routines = {
+    get_avg_goal_home_adv = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_avg_goal_home_adv.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    bun = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Bundesliga.json"]
+    get_last_run = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_last_run.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    cl1 = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/China League One.json"]
+    get_latest_match_date = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_latest_match_date.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    csl = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Chinese Super League.json"]
+    get_matches = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    hkpl = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Hong Kong Premier League.json"]
+    get_params = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_params.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    j1 = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/J1 League.json"]
+    get_teams = {
+      definition_body = templatefile("../../bigquery/routine/simulation/get_teams.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
-    ll = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/La Liga.json"]
-    }
-    li1 = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Ligue 1.json"]
-    }
-    epl = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Premier League.json"]
-    }
-    sea = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/Serie A.json"]
-    }
-    ucl = {
-      schema        = file("../../bigquery/schema/simulation/leagues.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["simulation"]}/UEFA Champions League.json"]
-    }
+  }
+  views = {
+    leagues_latest = file("../../bigquery/routine/simulation/leagues_latest.sql")
   }
 }
 
-module "pubsub-simulation-league" {
+module "pubsub-simulate-league" {
   source = "../modules/pubsub"
 
-  topic      = "simulation-league"
+  topic      = "simulate-league"
   project_id = module.project.project_id
 }
 
-module "simulation-league" {
+module "simulate-league" {
   source = "../modules/event-function"
 
-  name                  = "simulation_league"
+  name                  = "simulate_league"
   bucket_name           = module.buckets.names["gcf"]
   timeout_s             = 300
   environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
   event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulation-league.id
+  topic_name            = module.pubsub-simulate-league.id
   source_directory      = "../../function_source"
   region                = var.region
   project_id            = module.project.project_id
 }
 
-module "pubsub-simulation-cup" {
+module "pubsub-simulate-cup" {
   source = "../modules/pubsub"
 
-  topic      = "simulation-cup"
+  topic      = "simulate-cup"
   project_id = module.project.project_id
 }
 
-module "simulation-cup" {
+module "simulate-cup" {
   source = "../modules/event-function"
 
-  name                  = "simulation_cup"
+  name                  = "simulate_cup"
   bucket_name           = module.buckets.names["gcf"]
   timeout_s             = 300
   environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
   event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulation-cup.id
+  topic_name            = module.pubsub-simulate-cup.id
   source_directory      = "../../function_source"
   region                = var.region
   project_id            = module.project.project_id
@@ -604,7 +661,7 @@ module "bigquery-outputs" {
     simulation_ll              = file("../../bigquery/routine/outputs/simulation_ll.sql")
     simulation_sea             = file("../../bigquery/routine/outputs/simulation_sea.sql")
     simulation_ucl             = file("../../bigquery/routine/outputs/simulation_ucl.sql")
-    team_ratings               = file("../../bigquery/routine/outputs/team_ratings.sql")
+    team_ratings_club          = file("../../bigquery/routine/outputs/team_ratings_club.sql")
     team_ratings_international = file("../../bigquery/routine/outputs/team_ratings_international.sql")
   }
 

@@ -1,12 +1,12 @@
 [
     {
-        "name": "type",
+        "name": "footystats_id",
         "type": "STRING",
         "mode": "REQUIRED"
     },
     {
-        "name": "date_unix",
-        "type": "INTEGER",
+        "name": "nameC",
+        "type": "STRING",
         "mode": "REQUIRED"
     }
 ]

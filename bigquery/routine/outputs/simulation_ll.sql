@@ -11,9 +11,11 @@ WITH result AS (
     COALESCE(positions.1, 0) + COALESCE(positions.2, 0) + COALESCE(positions.3, 0) + COALESCE(positions.4, 0) AS ucl,
     COALESCE(positions.5, 0) AS uel,
     COALESCE(positions.18, 0) + COALESCE(positions.19, 0) + COALESCE(positions.20, 0) AS relegation
-  FROM `simulation.ll` sim
-  JOIN `master.teams` teams ON CAST(sim.team AS INT64) = teams.footystats_id
-  JOIN `master.team_ratings` ratings ON teams.solver_id = ratings.id
+  FROM `simulation.leagues_latest` leagues
+  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  WHERE _LEAGUE = 'Spain La Liga'
+  AND ratings._TYPE = 'Club'
 )
 
 SELECT

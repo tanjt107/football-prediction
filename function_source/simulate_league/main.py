@@ -16,31 +16,33 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
     message = decode_message(cloud_event)
-    league, country = message["league"], message["country"]
+    league = message["league"]
 
-    last_run = queries.get_last_run(league, country) or -1
-    latest_match_date = queries.get_latest_match_date(league, country) or 0
+    last_run = queries.get_last_run(league)
+    latest_match_date = queries.get_latest_match_date(league)
     if last_run >= latest_match_date:
-        print(f"Already updated. Simulation aborted: {country=} {league=}")
+        print(f"Already updated. Simulation aborted: {league=}")
         return
 
-    factors = queries.get_avg_goal_home_adv(league, country)
+    factors = queries.get_avg_goal_home_adv(league)
     season = Season(
-        teams=queries.get_teams(league, country).values(),
+        teams=queries.get_teams(league).values(),
         avg_goal=factors["avg_goal"],
         home_adv=factors["home_adv"],
         rule=Rules(**message["rule"]),
-        completed=queries.get_completed_matches(league, country),
+        completed=queries.get_completed_matches(league),
     )
 
-    print(f"Simulating: {country=} {league=}")
+    print(f"Simulating: {league=}")
     data = simulate_season(season)
-    print(f"Simulated: {country=} {league=}")
+    print(f"Simulated: {league=}")
 
     storage.upload_json_to_bucket(
-        data, blob_name=f"{league}.json", bucket_name=BUCKET_NAME
+        data,
+        blob_name="league.json",
+        bucket_name=BUCKET_NAME,
+        hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
     )
-    queries.insert_run_log(league, country, date_unix=latest_match_date)
 
 
 def simulate_season(

@@ -8,15 +8,17 @@ WITH
     leagues.transfermarkt_id AS league_transfermarkt_id,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
+    home_teams.type AS home_type,
     odds_had.homeTeam.teamNameCH AS home_name,
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
+    away_teams.type AS away_type,
     odds_had.awayTeam.teamNameCH AS away_name,
     CAST(odds_had.venue IS NULL AS INT64) AS home_adv,
     CAST(SPLIT(hadodds.H, '@')[OFFSET(1)] AS FLOAT64) AS had_H,
     CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
     CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A
-  FROM `hkjc.odds_had` odds_had
+  FROM `hkjc.odds_had_latest` odds_had
   JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
   JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
   JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
@@ -32,16 +34,16 @@ WITH
     leagues.transfermarkt_id AS league_transfermarkt_id,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
+    home_teams.type AS home_type,
     home_teams.name AS home_name,
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
+    away_teams.type AS away_type,
     away_teams.name AS away_name
   FROM `footystats.matches` matches
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-  JOIN `footystats.seasons` seasons ON matches.competition_id = seasons.id
-  JOIN `master.leagues` leagues ON seasons.country = leagues.country
-    AND seasons.name = leagues.footystats_name
+  JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'incomplete'
     AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 5 DAY))
     AND ( home_teams.country = 'Hong Kong'
@@ -57,9 +59,11 @@ WITH
     league_transfermarkt_id,
     home_solver_id,
     home_transfermarkt_id,
+    home_type,
     home_name,
     away_solver_id,
     away_transfermarkt_id,
+    away_type,
     away_name,
     home_adv,
     had_H,
@@ -75,9 +79,11 @@ WITH
     league_transfermarkt_id,
     home_solver_id,
     home_transfermarkt_id,
+    home_type,
     home_name,
     away_solver_id,
     away_transfermarkt_id,
+    away_type,
     away_name,
     1,
     NULL,
@@ -92,10 +98,12 @@ WITH
     avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence AS home_exp,
     avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence AS away_exp
   FROM matches
-  LEFT JOIN `solver.teams` home_solver ON matches.home_solver_id = home_solver.id
-  LEFT JOIN `solver.teams` away_solver ON matches.away_solver_id = away_solver.id
-  LEFT JOIN `solver.leagues` league_solver ON matches.league_division = league_solver.division
-    AND matches.league_type = league_solver.type
+  JOIN `solver.teams_latest` home_solver ON matches.home_solver_id = home_solver.id
+    AND matches.home_type = home_solver._TYPE
+  JOIN `solver.teams_latest` away_solver ON matches.away_solver_id = away_solver.id
+    AND matches.away_type = away_solver._TYPE
+  JOIN `solver.leagues_latest` league_solver ON matches.league_division = league_solver.division
+    AND matches.league_type = league_solver._TYPE
   ),
 
   match_probs AS (
@@ -136,7 +144,9 @@ SELECT
   had_D,
   had_A
 FROM matches
-JOIN `master.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
-JOIN `master.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
+JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
+  AND matches.home_type = home_ratings._TYPE
+JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
+  AND matches.away_type = away_ratings._TYPE
 JOIN probs ON matches.matchID = probs.matchID
 ORDER BY matchDate, matches.matchID;

@@ -14,8 +14,8 @@ from solver.solver import solver
 def main(cloud_event: CloudEvent):
     _type = decode_message(cloud_event)
 
-    last_run = queries.get_last_run(_type) or -1
-    latest_match_date = queries.get_latest_match_date(_type) or 0
+    last_run = queries.get_last_run(_type)
+    latest_match_date = queries.get_latest_match_date(_type)
     if last_run >= latest_match_date:
         print(f"Already updated. Solver aborted: {_type=}")
         return
@@ -25,8 +25,7 @@ def main(cloud_event: CloudEvent):
     for name, data in solver(data["matches"], data["teams"], data["leagues"]).items():
         storage.upload_json_to_bucket(
             data,
-            blob_name=f"type={_type}/{name}.json",
+            blob_name=f"{name}.json",
             bucket_name=os.environ["BUCKET_NAME"],
+            hive_partitioning={"_TYPE": _type, "_DATE_UNIX": latest_match_date},
         )
-
-    queries.insert_run_log(_type, latest_match_date)

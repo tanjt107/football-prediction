@@ -17,9 +17,12 @@ XG_WEIGHT = 0.67
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
     message = cloud_event.data
-    bucket_name, blob_name = message["bucket"], message["name"]
-    data = storage.download_bolb(blob_name, bucket_name)
-    data = [transform_matches(json.loads(line)) for line in data.splitlines()]
+    blob_name = message["name"]
+    blob = storage.download_bolb(
+        blob_name,
+        bucket_name=message["bucket"],
+    )
+    data = [transform_matches(json.loads(line)) for line in blob.splitlines()]
     storage.upload_json_to_bucket(
         data, blob_name, bucket_name=os.environ["BUCKET_NAME"]
     )
