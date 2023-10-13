@@ -9,6 +9,7 @@ SELECT
   ROUND(rating, 1) AS rating
 FROM `solver.team_ratings` ratings
 JOIN `master.teams` teams ON ratings.id = teams.solver_id
+  AND _TYPE = teams.type
 JOIN `master.leagues` leagues ON teams.league_name = leagues.name
-WHERE latest_season_id IS NOT NULL AND teams.type = 'Club'
+WHERE latest_season_id IS NOT NULL AND _TYPE = 'Club'
 ORDER BY rank;

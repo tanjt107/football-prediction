@@ -7,5 +7,7 @@ SELECT
   ROUND(rating, 1) AS rating
 FROM `solver.team_ratings` ratings
 JOIN `master.teams` teams ON ratings.id = teams.solver_id
-WHERE transfermarkt_id IS NOT NULL AND type = 'International'
+  AND _TYPE = type
+WHERE transfermarkt_id IS NOT NULL
+  AND _TYPE = 'International'
 ORDER BY rank;
