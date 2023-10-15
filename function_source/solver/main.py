@@ -17,7 +17,9 @@ def main(cloud_event: CloudEvent):
     last_run = queries.get_last_run(_type)
     latest_match_date = queries.get_latest_match_date(_type)
     if last_run >= latest_match_date:
-        print(f"Already updated. Solver aborted: {_type=}")
+        print(
+            f"Already updated. Solver aborted: {_type=}, {last_run=} {latest_match_date=}"
+        )
         return
 
     data = queries.get_matches(_type, latest_match_date)

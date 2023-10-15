@@ -19,10 +19,12 @@ WITH
     CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
     CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A
   FROM `hkjc.odds_had_latest` odds_had
-  JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
-  JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
-  JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
+  LEFT JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
+  LEFT JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
+  LEFT JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
   WHERE odds_had.matchState = 'PreEvent'
+    AND odds_had.homeTeam.teamNameCH NOT LIKE '%U2_'
+    AND odds_had.awayTeam.teamNameCH NOT LIKE '%U2_'
   ),
 
   footystats AS (
@@ -144,9 +146,9 @@ SELECT
   had_D,
   had_A
 FROM matches
-JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
+LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
   AND matches.home_type = home_ratings._TYPE
-JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
+LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
-JOIN probs ON matches.matchID = probs.matchID
+LEFT JOIN probs ON matches.matchID = probs.matchID
 ORDER BY matchDate, matches.matchID;

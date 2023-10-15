@@ -18,6 +18,7 @@ WITH matches AS (
   JOIN `${project_id}.master.leagues` leagues ON matches._NAME = leagues.footystats_id
   JOIN `${project_id}.footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
   WHERE matches.status = 'complete'
+    AND date_unix <= max_time
     AND home_teams.solver_id <> away_teams.solver_id
     AND leagues.type = league_type
 ),
@@ -25,10 +26,10 @@ WITH matches AS (
 recentness AS (
   SELECT
     id,
-    1 - (max_time - date_unix) / (31536000 * cut_off_year) AS recent,
-    (1 - (max_time - date_unix) / (2160000 * cut_off_year)) * 0.25 AS recent_bonus
+    1 - (max_time - date_unix) / (365 * 24 * 60 * 60 * cut_off_year) AS recent,
+    (1 - (max_time - date_unix) / (25 * 24 * 60 * 60 * cut_off_year)) * 0.25 AS recent_bonus
   FROM matches
-  WHERE max_time - date_unix < 31536000 * cut_off_year
+  WHERE max_time - date_unix < 365 * 24 * 60 * 60 * cut_off_year
   )
 
 SELECT

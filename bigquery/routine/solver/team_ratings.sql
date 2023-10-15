@@ -1,9 +1,9 @@
 WITH solver AS (
   SELECT
     id,
+    _TYPE,
     GREATEST(1.35 + offence, 0.2) AS offence,
-    GREATEST(1.35 + defence, 0.2) AS defence,
-    _TYPE
+    GREATEST(1.35 + defence, 0.2) AS defence
   FROM `solver.teams_latest` solver
 ),
 
