@@ -295,9 +295,11 @@ module "bigquery-solver" {
     }
   }
   views = {
-    leagues_latest = file("../../bigquery/routine/solver/leagues_latest.sql")
-    teams_latest   = file("../../bigquery/routine/solver/teams_latest.sql")
-    team_ratings   = file("../../bigquery/routine/solver/team_ratings.sql")
+    leagues_latest  = file("../../bigquery/routine/solver/leagues_latest.sql")
+    teams_7d        = file("../../bigquery/routine/solver/teams_7d.sql")
+    teams_latest    = file("../../bigquery/routine/solver/teams_latest.sql")
+    team_ratings_7d = file("../../bigquery/routine/solver/team_ratings_7d.sql")
+    team_ratings    = file("../../bigquery/routine/solver/team_ratings.sql")
   }
 }
 
