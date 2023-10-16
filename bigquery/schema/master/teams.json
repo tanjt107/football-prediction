@@ -15,6 +15,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "is_manual",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "footystats_id",
         "type": "INTEGER",
         "mode": "NULLABLE"

@@ -2,7 +2,11 @@ SELECT
   COALESCE(hkjc.nameC, non_hkjc.nameC, footystats.name) AS name,
   footystats.country,
   CASE
-    WHEN footystats.name LIKE '%National Team' THEN 'International'
+    WHEN footystats.id IN (
+      SELECT id
+      FROM `footystats.teams`
+      WHERE _NAME LIKE 'International WC Qualification %'
+    ) THEN 'International'
     ELSE 'Club'
   END AS type,
   footystats.id AS footystats_id,
@@ -12,6 +16,7 @@ SELECT
     WHEN latest_season_id IS NOT NULL THEN CAST(footystats.id AS STRING)
     ELSE footystats.country
   END AS solver_id,
+  non_hkjc.footystats_id IS NOT NULL AS is_manual,
   leagues.name AS league_name
 FROM `footystats.teams` footystats
 LEFT JOIN `manual.hkjc_teams` mapping_hkjc ON footystats.id = CAST(mapping_hkjc.footystats_id AS INT64)

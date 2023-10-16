@@ -11,7 +11,8 @@ WITH latest AS (
   FROM `solver.team_ratings` ratings
   JOIN `master.teams` teams ON ratings.id = teams.solver_id
     AND _TYPE = type
-  WHERE transfermarkt_id IS NOT NULL
+  WHERE (hkjc_id IS NOT NULL
+    OR is_manual)
     AND _TYPE = 'International')
 
 SELECT

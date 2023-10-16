@@ -46,7 +46,6 @@ module "buckets" {
     manual = [
       "../../manual_files/hkjc_leagues.csv",
       "../../manual_files/hkjc_teams.csv",
-      "../../manual_files/intl_club_competitions.csv",
       "../../manual_files/non_hkjc_leagues.csv",
       "../../manual_files/non_hkjc_teams.csv",
       "../../manual_files/transfermarkt_leagues.csv",
@@ -302,9 +301,11 @@ module "bigquery-solver" {
     }
   }
   views = {
-    leagues_latest = file("../../bigquery/routine/solver/leagues_latest.sql")
-    teams_latest   = file("../../bigquery/routine/solver/teams_latest.sql")
-    team_ratings   = file("../../bigquery/routine/solver/team_ratings.sql")
+    leagues_latest  = file("../../bigquery/routine/solver/leagues_latest.sql")
+    teams_7d        = file("../../bigquery/routine/solver/teams_7d.sql")
+    teams_latest    = file("../../bigquery/routine/solver/teams_latest.sql")
+    team_ratings_7d = file("../../bigquery/routine/solver/team_ratings_7d.sql")
+    team_ratings    = file("../../bigquery/routine/solver/team_ratings.sql")
   }
 }
 
@@ -396,11 +397,6 @@ module "bigquery-manual" {
       schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
-    }
-    intl_club_competitions = {
-      schema        = file("../../bigquery/schema/manual/intl_club_competitions.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/intl_club_competitions.csv"]
     }
     non_hkjc_leagues = {
       schema        = file("../../bigquery/schema/manual/non_hkjc.json")

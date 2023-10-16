@@ -45,7 +45,6 @@ module "buckets" {
     manual = [
       "../../manual_files/hkjc_leagues.csv",
       "../../manual_files/hkjc_teams.csv",
-      "../../manual_files/intl_club_competitions.csv",
       "../../manual_files/non_hkjc_leagues.csv",
       "../../manual_files/non_hkjc_teams.csv",
       "../../manual_files/transfermarkt_leagues.csv",
@@ -387,11 +386,6 @@ module "bigquery-manual" {
       schema        = file("../../bigquery/schema/manual/hkjc.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
-    }
-    intl_club_competitions = {
-      schema        = file("../../bigquery/schema/manual/intl_club_competitions.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/intl_club_competitions.csv"]
     }
     non_hkjc_leagues = {
       schema        = file("../../bigquery/schema/manual/non_hkjc.json")

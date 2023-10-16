@@ -25,6 +25,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "is_manual",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "latest_season_id",
         "type": "INTEGER",
         "mode": "NULLABLE"
