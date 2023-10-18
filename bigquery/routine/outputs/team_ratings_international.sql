@@ -17,13 +17,13 @@ WITH latest AS (
 
 SELECT
   rank,
-  RANK() OVER(ORDER BY ratings_7d.rating DESC) - rank AS rank_7d_diff,
+  RANK() OVER(ORDER BY _7d.rating DESC) - rank AS rank_7d_diff,
   transfermarkt_id,
   name,
   offence,
   defence,
   latest.rating
 FROM latest
-JOIN `solver.team_ratings_7d` ratings_7d ON latest.id = ratings_7d.id
-  AND latest._TYPE = ratings_7d._TYPE
+JOIN `solver.team_ratings_7d` _7d ON latest.id = _7d.id
+  AND latest._TYPE = _7d._TYPE
 ORDER BY rank;
