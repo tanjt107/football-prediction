@@ -80,6 +80,9 @@ def simulate_cup(
                 team.update_sim_positions(position)
                 positions[position].append(team)
 
+        if not math.log2(team_no_ko).is_integer():
+            continue
+
         advanced = []
         for position, teams in positions.items():
             if position <= direct:
@@ -92,9 +95,6 @@ def simulate_cup(
                         reverse=True,
                     )[:wildcard]
                 )
-
-        if not math.log2(len(advanced)).is_integer():
-            continue
 
         group = list(groups.values())[0]
         knockout = Knockout(
