@@ -6,8 +6,8 @@ WITH latest AS (
     id,
     leagues.transfermarkt_id As league_transfermarkt_id,
     leagues.name AS league_name,
-    ROUND(offence, 1) AS offence,
-    ROUND(defence, 1) AS defence,
+    ROUND(offence, 2) AS offence,
+    ROUND(defence, 2) AS defence,
     ROUND(ratings.rating, 1) AS rating,
     _TYPE
   FROM `solver.team_ratings` ratings

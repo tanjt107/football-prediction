@@ -4,8 +4,8 @@ WITH latest AS (
     transfermarkt_id,
     id,
     name,
-    ROUND(offence, 1) AS offence,
-    ROUND(defence, 1) AS defence,
+    ROUND(offence, 2) AS offence,
+    ROUND(defence, 2) AS defence,
     ROUND(rating, 1) AS rating,
     _TYPE
   FROM `solver.team_ratings` ratings

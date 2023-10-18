@@ -24,7 +24,6 @@ WITH
   LEFT JOIN `master.leagues` leagues ON odds_had.tournament.tournamentShortName = leagues.hkjc_id
   WHERE odds_had.matchState = 'PreEvent'
     AND odds_had.homeTeam.teamNameCH NOT LIKE '%U2_'
-    AND odds_had.awayTeam.teamNameCH NOT LIKE '%U2_'
   ),
 
   footystats AS (
