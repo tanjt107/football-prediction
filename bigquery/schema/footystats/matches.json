@@ -1060,5 +1060,15 @@
         "name": "btts",
         "type": "BOOL",
         "mode": "REQUIRED"
+    },
+    {
+        "name": "homeGoals_timings",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "awayGoals_timings",
+        "type": "STRING",
+        "mode": "REPEATED"
     }
 ]
