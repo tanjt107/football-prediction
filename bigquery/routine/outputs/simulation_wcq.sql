@@ -7,9 +7,9 @@ WITH result AS (
     offence,
     defence,
     table.wins * 3 + table.draws AS points,
-    COALESCE(positions.1, 0) +  COALESCE(positions.2, 0) AS r3
+    COALESCE(positions._1, 0) +  COALESCE(positions._2, 0) AS r3
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
   WHERE _LEAGUE = 'International WC Qualification Asia'
   AND ratings._TYPE = 'International'

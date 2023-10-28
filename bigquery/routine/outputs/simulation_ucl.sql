@@ -7,16 +7,16 @@ WITH result AS (
     offence,
     defence,
     table.wins * 3 + table.draws AS points,
-    COALESCE(positions.1, 0) AS _1st,
-    COALESCE(positions.2, 0) AS _2nd,
-    COALESCE(positions.3, 0) AS _3rd,
+    COALESCE(positions._1, 0) AS _1st,
+    COALESCE(positions._2, 0) AS _2nd,
+    COALESCE(positions._3, 0) AS _3rd,
     COALESCE(rounds.R16, 0) AS r16,
     COALESCE(rounds.QF, 0) AS qf,
     COALESCE(rounds.SF, 0) AS sf,
     COALESCE(rounds.F, 0) AS f,
     COALESCE(rounds.CHAMP, 0) AS champ
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
   WHERE _LEAGUE = 'Europe UEFA Champions League'
   AND ratings._TYPE = 'Club'

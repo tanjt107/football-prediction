@@ -112,7 +112,7 @@ class Team:
         self.sim_table += self.table
 
     def update_sim_positions(self, position: int):
-        self.sim_positions[position] += 1
+        self.sim_positions[f"_{position}"] += 1
 
     def update_sim_rounds(self, _round: Round):
         self.sim_rounds[_round.name] += 1

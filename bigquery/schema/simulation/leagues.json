@@ -1,7 +1,7 @@
 [
     {
         "name": "team",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "REQUIRED"
     },
     {
@@ -13,83 +13,83 @@
         "type": "RECORD",
         "fields": [
             {
-                "name": "1",
+                "name": "_1",
                 "type": "FLOAT"
             },
             {
-                "name": "2",
+                "name": "_2",
                 "type": "FLOAT"
             },
             {
-                "name": "3",
+                "name": "_3",
                 "type": "FLOAT"
             },
             {
-                "name": "4",
+                "name": "_4",
                 "type": "FLOAT"
             },
             {
-                "name": "5",
+                "name": "_5",
                 "type": "FLOAT"
             },
             {
-                "name": "6",
+                "name": "_6",
                 "type": "FLOAT"
             },
             {
-                "name": "7",
+                "name": "_7",
                 "type": "FLOAT"
             },
             {
-                "name": "8",
+                "name": "_8",
                 "type": "FLOAT"
             },
             {
-                "name": "9",
+                "name": "_9",
                 "type": "FLOAT"
             },
             {
-                "name": "10",
+                "name": "_10",
                 "type": "FLOAT"
             },
             {
-                "name": "11",
+                "name": "_11",
                 "type": "FLOAT"
             },
             {
-                "name": "12",
+                "name": "_12",
                 "type": "FLOAT"
             },
             {
-                "name": "13",
+                "name": "_13",
                 "type": "FLOAT"
             },
             {
-                "name": "14",
+                "name": "_14",
                 "type": "FLOAT"
             },
             {
-                "name": "15",
+                "name": "_15",
                 "type": "FLOAT"
             },
             {
-                "name": "16",
+                "name": "_16",
                 "type": "FLOAT"
             },
             {
-                "name": "17",
+                "name": "_17",
                 "type": "FLOAT"
             },
             {
-                "name": "18",
+                "name": "_18",
                 "type": "FLOAT"
             },
             {
-                "name": "19",
+                "name": "_19",
                 "type": "FLOAT"
             },
             {
-                "name": "20",
+                "name": "_20",
                 "type": "FLOAT"
             }
         ]

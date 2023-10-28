@@ -7,12 +7,12 @@ WITH result AS (
     defence,
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws AS points,
-    COALESCE(positions.1, 0) AS champ,
-    COALESCE(positions.1, 0) + COALESCE(positions.2, 0) + COALESCE(positions.3, 0) + COALESCE(positions.4, 0) AS ucl,
-    COALESCE(positions.5, 0) AS uel,
-    COALESCE(positions.18, 0) + COALESCE(positions.19, 0) + COALESCE(positions.20, 0) AS relegation
+    COALESCE(positions._1, 0) AS champ,
+    COALESCE(positions._1, 0) + COALESCE(positions._2, 0) + COALESCE(positions._3, 0) + COALESCE(positions._4, 0) AS ucl,
+    COALESCE(positions._5, 0) AS uel,
+    COALESCE(positions._18, 0) + COALESCE(positions._19, 0) + COALESCE(positions._20, 0) AS relegation
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON CAST(leagues.team AS INT64) = teams.footystats_id
+  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
   WHERE _LEAGUE = 'Spain La Liga'
   AND ratings._TYPE = 'Club'
