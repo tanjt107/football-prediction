@@ -75,7 +75,7 @@ module "footystats-delta-load" {
   function_name                         = "footystats_publish_season_ids_delta"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-delta-load"
-  job_schedule                          = "35 4-20/8 * * *"
+  job_schedule                          = "35 */6 * * *"
   job_paused                            = true
   topic_name                            = "footystats-delta-load"
   function_source_directory             = "../../function_source"
@@ -217,7 +217,7 @@ module "solver" {
   function_available_memory      = "1Gi"
   function_available_cpu         = 2
   job_name                       = "solver"
-  job_schedule                   = "45 4-20/8 * * *"
+  job_schedule                   = "45 */6 * * *"
   job_paused                     = true
   message_data                   = "Club"
   topic_name                     = "solver"
@@ -229,7 +229,7 @@ module "solver" {
 
 resource "google_cloud_scheduler_job" "solver-international" {
   name     = "solver-international"
-  schedule = "45 20 * 1-3,6-7,9-11 *"
+  schedule = "45 18 * 1-3,6-7,9-11 *"
   paused   = true
   region   = var.region
   project  = module.project.project_id
@@ -315,7 +315,7 @@ module "hkjc-get-odds" {
   function_name                         = "hkjc_get_odds"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "hkjc-odds"
-  job_schedule                          = "55 4,12,20 * * *"
+  job_schedule                          = "55 */6 * * *"
   job_paused                            = true
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../function_source"
