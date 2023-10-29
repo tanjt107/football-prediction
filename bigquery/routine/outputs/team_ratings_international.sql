@@ -12,7 +12,7 @@ WITH latest AS (
   JOIN `master.teams` teams ON ratings.id = teams.solver_id
     AND _TYPE = type
   WHERE (hkjc_id IS NOT NULL
-    OR is_manual)
+    OR country = 'Hong Kong')
     AND _TYPE = 'International')
 
 SELECT
