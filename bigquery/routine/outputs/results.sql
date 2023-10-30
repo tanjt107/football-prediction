@@ -12,6 +12,8 @@ WITH matches AS (
     away_teams.solver_id AS away_solver_id,
     homeGoalCount,
     awayGoalCount,
+    home_adj,
+    away_adj,
     CASE
       WHEN team_a_xg > 0 THEN team_a_xg
       ELSE NULL
@@ -23,6 +25,7 @@ WITH matches AS (
     _TYPE,
     MAX(_DATE_UNIX) as _DATE_UNIX
   FROM `footystats.matches` matches
+  JOIN `footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
@@ -42,6 +45,8 @@ WITH matches AS (
     away_teams.solver_id,
     homeGoalCount,
     awayGoalCount,
+    home_adj,
+    away_adj,
     team_a_xg,
     team_b_xg,
     _TYPE
@@ -89,6 +94,8 @@ SELECT
   ROUND(had_away, 2) AS had_away,
   homeGoalCount,
   awayGoalCount,
+  ROUND(home_adj, 2) AS home_adj,
+  ROUND(away_adj, 2) AS away_adj,
   ROUND(team_a_xg, 2) AS team_a_xg,
   ROUND(team_b_xg, 2) AS team_b_xg
 FROM matches
