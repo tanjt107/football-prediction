@@ -6,6 +6,7 @@ WITH
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
+    odds_had.tournament.displayOrder,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
     home_teams.type AS home_type,
@@ -59,6 +60,7 @@ WITH
     league_division,
     league_type,
     league_transfermarkt_id,
+    displayOrder,
     home_solver_id,
     home_transfermarkt_id,
     home_type,
@@ -79,6 +81,7 @@ WITH
     league_division,
     league_type,
     league_transfermarkt_id,
+    '0',
     home_solver_id,
     home_transfermarkt_id,
     home_type,
@@ -151,4 +154,4 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
 LEFT JOIN probs ON matches.matchID = probs.matchID
-ORDER BY matchDate, matches.matchID;
+ORDER BY displayOrder, matchDate, matches.matchID;
