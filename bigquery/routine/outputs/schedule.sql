@@ -81,7 +81,7 @@ WITH
     league_division,
     league_type,
     league_transfermarkt_id,
-    '0',
+    NULL,
     home_solver_id,
     home_transfermarkt_id,
     home_type,
