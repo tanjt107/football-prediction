@@ -14,8 +14,8 @@ WITH latest AS (
   JOIN `master.teams` teams ON ratings.id = teams.solver_id
     AND ratings._TYPE = teams.type
   JOIN `master.leagues` leagues ON teams.league_name = leagues.name
-  WHERE (teams.hkjc_id IS NOT NULL
-      OR teams.country = 'Hong Kong')
+  WHERE (leagues.hkjc_id IS NOT NULL
+      OR leagues.is_manual)
     AND ratings._TYPE = 'Club'
 )
 

@@ -89,7 +89,7 @@ module "footystats-get-league-list" {
   function_name                         = "footystats_get_league_list"
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-initial-load"
-  job_schedule                          = "15 23 1,15 * *"
+  job_schedule                          = "15 23 * * 1"
   topic_name                            = "footystats-initial-load"
   function_source_directory             = "../../function_source"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -435,11 +435,11 @@ module "bigquery-master" {
   }
   scheduled_queries = {
     leagues = {
-      schedule = "1,15 of month 23:40"
+      schedule = "every monday 23:40"
       query    = file("../../bigquery/routine/master/leagues.sql")
     }
     teams = {
-      schedule = "1,15 of month 23:40"
+      schedule = "every monday 23:40"
       query    = file("../../bigquery/routine/master/teams.sql")
     }
   }
