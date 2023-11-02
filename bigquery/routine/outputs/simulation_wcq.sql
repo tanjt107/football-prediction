@@ -24,4 +24,4 @@ SELECT
   ROUND(defence, 2) AS defence,
   ROUND(r3, 3) AS r3
 FROM result
-ORDER BY result.group, points DESC
+ORDER BY result.group <> 'E', result.group, points DESC

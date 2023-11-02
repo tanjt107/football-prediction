@@ -38,4 +38,4 @@ SELECT
   ROUND(f, 3) AS f,
   ROUND(champ, 3) AS champ
 FROM result
-ORDER BY result.group, points DESC
+ORDER BY result.group <> 'C', result.group, points DESC
