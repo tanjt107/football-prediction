@@ -51,7 +51,7 @@ WITH matches AS (
     team_b_xg,
     _TYPE
   ORDER BY date_unix DESC
-  LIMIT 100
+  LIMIT 10
 ),
 
 match_probs AS (

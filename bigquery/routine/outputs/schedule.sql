@@ -42,7 +42,8 @@ WITH
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
     away_teams.type AS away_type,
-    away_teams.name AS away_name
+    away_teams.name AS away_name,
+    no_home_away
   FROM `footystats.matches` matches
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
@@ -90,7 +91,7 @@ WITH
     away_transfermarkt_id,
     away_type,
     away_name,
-    1,
+    1 - no_home_away,
     NULL,
     NULL,
     NULL
