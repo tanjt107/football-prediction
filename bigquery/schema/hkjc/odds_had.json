@@ -398,6 +398,14 @@
             {
                 "name": "NTS5",
                 "type": "STRING"
+            },
+            {
+                "name": "NTS6",
+                "type": "STRING"
+            },
+            {
+                "name": "NTS7",
+                "type": "STRING"
             }
         ]
     },
