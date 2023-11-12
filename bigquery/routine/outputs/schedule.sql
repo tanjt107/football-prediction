@@ -101,8 +101,8 @@ WITH
   exp_goals AS (
   SELECT
     matchID,
-    avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence AS home_exp,
-    avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence AS away_exp
+    GREATEST(avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence, 0.2) AS home_exp,
+    GREATEST(avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence, 0.2) AS away_exp
   FROM matches
   JOIN `solver.teams_latest` home_solver ON matches.home_solver_id = home_solver.id
     AND matches.home_type = home_solver._TYPE
