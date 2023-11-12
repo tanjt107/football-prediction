@@ -22,10 +22,11 @@ resource "google_bigquery_table" "external_tables" {
   deletion_protection = false
 
   external_data_configuration {
-    autodetect    = false
-    schema        = each.value["schema"]
-    source_format = each.value["source_format"]
-    source_uris   = each.value["source_uris"]
+    autodetect            = false
+    schema                = each.value["schema"]
+    source_format         = each.value["source_format"]
+    source_uris           = each.value["source_uris"]
+    ignore_unknown_values = true
 
     dynamic "hive_partitioning_options" {
       for_each = each.value["hive_partitioning_options"] != null ? [each.value["hive_partitioning_options"]] : []

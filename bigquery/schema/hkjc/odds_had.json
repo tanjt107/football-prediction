@@ -380,6 +380,37 @@
                 "type": "STRING"
             },
             {
+                "name": "FGS",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "CONTENTCH",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "CONTENTEN",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "SEL",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "LINEID",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "COMBID",
+                        "type": "STRING"
+                    },
+                    {
+                        "name": "ODDS",
+                        "type": "STRING"
+                    }
+                ]
+            },
+            {
                 "name": "NTS1",
                 "type": "STRING"
             },
