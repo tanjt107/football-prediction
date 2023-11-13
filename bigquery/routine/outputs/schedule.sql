@@ -98,11 +98,11 @@ WITH
   FROM footystats
   ),
 
-  exp_goals AS (
+  exp_goals_unadj AS (
   SELECT
     matchID,
-    GREATEST(avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence, 0.2) AS home_exp,
-    GREATEST(avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence, 0.2) AS away_exp
+    avg_goal + league_solver.home_adv * matches.home_adv + home_solver.offence + away_solver.defence AS home_exp,
+    avg_goal - league_solver.home_adv * matches.home_adv + away_solver.offence + home_solver.defence AS away_exp
   FROM matches
   JOIN `solver.teams_latest` home_solver ON matches.home_solver_id = home_solver.id
     AND matches.home_type = home_solver._TYPE
@@ -110,6 +110,14 @@ WITH
     AND matches.away_type = away_solver._TYPE
   JOIN `solver.leagues_latest` league_solver ON matches.league_division = league_solver.division
     AND matches.league_type = league_solver._TYPE
+  ),
+
+  exp_goals AS (
+    SELECT
+      matchID,
+      GREATEST(home_exp, 0.2) + GREATEST(0.2 - away_exp, 0) AS home_exp,
+      GREATEST(away_exp, 0.2) + GREATEST(0.2 - home_exp, 0) AS away_exp
+    FROM exp_goals_unadj
   ),
 
   match_probs AS (
