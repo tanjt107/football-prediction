@@ -47,10 +47,11 @@ class Table:
     losses: int = 0
     scored: int = 0
     conceded: int = 0
+    correction: int = 0
 
     @property
     def points(self) -> int:
-        return self.wins * 3 + self.draws
+        return self.wins * 3 + self.draws + self.correction
 
     @property
     def goal_diff(self) -> int:
@@ -63,6 +64,7 @@ class Table:
             self.losses + other.losses,
             self.scored + other.scored,
             self.conceded + other.conceded,
+            self.correction + other.correction,
         )
 
     def __truediv__(self, other: "Table"):
@@ -72,6 +74,7 @@ class Table:
             self.losses / other,
             self.scored / other,
             self.conceded / other,
+            self.correction / other,
         )
 
     def reset(self):
@@ -107,6 +110,9 @@ class Team:
 
     def __eq__(self, other: "Team") -> bool:
         return other and self.name == other.name
+
+    def set_correction(self, value: int):
+        self.table.correction = value
 
     def update_sim_table(self):
         self.sim_table += self.table

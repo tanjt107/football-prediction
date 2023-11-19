@@ -6,7 +6,7 @@ WITH result AS (
     offence,
     defence,
     table.scored - table.conceded AS goal_diff,
-    table.wins * 3 + table.draws AS points,
+    table.wins * 3 + table.draws + table.correction AS points,
     COALESCE(positions._1, 0) AS champ,
     COALESCE(positions._1, 0) + COALESCE(positions._2, 0) AS promo,
     COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation
