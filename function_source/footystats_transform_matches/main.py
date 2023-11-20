@@ -19,7 +19,7 @@ XG_WEIGHT = 0.67
 def main(cloud_event: CloudEvent):
     message = cloud_event.data
     blob_name = message["name"]
-    blob = storage.download_bolb(
+    blob = storage.download_blob(
         blob_name,
         bucket_name=message["bucket"],
     )

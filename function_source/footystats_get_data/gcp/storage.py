@@ -11,7 +11,7 @@ def convert_to_newline_delimited_json(data: dict | list) -> str:
     return json.dumps(data)
 
 
-def download_bolb(blob_name: str, bucket_name: str) -> str:
+def download_blob(blob_name: str, bucket_name: str) -> str:
     return CLIENT.bucket(bucket_name).blob(blob_name).download_as_text()
 
 
