@@ -9,8 +9,9 @@ from gcp import storage
 
 
 REDUCE_FROM_MINUTE = 70
-REDUCE_GOAL_VALUE = 0.5
-ADJ_FACTOR = 1.05
+REDUCE_LEADING_GOAL_VALUE = 0.5
+REDUCE_RED_CARD_GOAL_VALUE = 0.9
+ADJ_FACTOR = 0.025
 XG_WEIGHT = 0.67
 
 
@@ -37,14 +38,29 @@ def transform_matches(
         and "None" not in _match["awayGoals"]
     ):
         goal_timings = get_goal_timings_dict(_match["homeGoals"], _match["awayGoals"])
-        home_adj, away_adj = reduce_goal_value(goal_timings)
-        home_adj *= ADJ_FACTOR
-        away_adj *= ADJ_FACTOR
+        home_adj, away_adj = reduce_leading_goal_value(goal_timings)
     else:
         home_adj, away_adj = (
             _match["homeGoalCount"],
             _match["awayGoalCount"],
         )
+
+    if _match["card_timings_recorded"] == 1:
+        if _match["team_a_red_cards"] > _match["team_b_red_cards"]:
+            away_adj *= REDUCE_RED_CARD_GOAL_VALUE
+        elif _match["team_b_red_cards"] > _match["team_a_red_cards"]:
+            home_adj *= REDUCE_RED_CARD_GOAL_VALUE
+
+    adj_factor = (
+        1
+        + (
+            (_match["goal_timings_recorded"] == 1)
+            + (_match["card_timings_recorded"] == 1)
+        )
+        * ADJ_FACTOR
+    )
+    home_adj *= adj_factor
+    away_adj *= adj_factor
 
     if _match["total_xg"] > 0:
         home_avg = home_adj * (1 - XG_WEIGHT) + _match["team_a_xg"] * XG_WEIGHT
@@ -71,7 +87,7 @@ def get_goal_timings_dict(home: list[str], away: list[str]) -> list[tuple]:
     return sorted(timings)
 
 
-def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
+def reduce_leading_goal_value(goal_timings: list[tuple]) -> tuple[float]:
     if not goal_timings:
         return 0, 0
     home = home_adj = away = away_adj = 0
@@ -80,7 +96,7 @@ def reduce_goal_value(goal_timings: list[tuple]) -> tuple[float]:
         adj_val = (
             max(timing - REDUCE_FROM_MINUTE, 0)
             / (90 - REDUCE_FROM_MINUTE)
-            * REDUCE_GOAL_VALUE
+            * REDUCE_LEADING_GOAL_VALUE
         )
         if team == "away":
             away += 1
