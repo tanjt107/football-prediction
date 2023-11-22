@@ -1,0 +1,8 @@
+.DS_Store
+.pytest_cache
+.vscode
+*.zip
+*terraform*
+credentials
+env
+tmp
