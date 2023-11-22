@@ -6,7 +6,7 @@ WITH result AS (
     rating,
     offence,
     defence,
-    table.wins * 3 + table.draws + table.correction AS points,
+    table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
     COALESCE(positions._1, 0) AS _1st,
     COALESCE(positions._2, 0) AS _2nd,
     COALESCE(rounds.QF, 0) AS r16,

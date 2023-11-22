@@ -6,7 +6,7 @@ WITH result AS (
     offence,
     defence,
     table.scored - table.conceded AS goal_diff,
-    table.wins * 3 + table.draws + table.correction AS points,
+    table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
     COALESCE(positions._1, 0) AS champ,
     COALESCE(positions._1, 0) + COALESCE(positions._2 , 0) AS acle,
     COALESCE(positions._3, 0) AS acl2,
