@@ -112,7 +112,7 @@ class Team:
         return other and self.name == other.name
 
     def set_correction(self, value: int):
-        self.COALESCE(table.correction, 0) = value
+        self.correction = value
 
     def update_sim_table(self):
         self.sim_table += self.table
