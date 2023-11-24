@@ -1,34 +1,18 @@
-WITH solver AS (
+WITH maxmin AS (
   SELECT
-    id,
     _TYPE,
-    GREATEST(1.35 + offence, 0.2) + GREATEST(0.2 - 1.35 - defence, 0) AS offence,
-    GREATEST(1.35 + defence, 0.2) + GREATEST(0.2 - 1.35 - offence, 0) AS defence
+    MAX(offence - defence) AS _max,
+    MIN(offence - defence) AS _min
   FROM `solver.teams_latest` solver
-),
-
-match_probs AS (
-  SELECT
-    id,
-    _TYPE,
-    functions.matchProbs(offence, defence, '0') AS match_prob
-  FROM solver
-),
-
-ratings AS (
-  SELECT
-    id,
-    _TYPE,
-    (match_prob[OFFSET(0)] * 3 + match_prob[OFFSET(1)]) / 3 * 100 AS rating
-  FROM match_probs  
+  GROUP BY _TYPE
 )
 
 SELECT
-  solver.id,
+  id,
   solver._TYPE,
-  offence,
-  defence,
-  rating,
-FROM solver
-JOIN ratings ON solver.id = ratings.id
-  AND solver._TYPE = ratings._TYPE;
+  GREATEST(1.35 + offence, 0.2) AS offence,
+  GREATEST(1.35 + defence, 0.2) AS defence,
+  (offence - defence - _min) / (_max - _min) * 100 AS rating
+FROM `solver.teams_latest` solver
+JOIN maxmin ON solver._TYPE = maxmin._TYPE
+ORDER BY rating DESC
