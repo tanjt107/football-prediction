@@ -6,7 +6,7 @@ WITH result AS (
     offence,
     defence,
     table.scored - table.conceded AS goal_diff,
-    table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
+    table.wins * 3 + table.draws + table.correction AS points,
     COALESCE(positions._1, 0) AS champ
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
