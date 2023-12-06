@@ -8,12 +8,12 @@ from gcp import bigquery, pubsub
 
 @functions_framework.cloud_event
 def main(_):
-    season_ids = bigquery.query_dict(
+    seasons = bigquery.query_dict(
         query="SELECT * FROM footystats.get_season_id_delta();"
     )
-    for season_id in season_ids:
+    for season in seasons:
         pubsub.publish_json_message(
             topic=os.environ["TOPIC_NAME"],
-            data={"endpoint": "matches", **season_id},
+            data={"endpoint": "matches", **season},
         )
         time.sleep(0.05)
