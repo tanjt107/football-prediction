@@ -35,14 +35,29 @@ def main(cloud_event: CloudEvent):
     )
 
 
-def get_footystats(endpoint: str, key: str, **kwargs) -> dict:
-    print(f"Getting footystats data: {endpoint=}, {kwargs=}")
-    response = requests.get(
-        f"https://api.football-data-api.com/league-{endpoint}",
-        params={"key": key, **kwargs},
-        timeout=5,
-    )
-    response.raise_for_status()
-    data = response.json()["data"]
-    print(f"Got footystats data: {endpoint=}, {kwargs=}")
-    return data
+def get_footystats(endpoint: str, key: str, **kwargs) -> dict | list[dict]:
+    page = 1
+    results = []
+
+    while True:
+        print(f"Getting footystats data: {endpoint=}, {page=}, {kwargs=}")
+
+        response = requests.get(
+            f"https://api.football-data-api.com/league-{endpoint}",
+            params={"key": key, "page": page, **kwargs},
+            timeout=5,
+        )
+        response.raise_for_status()
+        response = response.json()
+        data = response["data"]
+
+        if isinstance(data, dict):
+            return data
+        results.extend(data)
+
+        print(f"Got footystats data: {endpoint=}, {page=}, {kwargs=}")
+
+        pager = response["pager"]
+        if pager["current_page"] >= pager["max_page"]:
+            return results
+        page += 1
