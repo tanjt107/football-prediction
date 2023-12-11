@@ -10,7 +10,11 @@ WITH maxmin AS (
 SELECT
   id,
   solver._TYPE,
-  (offence - defence - _min) / (_max - _min) * 100 AS rating
+  CASE
+    WHEN offence - defence > 0 THEN (offence - defence) / _max * 50 + 50
+    WHEN offence - defence < 0 THEN (1 - (offence - defence) / _min) * 50
+    ELSE 50
+  END AS rating
 FROM `solver.teams_7d` solver
 JOIN maxmin ON solver._TYPE = maxmin._TYPE
 ORDER BY rating DESC
