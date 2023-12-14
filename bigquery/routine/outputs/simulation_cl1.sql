@@ -10,7 +10,7 @@ WITH result AS (
     COALESCE(positions._1, 0) AS champ,
     COALESCE(positions._1, 0) + COALESCE(positions._2, 0) AS promo,
     COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation,
-    _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
+    leagues._DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id

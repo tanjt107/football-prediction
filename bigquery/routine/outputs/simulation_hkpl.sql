@@ -8,7 +8,7 @@ WITH result AS (
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws + table.correction AS points,
     COALESCE(positions._1, 0) AS champ,
-    _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
+    leagues._DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id

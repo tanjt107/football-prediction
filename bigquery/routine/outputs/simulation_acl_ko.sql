@@ -9,7 +9,7 @@ WITH result AS (
     COALESCE(rounds.SF, 0) AS qf,
     COALESCE(rounds.F, 0) AS sf,
     COALESCE(rounds.CHAMP, 0) AS f,
-    _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
+    leagues._DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
