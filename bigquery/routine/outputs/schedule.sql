@@ -50,7 +50,7 @@ WITH
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'incomplete'
-    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))
+    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 2 DAY))
     AND ( home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong' ) 
   ),
