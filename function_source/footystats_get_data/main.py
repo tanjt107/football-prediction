@@ -1,3 +1,4 @@
+import logging
 import os
 
 import functions_framework
@@ -5,7 +6,10 @@ import requests
 from cloudevents.http.event import CloudEvent
 
 from gcp import storage
+from gcp.logging import setup_logging
 from gcp.util import decode_message
+
+setup_logging()
 
 
 BUCKET_NAMES = {
@@ -40,7 +44,7 @@ def get_footystats(endpoint: str, key: str, **kwargs) -> dict | list[dict]:
     results = []
 
     while True:
-        print(f"Getting footystats data: {endpoint=}, {page=}, {kwargs=}")
+        logging.info(f"Getting footystats data: {endpoint=}, {page=}, {kwargs=}")
 
         response = requests.get(
             f"https://api.football-data-api.com/league-{endpoint}",
@@ -55,7 +59,7 @@ def get_footystats(endpoint: str, key: str, **kwargs) -> dict | list[dict]:
             return data
         results.extend(data)
 
-        print(f"Got footystats data: {endpoint=}, {page=}, {kwargs=}")
+        logging.info(f"Got footystats data: {endpoint=}, {page=}, {kwargs=}")
 
         pager = response["pager"]
         if pager["current_page"] >= pager["max_page"]:

@@ -1,3 +1,4 @@
+import logging
 import math
 import os
 from collections import defaultdict
@@ -7,11 +8,15 @@ import functions_framework
 from cloudevents.http.event import CloudEvent
 
 from gcp import storage
+from gcp.logging import setup_logging
 from gcp.util import decode_message
 from simulation import queries
 from simulation.models import Rules, Team, TieBreaker
 from simulation.league import Season
 from simulation.cup import Round, Knockout
+
+
+setup_logging()
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
@@ -24,7 +29,7 @@ def main(cloud_event: CloudEvent):
     last_run = queries.get_last_run(league)
     latest_match_date = queries.get_latest_match_date(league)
     if last_run >= latest_match_date:
-        print(f"Already updated. Simulation aborted: {league=}")
+        logging.info(f"Already updated. Simulation aborted: {league=}")
         return
 
     factors = queries.get_avg_goal_home_adv(league)
@@ -50,9 +55,9 @@ def main(cloud_event: CloudEvent):
     else:
         matchups = None
 
-    print(f"Simulating: {league=}")
+    logging.info(f"Simulating: {league=}")
     data = simulate_cup(groups, data["team_no_ko"], matchups, completed_ko=completed)
-    print(f"Simulated: {league=}")
+    logging.info(f"Simulated: {league=}")
 
     storage.upload_json_to_bucket(
         data,

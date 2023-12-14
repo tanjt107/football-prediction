@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime
 
@@ -6,6 +7,9 @@ import functions_framework
 import requests
 
 from gcp import storage
+from gcp.logging import setup_logging
+
+setup_logging()
 
 
 @functions_framework.cloud_event
@@ -22,14 +26,14 @@ def main(_):
 
 
 def get_hkjc_odds(pool: str) -> dict:
-    print(f"Getting HKJC data: {pool=}")
+    logging.info(f"Getting HKJC data: {pool=}")
     response = requests.get(
         f"https://bet.hkjc.com/football/getJSON.aspx?jsontype=odds_{pool}.aspx",
         timeout=5,
     )
     response.raise_for_status()
     matches = response.json()["matches"]
-    print(f"Got HKJC data: {pool=}")
+    logging.info(f"Got HKJC data: {pool=}")
     return matches
 
 

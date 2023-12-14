@@ -1,8 +1,16 @@
 import json
+import logging
+import requests
+import ssl
+import urllib3
 
 from google.cloud import storage
 
 CLIENT = storage.Client()
+
+
+class GCSUploadError(Exception):
+    pass
 
 
 def convert_to_newline_delimited_json(data: dict | list) -> str:
@@ -21,9 +29,21 @@ def upload_json_to_bucket(
     bucket_name: str,
     hive_partitioning: dict | None = None,
 ):
-    CLIENT.bucket(bucket_name).blob(
-        blob_name=get_directory(blob_name, hive_partitioning)
-    ).upload_from_string(data=convert_to_newline_delimited_json(data))
+    blob_name = get_directory(blob_name, hive_partitioning)
+    blob = CLIENT.bucket(bucket_name).blob(blob_name)
+    data = convert_to_newline_delimited_json(data)
+
+    try:
+        blob.upload_from_string(data)
+        logging.info(f"Uploaded blob: {blob_name=}")
+    except (
+        urllib3.exceptions.MaxRetryError,
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.SSLError,
+        ssl.SSLEOFError,
+    ) as error:
+        logging.warning(f"Upload failed: {blob_name=} {error=}")
+        raise GCSUploadError()
 
 
 def get_directory(blob_name: str, hive_partitioning: dict | None = None):

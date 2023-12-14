@@ -1,3 +1,4 @@
+import logging
 import os
 
 import functions_framework
@@ -5,9 +6,12 @@ from cloudevents.http.event import CloudEvent
 
 
 from gcp import storage
+from gcp.logging import setup_logging
 from gcp.util import decode_message
 from solver import queries
 from solver.solver import solver
+
+setup_logging()
 
 
 @functions_framework.cloud_event
@@ -17,7 +21,7 @@ def main(cloud_event: CloudEvent):
     last_run = queries.get_last_run(_type)
     latest_match_date = queries.get_latest_match_date(_type)
     if last_run >= latest_match_date:
-        print(
+        logging.info(
             f"Already updated. Solver aborted: {_type=}, {last_run=} {latest_match_date=}"
         )
         return

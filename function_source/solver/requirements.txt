@@ -1,4 +1,5 @@
 google-cloud-bigquery
+google-cloud-logging
 google-cloud-storage
 pandas
 pulp

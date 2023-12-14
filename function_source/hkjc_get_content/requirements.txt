@@ -1,3 +1,4 @@
 functions-framework
+google-cloud-logging
 google-cloud-storage
 requests

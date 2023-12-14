@@ -1,9 +1,13 @@
+import logging
 import os
 
 import functions_framework
 import requests
 
 from gcp import storage
+from gcp.logging import setup_logging
+
+setup_logging()
 
 
 @functions_framework.cloud_event
@@ -21,7 +25,7 @@ def main(_):
 
 
 def get_footystats(endpoint: str, key: str, **kwargs) -> dict:
-    print(f"Getting footystats data: {endpoint=}, {kwargs=}")
+    logging.info(f"Getting footystats data: {endpoint=}, {kwargs=}")
     response = requests.get(
         f"https://api.football-data-api.com/league-{endpoint}",
         params={"key": key, **kwargs},
@@ -29,5 +33,5 @@ def get_footystats(endpoint: str, key: str, **kwargs) -> dict:
     )
     response.raise_for_status()
     data = response.json()["data"]
-    print(f"Got footystats data: {endpoint=}, {kwargs=}")
+    logging.info(f"Got footystats data: {endpoint=}, {kwargs=}")
     return data
