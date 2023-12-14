@@ -18,7 +18,8 @@ WITH
     CAST(odds_had.venue IS NULL AS INT64) AS home_adv,
     CAST(SPLIT(hadodds.H, '@')[OFFSET(1)] AS FLOAT64) AS had_H,
     CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
-    CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A
+    CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A,
+    statuslastupdated
   FROM `hkjc.odds_had_latest` odds_had
   LEFT JOIN `master.teams` home_teams ON odds_had.homeTeam.teamID = home_teams.hkjc_id
   LEFT JOIN `master.teams` away_teams ON odds_had.awayTeam.teamID = away_teams.hkjc_id
@@ -49,7 +50,7 @@ WITH
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'incomplete'
-    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 5 DAY))
+    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))
     AND ( home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong' ) 
   ),
@@ -73,7 +74,8 @@ WITH
     home_adv,
     had_H,
     had_D,
-    had_A
+    had_A,
+    statuslastupdated
   FROM hkjc
   UNION ALL
   SELECT
@@ -92,6 +94,7 @@ WITH
     away_type,
     away_name,
     1 - no_home_away,
+    NULL,
     NULL,
     NULL,
     NULL
@@ -148,7 +151,8 @@ SELECT
   ROUND(had_away, 2) AS had_away,
   had_H,
   had_D,
-  had_A
+  had_A,
+  FORMAT_TIMESTAMP('%F %H:%M', statuslastupdated, 'Asia/Hong_Kong') AS statuslastupdated
 FROM matches
 LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
   AND matches.home_type = home_ratings._TYPE

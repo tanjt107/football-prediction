@@ -14,12 +14,13 @@ WITH result AS (
     COALESCE(rounds.QF, 0) AS qf,
     COALESCE(rounds.SF, 0) AS sf,
     COALESCE(rounds.F, 0) AS f,
-    COALESCE(rounds.CHAMP, 0) AS champ
+    COALESCE(rounds.CHAMP, 0) AS champ,
+    _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
-  WHERE _LEAGUE = 'Europe UEFA Champions League'
-  AND ratings._TYPE = 'Club'
+  WHERE _LEAGUE = 'International AFC Asian Cup'
+  AND ratings._TYPE = 'International'
 )
 
 SELECT
@@ -36,6 +37,7 @@ SELECT
   ROUND(qf, 3) AS qf,
   ROUND(sf, 3) AS sf,
   ROUND(f, 3) AS f,
-  ROUND(champ, 3) AS champ
+  ROUND(champ, 3) AS champ,
+  FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_SECONDS(_DATE_UNIX), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY result.group, points DESC
+ORDER BY result.group <> 'C', result.group, points DESC

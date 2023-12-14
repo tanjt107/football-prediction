@@ -5,16 +5,15 @@ WITH result AS (
     rating,
     offence,
     defence,
-    table.scored - table.conceded AS goal_diff,
-    table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
-    COALESCE(positions._1, 0) AS champ,
-    COALESCE(positions._1, 0) + COALESCE(positions._2, 0) AS promo,
-    COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation,
+    COALESCE(rounds.QF, 0) AS r16,
+    COALESCE(rounds.SF, 0) AS qf,
+    COALESCE(rounds.F, 0) AS sf,
+    COALESCE(rounds.CHAMP, 0) AS f,
     _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
-  WHERE _LEAGUE = 'China China League One'
+  WHERE _LEAGUE = 'Asia AFC Champions League'
   AND ratings._TYPE = 'Club'
 )
 
@@ -24,11 +23,10 @@ SELECT
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,
-  ROUND(goal_diff, 1) AS goal_diff,
-  ROUND(points, 1) AS points,
-  ROUND(champ, 3) AS champ,
-  ROUND(promo, 3) AS promo,
-  ROUND(relegation, 3) AS relegation,
+  ROUND(r16, 3) AS r16,
+  ROUND(qf, 3) AS qf,
+  ROUND(sf, 3) AS sf,
+  ROUND(f, 3) AS f,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_SECONDS(_DATE_UNIX), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY points DESC
+ORDER BY f DESC, sf DESC, qf DESC, r16 DESC, rating DESC

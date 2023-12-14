@@ -16,7 +16,8 @@ SELECT
     WHEN offence - defence > 0 THEN (offence - defence) / _max * 50 + 50
     WHEN offence - defence < 0 THEN (1 - (offence - defence) / _min) * 50
     ELSE 50
-  END AS rating
+  END AS rating,
+  _DATE_UNIX
 FROM `solver.teams_latest` solver
 JOIN maxmin ON solver._TYPE = maxmin._TYPE
 ORDER BY rating DESC

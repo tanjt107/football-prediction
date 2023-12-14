@@ -10,7 +10,8 @@ WITH result AS (
     COALESCE(positions._1, 0) AS champ,
     COALESCE(positions._1, 0) + COALESCE(positions._2, 0) * 0.5 AS acle,
     COALESCE(positions._2, 0) * 0.5 + COALESCE(positions._3, 0) AS acl2,
-    COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation
+    COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation,
+    _DATE_UNIX + 2 * 60 * 60 AS _DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN `master.teams` teams ON leagues.team = teams.footystats_id
   JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
@@ -29,6 +30,7 @@ SELECT
   ROUND(champ, 3) AS champ,
   ROUND(acle, 3) AS acle,
   ROUND(acl2, 3) AS acl2,
-  ROUND(relegation, 3) AS relegation
+  ROUND(relegation, 3) AS relegation,
+  FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_SECONDS(_DATE_UNIX), 'Asia/Hong_Kong') AS date_unix
 FROM result
 ORDER BY points DESC
