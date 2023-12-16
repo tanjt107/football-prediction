@@ -4,6 +4,7 @@ WITH maxmin AS (
     MAX(offence - defence) AS _max,
     MIN(offence - defence) AS _min
   FROM `solver.teams_latest` solver
+  WHERE id NOT IN ('American Samoa', 'Tonga') -- Exclude outliers. To be reviewed in Feb 2024.
   GROUP BY _TYPE
 )
 
@@ -20,4 +21,3 @@ SELECT
   _DATE_UNIX
 FROM `solver.teams_latest` solver
 JOIN maxmin ON solver._TYPE = maxmin._TYPE
-ORDER BY rating DESC

@@ -4,6 +4,7 @@ WITH maxmin AS (
     MAX(offence - defence) AS _max,
     MIN(offence - defence) AS _min
   FROM `solver.teams_7d` solver
+  WHERE id NOT IN ('American Samoa', 'Tonga') -- Exclude outliers. To be reviewed in Feb 2024.
   GROUP BY _TYPE
 )
 
