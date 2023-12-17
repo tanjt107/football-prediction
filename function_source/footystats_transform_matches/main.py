@@ -7,7 +7,9 @@ from cloudevents.http.event import CloudEvent
 import functions_framework
 
 from gcp import storage
+from gcp.logging import setup_logging
 
+setup_logging()
 
 REDUCE_FROM_MINUTE = 70
 REDUCE_LEADING_GOAL_VALUE = 0.5
@@ -17,7 +19,7 @@ ADJ_FACTORS = {
     (False, False): 1,
     (True, False): 1.01,
     (False, True): 1.04,
-    (True, True): 1.07,
+    (True, True): 1.05,
 }
 
 
@@ -100,10 +102,12 @@ def get_more_players_team(home_red_cards: int, away_red_cards: int) -> Team | No
 
 def get_goal_timings_dict(home: list[str], away: list[str]) -> list[tuple]:
     timings = [
-        (int(re.search(r"(^1?\d{1,2})", minute).group()), Team.HOME) for minute in home
+        (int(re.search(r"(^1?\d{1,2})", minute).group()), minute, Team.HOME)
+        for minute in home
     ]
     timings.extend(
-        (int(re.search(r"(^1?\d{1,2})", minute).group()), Team.AWAY) for minute in away
+        (int(re.search(r"(^1?\d{1,2})", minute).group()), minute, Team.AWAY)
+        for minute in away
     )
     return sorted(timings)
 
@@ -114,7 +118,7 @@ def reduce_goal_value(
     if not goal_timings:
         return 0, 0
     home = home_adj = away = away_adj = 0
-    for timing, team in goal_timings:
+    for timing, _, team in goal_timings:
         timing = min(timing, 90)
         late_leading_adj_val = (
             max(timing - REDUCE_FROM_MINUTE, 0)
@@ -122,18 +126,18 @@ def reduce_goal_value(
             * REDUCE_LEADING_GOAL_VALUE
         )
         more_player_adj_val = (timing / 90) * REDUCE_RED_CARD_GOAL_VALUE
+
+        goal_val = 1
+        if team == more_player_team:
+            goal_val *= 1 - more_player_adj_val
         if team == Team.AWAY:
             away += 1
-            away_adj += 1
-            if timing > REDUCE_FROM_MINUTE and away - home > 1:
-                away_adj -= late_leading_adj_val
-            if team == more_player_team:
-                away_adj *= 1 - more_player_adj_val
+            if away - home > 1:
+                goal_val *= 1 - late_leading_adj_val
+            away_adj += goal_val
         elif team == Team.HOME:
             home += 1
-            home_adj += 1
-            if timing > REDUCE_FROM_MINUTE and home - away > 1:
-                home_adj -= late_leading_adj_val
-            if team == more_player_team:
-                home_adj *= 1 - more_player_adj_val
+            if home - away > 1:
+                goal_val *= 1 - late_leading_adj_val
+            home_adj += goal_val
     return home_adj, away_adj

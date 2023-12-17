@@ -38,6 +38,7 @@ def upload_json_to_bucket(
         logging.info(f"Uploaded blob: {blob_name=}")
     except (
         urllib3.exceptions.MaxRetryError,
+        requests.exceptions.HTTPError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.SSLError,
         ssl.SSLEOFError,
