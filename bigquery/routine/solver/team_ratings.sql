@@ -4,7 +4,10 @@ WITH maxmin AS (
     MAX(offence - defence) AS _max,
     MIN(offence - defence) AS _min
   FROM `solver.teams_latest` solver
-  WHERE id NOT IN ('American Samoa', 'Tonga') -- Exclude outliers. To be reviewed in Feb 2024.
+  JOIN `master.teams` master ON solver.id = master.solver_id
+    AND solver._TYPE = master.type
+  WHERE hkjc_id IS NOT NULL
+    OR is_manual
   GROUP BY _TYPE
 )
 
