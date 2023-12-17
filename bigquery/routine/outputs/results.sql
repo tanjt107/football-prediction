@@ -50,7 +50,7 @@ WITH matches AS (
     team_a_xg,
     team_b_xg,
     _TYPE
-  ORDER BY date_unix DESC
+  ORDER BY date_unix DESC, matches.id
   LIMIT 10
 ),
 
@@ -100,4 +100,4 @@ SELECT
   ROUND(team_b_xg, 2) AS team_b_xg
 FROM matches
 LEFT JOIN probs ON matches.id = probs.id
-ORDER BY date_unix DESC
+ORDER BY date_unix DESC, matches.id
