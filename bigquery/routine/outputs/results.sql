@@ -22,55 +22,46 @@ WITH matches AS (
       WHEN team_b_xg > 0 THEN team_b_xg
       ELSE NULL
     END AS team_b_xg,
-    _TYPE,
-    MAX(_DATE_UNIX) as _DATE_UNIX
+    leagues.type
   FROM `footystats.matches` matches
   JOIN `footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
-  LEFT JOIN `solver.leagues` ON _DATE_UNIX < date_unix AND leagues.type = _TYPE
   WHERE matches.status = 'complete'
     AND ( home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong')
-  GROUP BY matches.id,
-    matches.date_unix,
-    leagues.transfermarkt_id,
-    leagues.division,
-    home_teams.transfermarkt_id,
-    home_teams.name,
-    home_teams.solver_id,
-    away_teams.transfermarkt_id,
-    away_teams.name,
-    away_teams.solver_id,
-    homeGoalCount,
-    awayGoalCount,
-    home_adj,
-    away_adj,
-    team_a_xg,
-    team_b_xg,
-    _TYPE
   ORDER BY date_unix DESC, matches.id
   LIMIT 10
 ),
 
-match_probs AS (
+solver AS (
   SELECT
     matches.id,
-    functions.matchProbs(
-      avg_goal + league_solver.home_adv + home_solver.offence + away_solver.defence,
-      avg_goal - league_solver.home_adv + away_solver.offence + home_solver.defence,
-       '0') AS had_probs
+    ARRAY_AGG(league_solver ORDER BY league_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS league_solver,
+    ARRAY_AGG(home_solver ORDER BY home_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS home_solver,
+    ARRAY_AGG(away_solver ORDER BY away_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS away_solver,
   FROM matches
-  JOIN `solver.teams` home_solver ON matches.home_solver_id = home_solver.id
-    AND matches._TYPE = home_solver._TYPE
-    AND matches._DATE_UNIX = home_solver._DATE_UNIX
-  JOIN `solver.teams` away_solver ON matches.away_solver_id = away_solver.id
-    AND matches._TYPE = away_solver._TYPE
-    AND matches._DATE_UNIX = away_solver._DATE_UNIX
-  JOIN `solver.leagues` league_solver ON matches.league_division = league_solver.division
-    AND matches._TYPE = league_solver._TYPE
-    AND matches._DATE_UNIX = league_solver._DATE_UNIX
+  JOIN `solver.leagues` league_solver ON league_solver._DATE_UNIX < date_unix
+    AND matches.type = league_solver._TYPE
+    AND matches.league_division = league_solver.division
+  JOIN `solver.teams` home_solver ON league_solver._DATE_UNIX = home_solver._DATE_UNIX
+    AND league_solver._TYPE = home_solver._TYPE
+    AND matches.home_solver_id = home_solver.id
+  JOIN `solver.teams` away_solver ON league_solver._DATE_UNIX = away_solver._DATE_UNIX
+    AND league_solver._TYPE = away_solver._TYPE
+    AND matches.away_solver_id = away_solver.id
+  GROUP BY matches.id
+),
+
+match_probs AS (
+  SELECT
+    id,
+    functions.matchProbs(
+      league_solver.avg_goal + league_solver.home_adv + home_solver.offence + away_solver.defence,
+      league_solver.avg_goal - league_solver.home_adv + away_solver.offence + home_solver.defence,
+       '0') AS had_probs
+  FROM solver
 ),
 
 probs AS (
