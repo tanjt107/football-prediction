@@ -46,7 +46,7 @@ def main(cloud_event: CloudEvent):
     }
     if data.get("ko_matchups"):
         matchups = {
-            Round(_round): [
+            Round(int(_round)): [
                 (teams[home_team], teams[away_team])
                 for (home_team, away_team) in matchups
             ]
