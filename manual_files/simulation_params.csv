@@ -6,7 +6,7 @@ Club,China Chinese Super League,simulate-league,"{""h2h"": true, ""leg"": 2}",,,
 Club,England Premier League,simulate-league,"{""h2h"": false, ""leg"": 2}",,,,"{""144"": -10}"
 Club,Hong Kong Hong Kong Premier League,simulate-league,"{""h2h"": true, ""leg"": 2}",,,,
 Club,Japan J1 League,simulate-league,"{""h2h"": true, ""leg"": 2}",,,,
-Club,France Ligue 1,simulate-league,"{""h2h"": false, ""leg"": 2}",,,,
+Club,France Ligue 1,simulate-league,"{""h2h"": false, ""leg"": 2}",,,,"{""435"": -1}"
 Club,Spain La Liga,simulate-league,"{""h2h"": true, ""leg"": 2}",,,,
 Club,Italy Serie A,simulate-league,"{""h2h"": true, ""leg"": 2}",,,,
 International,International WC Qualification Asia,simulate-cup,"{""h2h"": false, ""leg"": 2}",18,"{""A"": [8587, 8581, 8620, 8589], ""B"": [8579, 8622, 8597, 8590], ""C"": [8585, 8614, 8619, 8613], ""D"": [8621, 8601, 8595, 8586], ""E"": [8618, 8607, 8603, 8615], ""F"": [8737, 8606, 8608, 8612], ""G"": [8580, 8593, 8588, 8591], ""H"": [8584, 8623, 8611, 8610], ""I"": [8582, 8583, 8600, 8594]}",,
