@@ -34,11 +34,12 @@ Germany 2. Bundesliga,l2
 Germany Bundesliga,l1
 Germany DFB Pokal,dfb
 Germany DFL Super Cup,dfl
-International AFC Asian Cup,am23
 Hong Kong Hong Kong FA Cup,hkfa
 Hong Kong Hong Kong Premier League,hgkg
 Hong Kong Sapling Cup,hkp2
 Hong Kong Senior Shield,hksc
+International AFC Asian Cup,am23
+International Africa Cup of Nations,afcn
 International FIFA Club World Cup,klub
 International WC Qualification Asia,wmq1
 International UEFA Euro Qualifiers,emq
@@ -69,6 +70,7 @@ South Korea Korean FA Cup,rkpo
 Spain Copa del Rey,cdr
 Spain La Liga,es1
 Spain Segunda División,es2
+Spain Supercopa de Espana,suc
 Sweden Allsvenskan,se1
 Sweden Svenska Cupen,sec
 USA MLS,mls1
