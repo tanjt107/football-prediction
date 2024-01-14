@@ -224,7 +224,7 @@ module "solver" {
 
 resource "google_cloud_scheduler_job" "solver-international" {
   name     = "solver-international"
-  schedule = "45 18 * 1-3,6-7,9-11 *"
+  schedule = "45 0 * 1-3,6-7,9-11 *"
   region   = var.region
   project  = module.project.project_id
 
