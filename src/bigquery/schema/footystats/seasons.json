@@ -1,0 +1,2290 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "tsapi_id",
+        "type": "STRING"
+    },
+    {
+        "name": "betsapi_id",
+        "type": "STRING"
+    },
+    {
+        "name": "name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "english_name",
+        "type": "STRING"
+    },
+    {
+        "name": "name_jp",
+        "type": "STRING"
+    },
+    {
+        "name": "name_tr",
+        "type": "STRING"
+    },
+    {
+        "name": "name_kr",
+        "type": "STRING"
+    },
+    {
+        "name": "name_pt",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ru",
+        "type": "STRING"
+    },
+    {
+        "name": "name_es",
+        "type": "STRING"
+    },
+    {
+        "name": "name_se",
+        "type": "STRING"
+    },
+    {
+        "name": "name_de",
+        "type": "STRING"
+    },
+    {
+        "name": "name_zht",
+        "type": "STRING"
+    },
+    {
+        "name": "name_nl",
+        "type": "STRING"
+    },
+    {
+        "name": "name_it",
+        "type": "STRING"
+    },
+    {
+        "name": "name_fr",
+        "type": "STRING"
+    },
+    {
+        "name": "name_id",
+        "type": "STRING"
+    },
+    {
+        "name": "name_pl",
+        "type": "STRING"
+    },
+    {
+        "name": "name_gr",
+        "type": "STRING"
+    },
+    {
+        "name": "name_dk",
+        "type": "STRING"
+    },
+    {
+        "name": "name_th",
+        "type": "STRING"
+    },
+    {
+        "name": "name_hr",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ro",
+        "type": "STRING"
+    },
+    {
+        "name": "name_in",
+        "type": "STRING"
+    },
+    {
+        "name": "name_no",
+        "type": "STRING"
+    },
+    {
+        "name": "name_hu",
+        "type": "STRING"
+    },
+    {
+        "name": "name_cz",
+        "type": "STRING"
+    },
+    {
+        "name": "name_cn",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ara",
+        "type": "STRING"
+    },
+    {
+        "name": "name_si",
+        "type": "STRING"
+    },
+    {
+        "name": "name_vn",
+        "type": "STRING"
+    },
+    {
+        "name": "name_my",
+        "type": "STRING"
+    },
+    {
+        "name": "name_sk",
+        "type": "STRING"
+    },
+    {
+        "name": "name_rs",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ua",
+        "type": "STRING"
+    },
+    {
+        "name": "name_bg",
+        "type": "STRING"
+    },
+    {
+        "name": "name_lv",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ge",
+        "type": "STRING"
+    },
+    {
+        "name": "name_swa",
+        "type": "STRING"
+    },
+    {
+        "name": "name_kur",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ee",
+        "type": "STRING"
+    },
+    {
+        "name": "name_lt",
+        "type": "STRING"
+    },
+    {
+        "name": "name_ba",
+        "type": "STRING"
+    },
+    {
+        "name": "name_by",
+        "type": "STRING"
+    },
+    {
+        "name": "name_fi",
+        "type": "STRING"
+    },
+    {
+        "name": "country",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "domestic_scale",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "international_scale",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "format",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "division",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "no_home_away",
+        "type": "INTEGER"
+    },
+    {
+        "name": "starting_year",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "ending_year",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "women",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "continent",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "comp_master_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "image",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "clubNum",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "season",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goalTimingDisabled",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "totalMatches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "matchesCompleted",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "canceledMatchesNum",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "game_week",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_game_week",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "round",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "progress",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_teams_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_teams_conceded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_teams_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_teams_conceded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "btts_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonBTTSPercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonCSPercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_teams_clean_sheets",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_teams_clean_sheets",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_teams_failed_to_score",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_teams_failed_to_score",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "riskNum",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeAttackAdvantagePercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeDefenceAdvantagePercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeOverallAdvantage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersTotal_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersTotal_home",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersTotal_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsTotal_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsTotal_home",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsTotal_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsTotal_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsTotal_home",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsTotal_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsTotal_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsTotal_home",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsTotal_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesTotal_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesTotal_home",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesTotal_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesAVG_overall",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesAVG_home",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesAVG_away",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver05_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver15_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver25_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver35_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver45_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver55_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesOver65_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over45OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over55OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over65OffsidesPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver05Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver15Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver25Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver35Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver45Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver55Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder05Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder15Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder25Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder35Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder45Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonUnder55Percentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornersRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cardsRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsidesRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over65Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over75Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over85Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over95Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over105Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over115Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over125Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over135Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over145Corners_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over65CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over75CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over85CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over95CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over105CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over115CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over125CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over135CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over145CornersPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over45Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over55Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over65Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over75Cards_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over45CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over55CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over65CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over75CardsPercentage_overall",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeWins",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "draws",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "awayWins",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeWinPercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "drawPercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "awayWinPercentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "shotsRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "foulsRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "failed_to_score_total",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "clean_sheets_total",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "round_format",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_0_to_10",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_11_to_20",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_21_to_30",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_31_to_40",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_41_to_50",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_51_to_60",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_61_to_70",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_71_to_80",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_81_to_90",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_0_to_15",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_16_to_30",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_31_to_45",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_46_to_60",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_61_to_75",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_min_76_to_90",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "player_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05_fhg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15_fhg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25_fhg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35_fhg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05_fhg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15_fhg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25_fhg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35_fhg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05_2hg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15_2hg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25_2hg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35_2hg_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05_2hg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15_2hg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25_2hg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35_2hg_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goalTimingsRecorded_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "averageAttendance",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cornerTimingRecorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_avg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_avg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over4_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over4_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over4_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over4_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over5_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over5_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over5_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over5_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over6_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over6_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_fh_over6_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_2h_over6_percentage",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "attack_num_recoded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "dangerous_attacks_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "attacks_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "dangerous_attacks_avg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "attacks_avg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "xg_avg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "possessions_recorded_matches",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonOver05_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonOver15_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonOver25_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonOver35_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonOver45_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonOver55_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder05_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder15_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder25_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder35_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder45_num",
+        "type": "STRING"
+    },
+    {
+        "name": "seasonUnder55_num",
+        "type": "STRING"
+    },
+    {
+        "name": "shortHand",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "db_english_name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "iso",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "footystats_url",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "seasonGoalsScored_home_teams",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "seasonGoalsScored_away_teams",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "seasonConceded_home_teams",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "seasonConceded_away_teams",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "top_scorers",
+        "type": "STRUCT",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "competition_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "full_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "first_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "known_as",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shorthand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "age",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "height",
+                "type": "STRING"
+            },
+            {
+                "name": "weight",
+                "type": "STRING"
+            },
+            {
+                "name": "league",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "league_type",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "season",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "starting_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ending_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_2_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "national_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "birthday",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "nationality",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "continent",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_goals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_misses",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_success",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_involved_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_per_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_home",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_away",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_goal_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "yellow_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "red_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_match",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_card_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_assist_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_attackers",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_midfielders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_defenders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_club_top_scorer",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_match_timestamp",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "top_assists",
+        "type": "STRUCT",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "competition_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "full_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "first_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "known_as",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shorthand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "age",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "height",
+                "type": "STRING"
+            },
+            {
+                "name": "weight",
+                "type": "STRING"
+            },
+            {
+                "name": "league",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "league_type",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "season",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "starting_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ending_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_2_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "national_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "birthday",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "nationality",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "continent",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_goals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_misses",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_success",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_involved_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_per_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_home",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_away",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_goal_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "yellow_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "red_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_match",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_card_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_assist_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_attackers",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_midfielders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_defenders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_club_top_scorer",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_match_timestamp",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "top_clean_sheets",
+        "type": "STRUCT",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "competition_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "full_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "first_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_name",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "known_as",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "shorthand",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "age",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "height",
+                "type": "STRING"
+            },
+            {
+                "name": "weight",
+                "type": "STRING"
+            },
+            {
+                "name": "league",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "league_type",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "season",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "starting_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "ending_year",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "url",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "club_team_2_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "national_team_id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "position",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "minutes_played_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "birthday",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "nationality",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "continent",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "appearances_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_home",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_away",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_goals",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_misses",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "penalty_success",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_involved_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "assists_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "clean_sheets_per_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_home",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "goals_per_90_away",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_goal_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "conceded_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_conceded_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "yellow_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "red_cards_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_match",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_card_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "min_per_assist_overall",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "cards_per_90_overall",
+                "type": "FLOAT",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_attackers",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_midfielders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_league_top_defenders",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "rank_in_club_top_scorer",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "last_match_timestamp",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            }
+        ]
+    }
+]

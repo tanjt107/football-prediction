@@ -1,0 +1,38 @@
+[
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "league",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "topic",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "rule",
+        "type": "JSON",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_no_ko",
+        "type": "INTEGER"
+    },
+    {
+        "name": "groups",
+        "type": "JSON"
+    },
+    {
+        "name": "ko_matchups",
+        "type": "JSON"
+    },
+    {
+        "name": "corrections",
+        "type": "JSON"
+    }
+]

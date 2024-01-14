@@ -1,0 +1,1074 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeID",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "awayID",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "season",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "roundID",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "game_week",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "revised_game_week",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeGoals",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "awayGoals",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "homeGoalCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "awayGoalCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "totalGoalCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "totalCornerCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_offsides",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_offsides",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_yellow_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_yellow_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_red_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_red_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_shotsOnTarget",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_shotsOnTarget",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_shotsOffTarget",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_shotsOffTarget",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_shots",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_shots",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_fouls",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_fouls",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_possession",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_possession",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "refereeID",
+        "type": "STRING"
+    },
+    {
+        "name": "coach_a_ID",
+        "type": "STRING"
+    },
+    {
+        "name": "coach_b_ID",
+        "type": "STRING"
+    },
+    {
+        "name": "stadium_name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "stadium_location",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_cards_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_cards_num",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_over05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_over15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_over25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_over35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_over45",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_under05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_under15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_under25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_under35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_ft_under45",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_yes",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_no",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_a_cs_yes",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_a_cs_no",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_b_cs_yes",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_b_cs_no",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_doublechance_1x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_doublechance_12",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_doublechance_x2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_result_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_result_x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_result_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_result_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_result_x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_result_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_dnb_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_dnb_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_over_75",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_over_85",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_over_95",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_over_105",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_over_115",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_under_75",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_under_85",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_under_95",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_under_105",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_under_115",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_corners_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_to_score_first_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_to_score_first_x",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_team_to_score_first_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_win_to_nil_1",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_win_to_nil_2",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_over05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_over15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_over25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_over35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_under05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_under15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_under25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_1st_half_under35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_over05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_over15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_over25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_over35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_under05",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_under15",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_under25",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_2nd_half_under35",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_1st_half_yes",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_1st_half_no",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_2nd_half_yes",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "odds_btts_2nd_half_no",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "overallGoalCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "ht_goals_team_a",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "ht_goals_team_b",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_2hg_team_a",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goals_2hg_team_b",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "GoalCount_2hg",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "HTGoalCount",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "date_unix",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "winningTeam",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "no_home_away",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "btts_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "btts_fhg_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "btts_2hg_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goalTimingDisabled",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "attendance",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corner_timings_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "card_timings_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_fh_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_fh_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_2h_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_2h_corners",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corner_fh_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corner_2h_count",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_fh_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_fh_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_2h_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_2h_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_fh_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_2h_cards",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "attacks_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_dangerous_attacks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_dangerous_attacks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_attacks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_attacks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_xg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_xg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_xg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_penalties_won",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_penalties_won",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_penalty_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_penalty_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_penalty_missed",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_penalty_missed",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "pens_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goal_timings_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_0_10_min_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_0_10_min_goals",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_corners_0_10_min",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_corners_0_10_min",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_cards_0_10_min",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_cards_0_10_min",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "throwins_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_throwins",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_throwins",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "freekicks_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_freekicks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_freekicks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "goalkicks_recorded",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_goalkicks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_goalkicks",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o45_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o35_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o25_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o15_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o05_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o15HT_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o05HT_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o05_2H_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "o15_2H_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_potential",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "offsides_potential",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "cards_potential",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "avg_potential",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_url",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_image",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_url",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_image",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_name",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "home_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "away_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "pre_match_home_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "pre_match_away_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "pre_match_teamA_overall_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "pre_match_teamB_overall_ppg",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "u45_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "u35_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "u25_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "u15_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "u05_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_o85_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_o95_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "corners_o105_potential",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_a_xg_prematch",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "team_b_xg_prematch",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "total_xg_prematch",
+        "type": "FLOAT",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "match_url",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "competition_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "matches_completed_minimum",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over05",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over15",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over25",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over35",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over45",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "over55",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "btts",
+        "type": "BOOL",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeGoals_timings",
+        "type": "STRING",
+        "mode": "REPEATED"
+    },
+    {
+        "name": "awayGoals_timings",
+        "type": "STRING",
+        "mode": "REPEATED"
+    }
+]

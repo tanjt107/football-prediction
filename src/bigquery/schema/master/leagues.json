@@ -1,0 +1,52 @@
+[
+    {
+        "name": "name",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "country",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "type",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "division",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "is_league",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "is_manual",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "latest_season_id",
+        "type": "INTEGER",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "footystats_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "hkjc_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
+        "name": "transfermarkt_id",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    }
+]
