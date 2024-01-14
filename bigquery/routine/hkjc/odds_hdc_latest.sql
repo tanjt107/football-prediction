@@ -1,6 +1,0 @@
-SELECT * EXCEPT(_TIMESTAMP)
-FROM `hkjc.odds_hdc`
-WHERE _TIMESTAMP = (
-  SELECT MAX(_TIMESTAMP)
-  FROM `hkjc.odds_hdc`
-  )
