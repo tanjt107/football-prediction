@@ -24,6 +24,7 @@ module "function" {
   name                         = var.function_name
   runtime                      = var.function_runtime
   entry_point                  = var.function_entry_point
+  docker_repository            = var.docker_repository
   bucket_name                  = var.bucket_name
   timeout_s                    = var.function_timeout_s
   available_memory             = var.function_available_memory

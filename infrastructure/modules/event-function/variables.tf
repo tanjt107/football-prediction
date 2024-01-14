@@ -15,6 +15,12 @@ variable "entry_point" {
   default     = "main"
 }
 
+variable "docker_repository" {
+  type        = string
+  default     = null
+  description = "User managed repository created in Artifact Registry optionally with a customer managed encryption key."
+}
+
 variable "bucket_name" {
   description = "The name of the Google Cloud Storage bucket used for storing the function's source code."
   type        = string

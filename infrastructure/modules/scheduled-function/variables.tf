@@ -15,6 +15,12 @@ variable "function_entry_point" {
   default     = "main"
 }
 
+variable "docker_repository" {
+  type        = string
+  default     = null
+  description = "User managed repository created in Artifact Registry optionally with a customer managed encryption key."
+}
+
 variable "bucket_name" {
   type        = string
   description = "The name to apply to the bucket."

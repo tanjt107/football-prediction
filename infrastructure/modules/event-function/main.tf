@@ -16,8 +16,9 @@ resource "google_cloudfunctions2_function" "function" {
   project  = var.project_id
 
   build_config {
-    runtime     = var.runtime
-    entry_point = var.entry_point
+    runtime           = var.runtime
+    entry_point       = var.entry_point
+    docker_repository = var.docker_repository
     source {
       storage_source {
         bucket = var.bucket_name
