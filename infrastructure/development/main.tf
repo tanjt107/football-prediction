@@ -69,7 +69,7 @@ module "footystats-league-list-topic" {
   project_id = module.project.project_id
 }
 
-resource "google_artifact_registry_repository" "ar-repo" {
+resource "google_artifact_registry_repository" "repository" {
   repository_id = "gcf"
   format        = "DOCKER"
   location      = var.region
@@ -80,7 +80,7 @@ module "footystats-delta-load" {
   source = "../modules/scheduled-function"
 
   function_name                         = "footystats_publish_season_ids_delta"
-  docker_repository                     = google_artifact_registry_repository.ar-repo.id
+  docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-delta-load"
   job_schedule                          = "35 */6 * * *"
@@ -97,7 +97,7 @@ module "footystats-get-league-list" {
   source = "../modules/scheduled-function"
 
   function_name                         = "footystats_get_league_list"
-  docker_repository                     = google_artifact_registry_repository.ar-repo.id
+  docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-initial-load"
   job_schedule                          = "15 23 * * 1"
@@ -114,7 +114,7 @@ module "footystats-initial-load" {
   source = "../modules/event-function"
 
   name                         = "footystats_publish_season_ids_initial"
-  docker_repository            = google_artifact_registry_repository.ar-repo.id
+  docker_repository            = google_artifact_registry_repository.repository.id
   bucket_name                  = module.buckets.names["gcf"]
   secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
   environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
@@ -132,7 +132,7 @@ module "footystats-get-footystats" {
   source = "../modules/event-function"
 
   name                             = "footystats_get_data"
-  docker_repository                = google_artifact_registry_repository.ar-repo.id
+  docker_repository                = google_artifact_registry_repository.repository.id
   bucket_name                      = module.buckets.names["gcf"]
   available_cpu                    = 1
   available_memory                 = "512Mi"
@@ -155,7 +155,7 @@ module "footystats-transform-matches" {
   source = "../modules/event-function"
 
   name                  = "footystats_transform_matches"
-  docker_repository     = google_artifact_registry_repository.ar-repo.id
+  docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
   environment_variables = { BUCKET_NAME = module.buckets.names["footystats-matches-transformed"] }
   event_type            = "google.cloud.storage.object.v1.finalized"
@@ -224,7 +224,7 @@ module "solver" {
   source = "../modules/scheduled-function"
 
   function_name                  = "solver"
-  docker_repository              = google_artifact_registry_repository.ar-repo.id
+  docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
   function_timeout_s             = 540
   function_available_memory      = "1Gi"
@@ -326,7 +326,7 @@ module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
   function_name                         = "hkjc_get_odds"
-  docker_repository                     = google_artifact_registry_repository.ar-repo.id
+  docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "hkjc-odds"
   job_schedule                          = "55 */6 * * *"
@@ -346,7 +346,7 @@ module "hkjc-get-content" {
   source = "../modules/scheduled-function"
 
   function_name                  = "hkjc_get_content"
-  docker_repository              = google_artifact_registry_repository.ar-repo.id
+  docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "hkjc-get-content"
   job_schedule                   = "30 23 * * *"
@@ -518,7 +518,7 @@ module "simulation-publish-competitions" {
   source = "../modules/event-function"
 
   name                  = "simulation_publish_competitions"
-  docker_repository     = google_artifact_registry_repository.ar-repo.id
+  docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
   environment_variables = { GCP_PROJECT = module.project.project_id }
   event_type            = "google.cloud.storage.object.v1.finalized"
@@ -635,7 +635,7 @@ module "simulate-league" {
   source = "../modules/event-function"
 
   name                  = "simulate_league"
-  docker_repository     = google_artifact_registry_repository.ar-repo.id
+  docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
   timeout_s             = 300
   environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
@@ -657,7 +657,7 @@ module "simulate-cup" {
   source = "../modules/event-function"
 
   name                  = "simulate_cup"
-  docker_repository     = google_artifact_registry_repository.ar-repo.id
+  docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
   timeout_s             = 300
   environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
