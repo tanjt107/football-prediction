@@ -35,6 +35,7 @@ module "buckets" {
     "footystats-matches",
     "footystats-matches-transformed",
     "footystats-seasons",
+    "footystats-tables",
     "footystats-teams",
     "hkjc",
     "manual",
@@ -147,6 +148,7 @@ module "footystats-get-footystats" {
   environment_variables = {
     MATCHES_BUCKET_NAME = module.buckets.names["footystats-matches"]
     SEASONS_BUCKET_NAME = module.buckets.names["footystats-seasons"]
+    TABLES_BUCKET_NAME  = module.buckets.names["footystats-tables"]
     TEAMS_BUCKET_NAME   = module.buckets.names["footystats-teams"]
   }
 }

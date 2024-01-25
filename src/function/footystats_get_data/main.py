@@ -15,6 +15,7 @@ setup_logging()
 BUCKET_NAMES = {
     "matches": os.environ["MATCHES_BUCKET_NAME"],
     "season": os.environ["SEASONS_BUCKET_NAME"],
+    "tables": os.environ["TABLES_BUCKET_NAME"],
     "teams": os.environ["TEAMS_BUCKET_NAME"],
 }
 
