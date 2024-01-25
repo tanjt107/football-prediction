@@ -23,11 +23,11 @@ WITH matches AS (
       ELSE NULL
     END AS team_b_xg,
     leagues.type
-  FROM `footystats.matches` matches
-  JOIN `footystats.matches_transformed` matches_transformed ON matches.id = matches_transformed.id
+  FROM footystats.matches
+  JOIN footystats.matches_transformed ON matches.id = matches_transformed.id
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-  JOIN `master.leagues` leagues ON matches._NAME = leagues.footystats_id
+  JOIN master.leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'complete'
     AND ( home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong')
@@ -38,18 +38,18 @@ WITH matches AS (
 solver AS (
   SELECT
     matches.id,
-    ARRAY_AGG(league_solver ORDER BY league_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS league_solver,
+    ARRAY_AGG(leagues ORDER BY leagues._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS league_solver,
     ARRAY_AGG(home_solver ORDER BY home_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS home_solver,
     ARRAY_AGG(away_solver ORDER BY away_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS away_solver,
   FROM matches
-  JOIN `solver.leagues` league_solver ON league_solver._DATE_UNIX < date_unix
-    AND matches.type = league_solver._TYPE
-    AND matches.league_division = league_solver.division
-  JOIN `solver.teams` home_solver ON league_solver._DATE_UNIX = home_solver._DATE_UNIX
-    AND league_solver._TYPE = home_solver._TYPE
+  JOIN solver.leagues ON leagues._DATE_UNIX < date_unix
+    AND matches.type = leagues._TYPE
+    AND matches.league_division = leagues.division
+  JOIN `solver.teams` home_solver ON leagues._DATE_UNIX = home_solver._DATE_UNIX
+    AND leagues._TYPE = home_solver._TYPE
     AND matches.home_solver_id = home_solver.id
-  JOIN `solver.teams` away_solver ON league_solver._DATE_UNIX = away_solver._DATE_UNIX
-    AND league_solver._TYPE = away_solver._TYPE
+  JOIN `solver.teams` away_solver ON leagues._DATE_UNIX = away_solver._DATE_UNIX
+    AND leagues._TYPE = away_solver._TYPE
     AND matches.away_solver_id = away_solver.id
   GROUP BY matches.id
 ),

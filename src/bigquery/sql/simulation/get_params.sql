@@ -6,5 +6,5 @@ SELECT
     params.groups,
     ko_matchups,
     corrections
-FROM `${project_id}.simulation.params` params
+FROM ${project_id}.simulation.params
 WHERE params.type = _type

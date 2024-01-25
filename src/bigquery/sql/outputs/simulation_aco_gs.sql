@@ -17,10 +17,10 @@ WITH result AS (
     COALESCE(rounds.CHAMP, 0) AS champ,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
-  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  JOIN master.teams ON leagues.team = teams.footystats_id
+  JOIN solver.team_ratings ON teams.solver_id = team_ratings.id
   WHERE _LEAGUE = 'International Africa Cup of Nations'
-  AND ratings._TYPE = 'International'
+  AND team_ratings._TYPE = 'International'
 )
 
 SELECT

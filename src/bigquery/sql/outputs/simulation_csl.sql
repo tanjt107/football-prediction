@@ -13,10 +13,10 @@ WITH result AS (
     COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
-  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  JOIN master.teams ON leagues.team = teams.footystats_id
+  JOIN solver.team_ratings ON teams.solver_id = team_ratings.id
   WHERE _LEAGUE = 'China Chinese Super League'
-  AND ratings._TYPE = 'Club'
+  AND team_ratings._TYPE = 'Club'
 )
 
 SELECT

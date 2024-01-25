@@ -197,6 +197,12 @@ module "bigquery-footystats" {
       source_uris               = ["${module.buckets.urls["footystats-seasons"]}/*/season.json"]
       hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-seasons"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
+    tables = {
+      schema                    = file("../../src/bigquery/schema/footystats/tables.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-tables"]}/*/tables.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-tables"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
+    }
     teams = {
       schema                    = file("../../src/bigquery/schema/footystats/teams.json")
       source_format             = "NEWLINE_DELIMITED_JSON"

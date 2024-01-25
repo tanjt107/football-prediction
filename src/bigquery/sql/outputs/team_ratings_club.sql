@@ -13,11 +13,11 @@ WITH latest AS (
     _DATE_UNIX
   FROM `solver.team_ratings` ratings
   JOIN `master.teams` teams ON ratings.id = teams.solver_id
-    AND ratings._TYPE = teams.type
+    AND team_ratings._TYPE = teams.type
   JOIN `master.leagues` leagues ON teams.league_name = leagues.name
   WHERE (leagues.hkjc_id IS NOT NULL
       OR leagues.is_manual)
-    AND ratings._TYPE = 'Club'
+    AND team_ratings._TYPE = 'Club'
 )
 
 SELECT
