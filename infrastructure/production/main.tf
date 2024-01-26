@@ -557,6 +557,51 @@ module "bigquery-simulation" {
         }
       ]
     }
+    get_groups = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_groups.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_gs_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_gs_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_ko_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_ko_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
     get_last_run = {
       definition_body = templatefile("../../src/bigquery/sql/simulation/get_last_run.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
@@ -579,8 +624,8 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
+    get_matchups = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matchups.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [

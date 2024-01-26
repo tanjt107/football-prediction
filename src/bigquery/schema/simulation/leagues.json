@@ -99,23 +99,23 @@
         "type": "RECORD",
         "fields": [
             {
-                "name": "R16",
+                "name": "ROUND_OF_16",
                 "type": "FLOAT"
             },
             {
-                "name": "QF",
+                "name": "QUARTER_FINALS",
                 "type": "FLOAT"
             },
             {
-                "name": "SF",
+                "name": "SEMI_FINALS",
                 "type": "FLOAT"
             },
             {
-                "name": "F",
+                "name": "FINAL",
                 "type": "FLOAT"
             },
             {
-                "name": "CHAMP",
+                "name": "CHAMPS",
                 "type": "FLOAT"
             }
         ]

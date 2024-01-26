@@ -11,11 +11,12 @@ class Leg(Enum):
 
 
 class Round(Enum):
-    R16 = 16
-    QF = 8
-    SF = 4
-    F = 2
-    CHAMP = 1
+    ROUND_OF_16 = 16
+    QUARTER_FINALS = 8
+    SEMI_FINALS = 4
+    FINAL = 2
+    FINALS = 2
+    CHAMPS = 1
 
     def __gt__(self, other: "Round"):
         return self.value > other.value
@@ -29,7 +30,7 @@ class Rules:
     h2h: bool = False
     leg: int = 2
     leg_final: int = 1
-    away_goal: bool = True
+    away_goal: bool = False
 
     def __post_init__(self):
         self.leg = Leg(self.leg)
@@ -110,6 +111,9 @@ class Team:
 
     def __eq__(self, other: "Team") -> bool:
         return other and self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
 
     def set_correction(self, value: int):
         self.table.correction = value

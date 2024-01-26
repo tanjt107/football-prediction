@@ -1,5 +1,4 @@
 import os
-import time
 
 import functions_framework
 
@@ -17,4 +16,3 @@ def main(_):
                 topic=os.environ["TOPIC_NAME"],
                 data={"endpoint": endpoint, **season},
             )
-            time.sleep(0.05)
