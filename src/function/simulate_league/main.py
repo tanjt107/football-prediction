@@ -30,6 +30,7 @@ def main(cloud_event: CloudEvent):
 
     factors = queries.get_avg_goal_home_adv(league)
     teams = queries.get_teams(league)
+    rule = Rules(**message["rule"]) if message.get("rule") else Rules()
 
     if corrections := message.get("corrections"):
         for team, correction in corrections.items():
@@ -39,7 +40,7 @@ def main(cloud_event: CloudEvent):
         teams=teams.values(),
         avg_goal=factors["avg_goal"],
         home_adv=factors["home_adv"],
-        rule=Rules(**message["rule"]),
+        rule=rule,
         completed=queries.get_completed_matches(league),
     )
 

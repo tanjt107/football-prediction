@@ -1,10 +1,4 @@
 SELECT
-    topic,
-    league,
-    rule,
-    team_no_ko,
-    params.groups,
-    ko_matchups,
-    corrections
-FROM `${project_id}.simulation.params` params
+    * EXCEPT(type)
+FROM ${project_id}.simulation.params
 WHERE params.type = _type

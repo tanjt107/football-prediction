@@ -92,11 +92,12 @@ class Knockout:
         advanced = self.teams
         _round = Round(len(advanced))
 
-        while _round > Round.CHAMP:
-            if _round == Round.F:
-                self._leg = self.rule.leg_final
+        while _round > Round.CHAMPS:
+            self._leg = self.rule.leg_final if _round == Round.FINAL else self.rule.leg
 
-            matchups = self.matchups.get(_round) or self.draw_matchup(advanced)
+            matchups = self.matchups.get(_round) or []
+            if len(matchups) != len(advanced) / 2:
+                matchups = self.draw_matchup(advanced)
 
             advanced = [
                 self.get_winner(home_team, away_team)

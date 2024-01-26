@@ -35,28 +35,33 @@ def main(cloud_event: CloudEvent):
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
-    rule = Rules(**data["rule"])
-    completed = queries.get_completed_matches(league)
+    rule = Rules(**data["rule"]) if data.get("rule") else Rules()
+    completed_gs = queries.get_completed_matches(league, stage="gs")
+    completed_ko = queries.get_completed_matches(league, stage="ko")
 
-    groups = {
-        group: Season(
-            [teams[team] for team in _teams], avg_goal, home_adv, rule, completed
-        )
-        for group, _teams in data["groups"].items()
-    }
-    if data.get("ko_matchups"):
-        matchups = {
-            Round(int(_round)): [
-                (teams[home_team], teams[away_team])
-                for (home_team, away_team) in matchups
-            ]
-            for _round, matchups in data["ko_matchups"].items()
+    gs_name = data.get("gs_name")
+    groups = (
+        queries.get_groups(league, teams, gs_name)
+        if gs_name
+        else queries.get_groups(league, teams)
+    )
+    if not groups:
+        groups = {
+            group: [teams[team] for team in _teams]
+            for group, _teams in data["groups"].items()
         }
-    else:
-        matchups = None
+
+    group_seasons = {
+        name: Season(teams, avg_goal, home_adv, rule, completed_gs)
+        for name, teams in groups.items()
+    }
+
+    matchups = queries.get_matchup(league, teams)
 
     logging.info(f"Simulating: {league=}")
-    data = simulate_cup(groups, data["team_no_ko"], matchups, completed_ko=completed)
+    data = simulate_cup(
+        group_seasons, data["team_no_ko"], matchups, completed_ko=completed_ko
+    )
     logging.info(f"Simulated: {league=}")
 
     storage.upload_json_to_bucket(

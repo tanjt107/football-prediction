@@ -34,6 +34,7 @@ module "buckets" {
     "footystats-matches",
     "footystats-matches-transformed",
     "footystats-seasons",
+    "footystats-tables",
     "footystats-teams",
     "hkjc",
     "manual",
@@ -144,6 +145,7 @@ module "footystats-get-footystats" {
   environment_variables = {
     MATCHES_BUCKET_NAME = module.buckets.names["footystats-matches"]
     SEASONS_BUCKET_NAME = module.buckets.names["footystats-seasons"]
+    TABLES_BUCKET_NAME  = module.buckets.names["footystats-tables"]
     TEAMS_BUCKET_NAME   = module.buckets.names["footystats-teams"]
   }
 }
@@ -194,6 +196,12 @@ module "bigquery-footystats" {
       source_format             = "NEWLINE_DELIMITED_JSON"
       source_uris               = ["${module.buckets.urls["footystats-seasons"]}/*/season.json"]
       hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-seasons"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
+    }
+    tables = {
+      schema                    = file("../../src/bigquery/schema/footystats/tables.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["footystats-tables"]}/*/tables.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["footystats-tables"]}/{_COUNTRY:STRING}/{_NAME:STRING}/{_YEAR:STRING}/{_SEASON_ID:INTEGER}" }
     }
     teams = {
       schema                    = file("../../src/bigquery/schema/footystats/teams.json")
@@ -549,6 +557,51 @@ module "bigquery-simulation" {
         }
       ]
     }
+    get_groups = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_groups.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_gs_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_gs_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_ko_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_ko_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
     get_last_run = {
       definition_body = templatefile("../../src/bigquery/sql/simulation/get_last_run.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
@@ -571,8 +624,8 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
+    get_matchups = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matchups.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [

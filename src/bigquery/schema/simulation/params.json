@@ -16,8 +16,7 @@
     },
     {
         "name": "rule",
-        "type": "JSON",
-        "mode": "REQUIRED"
+        "type": "JSON"
     },
     {
         "name": "team_no_ko",
@@ -28,8 +27,8 @@
         "type": "JSON"
     },
     {
-        "name": "ko_matchups",
-        "type": "JSON"
+        "name": "gs_name",
+        "type": "STRING"
     },
     {
         "name": "corrections",

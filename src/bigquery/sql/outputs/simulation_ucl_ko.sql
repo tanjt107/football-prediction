@@ -5,17 +5,17 @@ WITH result AS (
     rating,
     offence,
     defence,
-    COALESCE(rounds.R16, 0) AS r16,
-    COALESCE(rounds.QF, 0) AS qf,
-    COALESCE(rounds.SF, 0) AS sf,
-    COALESCE(rounds.F, 0) AS f,
-    COALESCE(rounds.CHAMP, 0) AS champ,
+    COALESCE(rounds.ROUND_OF_16, 0) AS r16,
+    COALESCE(rounds.QUARTER_FINALS, 0) AS qf,
+    COALESCE(rounds.SEMI_FINALS, 0) AS sf,
+    COALESCE(rounds.FINAL, 0) AS f,
+    COALESCE(rounds.CHAMPS, 0) AS champ,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
-  JOIN `master.teams` teams ON leagues.team = teams.footystats_id
-  JOIN `solver.team_ratings` ratings ON teams.solver_id = ratings.id
+  JOIN master.teams ON leagues.team = teams.footystats_id
+  JOIN solver.team_ratings ON teams.solver_id = team_ratings.id
   WHERE _LEAGUE = 'Europe UEFA Champions League'
-  AND ratings._TYPE = 'Club'
+  AND team_ratings._TYPE = 'Club'
 )
 
 SELECT
