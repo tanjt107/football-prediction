@@ -366,18 +366,6 @@
         "mode": "REQUIRED",
         "fields": [
             {
-                "name": "FHA",
-                "type": "STRING"
-            },
-            {
-                "name": "FCS",
-                "type": "STRING"
-            },
-            {
-                "name": "FTS",
-                "type": "STRING"
-            },
-            {
                 "name": "FGS",
                 "type": "RECORD",
                 "mode": "REPEATED",
@@ -407,34 +395,6 @@
                         "type": "STRING"
                     }
                 ]
-            },
-            {
-                "name": "NTS1",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS2",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS3",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS4",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS5",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS6",
-                "type": "STRING"
-            },
-            {
-                "name": "NTS7",
-                "type": "STRING"
             }
         ]
     },
