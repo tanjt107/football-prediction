@@ -16,9 +16,9 @@ WITH
     away_teams.type AS away_type,
     odds_had_latest.awayTeam.teamNameCH AS away_name,
     CAST(odds_had_latest.venue IS NULL AS INT64) AS home_adv,
-    CAST(SPLIT(hadodds.H, '@')[OFFSET(1)] AS FLOAT64) AS had_H,
-    CAST(SPLIT(hadodds.D, '@')[OFFSET(1)] AS FLOAT64) AS had_D,
-    CAST(SPLIT(hadodds.A, '@')[OFFSET(1)] AS FLOAT64) AS had_A,
+    CAST(SPLIT(hadodds.H, '@')[1] AS FLOAT64) AS had_H,
+    CAST(SPLIT(hadodds.D, '@')[1] AS FLOAT64) AS had_D,
+    CAST(SPLIT(hadodds.A, '@')[1] AS FLOAT64) AS had_A,
     statuslastupdated
   FROM hkjc.odds_had_latest
   LEFT JOIN `master.teams` home_teams ON odds_had_latest.homeTeam.teamID = home_teams.hkjc_id
@@ -129,9 +129,9 @@ WITH
     matchID,
     home_exp,
     away_exp,
-    had_probs[OFFSET(0)] AS had_home,
-    had_probs[OFFSET(1)] AS had_draw,
-    had_probs[OFFSET(2)] AS had_away
+    had_probs[0] AS had_home,
+    had_probs[1] AS had_draw,
+    had_probs[2] AS had_away
   FROM match_probs
   )
 

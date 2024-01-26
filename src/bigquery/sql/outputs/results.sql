@@ -38,9 +38,9 @@ WITH matches AS (
 solver AS (
   SELECT
     matches.id,
-    ARRAY_AGG(leagues ORDER BY leagues._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS league_solver,
-    ARRAY_AGG(home_solver ORDER BY home_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS home_solver,
-    ARRAY_AGG(away_solver ORDER BY away_solver._DATE_UNIX DESC LIMIT 1)[OFFSET(0)] AS away_solver,
+    ARRAY_AGG(leagues ORDER BY leagues._DATE_UNIX DESC LIMIT 1)[0] AS league_solver,
+    ARRAY_AGG(home_solver ORDER BY home_solver._DATE_UNIX DESC LIMIT 1)[0] AS home_solver,
+    ARRAY_AGG(away_solver ORDER BY away_solver._DATE_UNIX DESC LIMIT 1)[0] AS away_solver,
   FROM matches
   JOIN solver.leagues ON leagues._DATE_UNIX < date_unix
     AND matches.type = leagues._TYPE
@@ -67,9 +67,9 @@ match_probs AS (
 probs AS (
   SELECT
     id,
-    had_probs[OFFSET(0)] AS had_home,
-    had_probs[OFFSET(1)] AS had_draw,
-    had_probs[OFFSET(2)] AS had_away
+    had_probs[0] AS had_home,
+    had_probs[1] AS had_draw,
+    had_probs[2] AS had_away
   FROM match_probs
   )
 
