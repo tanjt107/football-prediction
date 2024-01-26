@@ -153,13 +153,11 @@
             },
             {
                 "name": "tShortCH",
-                "type": "STRING",
-                "mode": "REQUIRED"
+                "type": "STRING"
             },
             {
                 "name": "tShortEN",
-                "type": "STRING",
-                "mode": "REQUIRED"
+                "type": "STRING"
             },
             {
                 "name": "displayOrder",
