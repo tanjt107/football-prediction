@@ -35,7 +35,9 @@ def get_teams(league: str) -> dict[str, Team]:
     }
 
 
-def get_completed_matches(league: str, stage: str = "ko", gs_name: str = "Group Stage"):
+def get_completed_matches(
+    league: str, stage: str = "ko", gs_name: str = "Group Stage"
+) -> dict[tuple[int], tuple[int]]:
     return {
         (row["homeId"], row["awayId"]): (row["homeGoalCount"], row["awayGoalCount"])
         for row in bigquery.query_dict(
@@ -45,7 +47,9 @@ def get_completed_matches(league: str, stage: str = "ko", gs_name: str = "Group 
     }
 
 
-def get_groups(league: str, teams: dict[str, Team], gs_name: str = "Group Stage"):
+def get_groups(
+    league: str, teams: dict[str, Team], gs_name: str = "Group Stage"
+) -> dict[str, list[Team]]:
     groups = defaultdict(list)
     group_teams = bigquery.query_dict(
         query=f"SELECT * FROM `simulation.get_groups`(@league, @stage);",
@@ -56,7 +60,7 @@ def get_groups(league: str, teams: dict[str, Team], gs_name: str = "Group Stage"
     return groups
 
 
-def get_matchup(league: str, teams: dict[str, Team]):
+def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team]]]:
     rounds = defaultdict(set)
     round_matchups = bigquery.query_dict(
         query=f"SELECT * FROM `simulation.get_matchups`(@league);",

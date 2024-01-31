@@ -27,15 +27,30 @@ class Knockout:
         return {Leg.SINGLE: 0, Leg.DOUBLE: self.home_adv}[self._leg]
 
     @staticmethod
-    def draw_matchup(teams: list[Team]) -> list[tuple[Team, Team]]:
-        random.shuffle(teams)
-        return list(zip(teams[::2], teams[1::2]))
+    def draw_matchup(
+        teams: list[Team], drawn: set[set[Team]]
+    ) -> list[tuple[Team, Team]]:
+        drawn_teams = [team for teams in drawn for team in teams]
+        undrawn = [team for team in teams if team not in drawn_teams]
+        random.shuffle(undrawn)
+        return [(home, away) for home, away in drawn] + list(
+            zip(undrawn[::2], undrawn[1::2])
+        )
 
-    def get_winner(self, home_team: Team, away_team: Team):
-        return {
-            Leg.SINGLE: self.get_single_leg_winner(home_team, away_team),
-            Leg.DOUBLE: self.get_double_leg_winner(home_team, away_team),
-        }[self._leg]
+    def get_winner(
+        self, home_team: Team, away_team: Team, advanced: list[Team] | None = None
+    ):
+        advanced = advanced or []
+
+        if home_team in advanced:
+            return home_team
+        if away_team in advanced:
+            return away_team
+
+        if self._leg == Leg.SINGLE:
+            return self.get_single_leg_winner(home_team, away_team)
+        if self._leg == Leg.DOUBLE:
+            return self.get_double_leg_winner(home_team, away_team)
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
         game = Match(home_team, away_team)
@@ -90,19 +105,27 @@ class Knockout:
 
     def simulate(self):
         advanced = self.teams
-        _round = Round(len(advanced))
+        current_round = Round(len(advanced))
+        next_round_len = len(advanced) / 2
 
-        while _round > Round.CHAMPS:
-            self._leg = self.rule.leg_final if _round == Round.FINAL else self.rule.leg
+        while current_round > Round.CHAMPS:
+            self._leg = (
+                self.rule.leg_final if current_round == Round.FINAL else self.rule.leg
+            )
 
-            matchups = self.matchups.get(_round) or []
-            if len(matchups) != len(advanced) / 2:
-                matchups = self.draw_matchup(advanced)
+            matchups = self.matchups.get(current_round, [])
+            next_round = Round(next_round_len)
+            winners = [
+                team for teams in self.matchups.get(next_round, []) for team in teams
+            ]
+
+            matchups = self.draw_matchup(advanced, matchups)
 
             advanced = [
-                self.get_winner(home_team, away_team)
+                self.get_winner(home_team, away_team, winners)
                 for home_team, away_team in matchups
             ]
 
-            _round = Round(len(advanced))
-            self.results[_round] = advanced
+            self.results[next_round] = advanced
+            current_round = next_round
+            next_round_len /= 2
