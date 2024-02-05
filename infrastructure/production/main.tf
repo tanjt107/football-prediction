@@ -83,7 +83,7 @@ module "footystats-delta-load" {
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-delta-load"
-  job_schedule                          = "35 */4 * * *"
+  job_schedule                          = "35 */6 * * *"
   topic_name                            = "footystats-delta-load"
   function_source_directory             = "../../src/function"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -99,7 +99,7 @@ module "footystats-get-league-list" {
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-initial-load"
-  job_schedule                          = "15 23 * * 1,4"
+  job_schedule                          = "15 23 * * 1"
   topic_name                            = "footystats-initial-load"
   function_source_directory             = "../../src/function"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -234,7 +234,7 @@ module "solver" {
   function_available_memory      = "1Gi"
   function_available_cpu         = 2
   job_name                       = "solver"
-  job_schedule                   = "45 */4 * * *"
+  job_schedule                   = "45 */6 * * *"
   message_data                   = "Club"
   topic_name                     = "solver"
   function_source_directory      = "../../src/function"
@@ -330,7 +330,7 @@ module "hkjc-get-odds" {
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "hkjc-odds"
-  job_schedule                          = "*/15 * * * *"
+  job_schedule                          = "55 */6 * * *"
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../src/function"
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
@@ -458,11 +458,11 @@ module "bigquery-master" {
   }
   scheduled_queries = {
     leagues = {
-      schedule = "every monday, thursday 23:40"
+      schedule = "every monday 23:40"
       query    = file("../../src/bigquery/sql/master/leagues.sql")
     }
     teams = {
-      schedule = "every monday, thursday 23:40"
+      schedule = "every monday 23:40"
       query    = file("../../src/bigquery/sql/master/teams.sql")
     }
   }
