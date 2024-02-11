@@ -2,7 +2,7 @@ WITH result AS (
   SELECT
     teams.transfermarkt_id,
     teams.name,
-    leagues.group,
+    RIGHT(leagues.group, 1) AS _group,
     rating,
     offence,
     defence,
@@ -19,11 +19,11 @@ WITH result AS (
 SELECT
   transfermarkt_id,
   name,
-  result.group,
+  _group,
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,
   ROUND(r3, 3) AS r3,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 2 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY result.group <> 'E', result.group, points DESC
+ORDER BY _group <> 'E', _group, points DESC
