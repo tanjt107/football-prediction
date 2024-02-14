@@ -29,10 +29,16 @@ WITH matches AS (
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN master.leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'complete'
-    AND ( home_teams.country = 'Hong Kong'
-      OR away_teams.country = 'Hong Kong')
+    AND (home_teams.league_name IN (
+      '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
+      )
+      OR away_teams.league_name IN (
+      '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
+      )
+      OR leagues.name IN ('亞洲盃', '非洲國家盃', '世盃外圍賽', '亞洲聯賽冠軍盃', 'Asia AFC Cup', '歐洲聯賽冠軍盃')
+    )
   ORDER BY date_unix DESC, matches.id
-  LIMIT 10
+  LIMIT 100
 ),
 
 solver AS (
