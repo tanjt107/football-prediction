@@ -24,7 +24,7 @@ WITH matches AS (
     END AS team_b_xg,
     leagues.type
   FROM footystats.matches
-  JOIN footystats.matches_transformed ON matches.id = matches_transformed.id
+  JOIN footystats.matches_transformed USING (id)
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN master.leagues ON matches._NAME = leagues.footystats_id
@@ -90,5 +90,5 @@ SELECT
   ROUND(team_a_xg, 2) AS team_a_xg,
   ROUND(team_b_xg, 2) AS team_b_xg
 FROM matches
-LEFT JOIN probs ON matches.id = probs.id
+LEFT JOIN probs USING (id)
 ORDER BY date_unix DESC, matches.id

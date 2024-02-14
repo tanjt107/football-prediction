@@ -32,6 +32,5 @@ SELECT
   ROUND(latest.rating, 1) AS rating,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 2 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM latest
-LEFT JOIN solver.team_ratings_7d ON latest.id = team_ratings_7d.id
-  AND latest._TYPE = team_ratings_7d._TYPE
+LEFT JOIN solver.team_ratings_7d USING(id, _TYPE)
 ORDER BY rank;

@@ -23,4 +23,4 @@ SELECT
   END AS rating,
   _DATE_UNIX
 FROM solver.teams_latest
-JOIN maxmin ON teams_latest._TYPE = maxmin._TYPE
+JOIN maxmin USING (_TYPE)

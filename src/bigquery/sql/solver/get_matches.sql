@@ -16,7 +16,7 @@ WITH matches AS (
   JOIN `${project_id}.master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `${project_id}.master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN ${project_id}.master.leagues ON matches._NAME = leagues.footystats_id
-  JOIN ${project_id}.footystats.matches_transformed ON matches.id = matches_transformed.id
+  JOIN ${project_id}.footystats.matches_transformed USING (id)
   WHERE matches.status = 'complete'
     AND date_unix <= max_time
     AND home_teams.solver_id <> away_teams.solver_id
@@ -41,4 +41,4 @@ SELECT
   home_avg,
   away_avg
 FROM matches
-JOIN recentness ON matches.id = recentness.id
+JOIN recentness USING (id)

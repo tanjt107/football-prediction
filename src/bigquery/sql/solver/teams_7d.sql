@@ -9,4 +9,4 @@ JOIN (
   )
   GROUP BY _TYPE
 ) latest
-ON teams._TYPE = latest._TYPE AND teams._DATE_UNIX = latest._DATE_UNIX
+USING (_TYPE, _DATE_UNIX)
