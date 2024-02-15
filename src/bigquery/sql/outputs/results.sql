@@ -38,16 +38,17 @@ WITH matches AS (
       )
       OR leagues.name IN ('亞洲盃', '非洲國家盃', '世盃外圍賽', '亞洲聯賽冠軍盃', '亞洲足協盃', '歐洲聯賽冠軍盃')
     )
-  ORDER BY date_unix DESC, matches.id
+  ORDER BY date_unix DESC, display_order, matches.id
   LIMIT 100
 ),
 
 solver AS (
   SELECT
     matches.id,
-    ARRAY_AGG(leagues ORDER BY leagues._DATE_UNIX DESC LIMIT 1)[0] AS league_solver,
-    ARRAY_AGG(home_solver ORDER BY home_solver._DATE_UNIX DESC LIMIT 1)[0] AS home_solver,
-    ARRAY_AGG(away_solver ORDER BY away_solver._DATE_UNIX DESC LIMIT 1)[0] AS away_solver,
+    functions.matchProbs(
+      leagues.avg_goal + leagues.home_adv + home_solver.offence + away_solver.defence,
+      leagues.avg_goal - leagues.home_adv + away_solver.offence + home_solver.defence,
+       '0') AS had_probs
   FROM matches
   JOIN solver.leagues ON leagues._DATE_UNIX < date_unix
     AND matches.type = leagues._TYPE
@@ -58,27 +59,8 @@ solver AS (
   JOIN `solver.teams` away_solver ON leagues._DATE_UNIX = away_solver._DATE_UNIX
     AND leagues._TYPE = away_solver._TYPE
     AND matches.away_solver_id = away_solver.id
-  GROUP BY matches.id
-),
-
-match_probs AS (
-  SELECT
-    id,
-    functions.matchProbs(
-      league_solver.avg_goal + league_solver.home_adv + home_solver.offence + away_solver.defence,
-      league_solver.avg_goal - league_solver.home_adv + away_solver.offence + home_solver.defence,
-       '0') AS had_probs
-  FROM solver
-),
-
-probs AS (
-  SELECT
-    id,
-    had_probs[0] AS had_home,
-    had_probs[1] AS had_draw,
-    had_probs[2] AS had_away
-  FROM match_probs
-  )
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY matches.id ORDER BY leagues._DATE_UNIX DESC) = 1
+)
 
 SELECT
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_SECONDS(date_unix), 'Asia/Hong_Kong') AS matchDate,
@@ -87,9 +69,9 @@ SELECT
   home_team_name,
   away_team_transfermarkt_id,
   away_team_name,
-  ROUND(had_home, 2) AS had_home,
-  ROUND(had_draw, 2) AS had_draw,
-  ROUND(had_away, 2) AS had_away,
+  ROUND(had_probs[0], 2) AS had_home,
+  ROUND(had_probs[1], 2) AS had_draw,
+  ROUND(had_probs[2], 2) AS had_away,
   homeGoalCount,
   awayGoalCount,
   ROUND(home_adj, 2) AS home_adj,
@@ -97,5 +79,5 @@ SELECT
   ROUND(team_a_xg, 2) AS team_a_xg,
   ROUND(team_b_xg, 2) AS team_b_xg
 FROM matches
-LEFT JOIN probs USING (id)
+LEFT JOIN solver USING (id)
 ORDER BY display_order, league_transfermarkt_id, date_unix DESC, matches.id

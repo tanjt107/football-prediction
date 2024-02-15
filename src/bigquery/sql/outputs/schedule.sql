@@ -161,4 +161,4 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
 LEFT JOIN probs ON matches.matchID = probs.matchID
-ORDER BY display_order, matchDate, matches.matchID;
+ORDER BY display_order, league_transfermarkt_id, matchDate, matches.matchID;
