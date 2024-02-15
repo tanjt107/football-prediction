@@ -422,12 +422,12 @@ module "bigquery-manual" {
       source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
     }
     non_hkjc_leagues = {
-      schema        = file("../../src/bigquery/schema/manual/non_hkjc.json")
+      schema        = file("../../src/bigquery/schema/manual/non_hkjc_leagues.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_leagues.csv"]
     }
     non_hkjc_teams = {
-      schema        = file("../../src/bigquery/schema/manual/non_hkjc.json")
+      schema        = file("../../src/bigquery/schema/manual/non_hkjc_teams.json")
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_teams.csv"]
     }

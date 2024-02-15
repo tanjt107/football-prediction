@@ -1,6 +1,7 @@
 WITH matches AS (
   SELECT
     matches.id,
+    leagues.display_order,
     matches.date_unix,
     leagues.transfermarkt_id AS league_transfermarkt_id,
     leagues.division AS league_division,
@@ -35,7 +36,7 @@ WITH matches AS (
       OR away_teams.league_name IN (
       '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
       )
-      OR leagues.name IN ('亞洲盃', '非洲國家盃', '世盃外圍賽', '亞洲聯賽冠軍盃', 'Asia AFC Cup', '歐洲聯賽冠軍盃')
+      OR leagues.name IN ('亞洲盃', '非洲國家盃', '世盃外圍賽', '亞洲聯賽冠軍盃', '亞洲足協盃', '歐洲聯賽冠軍盃')
     )
   ORDER BY date_unix DESC, matches.id
   LIMIT 100
@@ -97,4 +98,4 @@ SELECT
   ROUND(team_b_xg, 2) AS team_b_xg
 FROM matches
 LEFT JOIN probs USING (id)
-ORDER BY date_unix DESC, matches.id
+ORDER BY display_order, league_transfermarkt_id, date_unix DESC, matches.id

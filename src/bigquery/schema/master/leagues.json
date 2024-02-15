@@ -20,6 +20,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "display_order",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "is_league",
         "type": "BOOLEAN",
         "mode": "NULLABLE"
