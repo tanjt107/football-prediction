@@ -124,17 +124,6 @@ WITH
     away_exp,
     functions.matchProbs(home_exp, away_exp, '0') AS had_probs
   FROM exp_goals 
-  ),
-
-  probs AS (
-  SELECT
-    matchID,
-    home_exp,
-    away_exp,
-    had_probs[0] AS had_home,
-    had_probs[1] AS had_draw,
-    had_probs[2] AS had_away
-  FROM match_probs
   )
 
 SELECT
@@ -148,9 +137,9 @@ SELECT
   ROUND(away_ratings.rating, 1) AS away_rating,
   ROUND(home_exp, 2) AS home_exp,
   ROUND(away_exp, 2) AS away_exp,
-  ROUND(had_home, 2) AS had_home,
-  ROUND(had_draw, 2) AS had_draw,
-  ROUND(had_away, 2) AS had_away,
+  ROUND(had_probs[0], 2) AS had_home,
+  ROUND(had_probs[1], 2) AS had_draw,
+  ROUND(had_probs[2], 2) AS had_away,
   had_H,
   had_D,
   had_A,
@@ -160,5 +149,5 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
   AND matches.home_type = home_ratings._TYPE
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
-LEFT JOIN probs ON matches.matchID = probs.matchID
+LEFT JOIN match_probs USING (matchID)
 ORDER BY display_order, league_transfermarkt_id, matchDate, matches.matchID;
