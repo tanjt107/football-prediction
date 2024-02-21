@@ -11,10 +11,13 @@ class Knockout:
     home_adv: float
     rule: Rules
     matchups: dict[Round, list[tuple[Team, Team]]] | None = None
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
+    completed: (
+        dict[
+            tuple[str],
+            tuple[int],
+        ]
+        | None
+    ) = None
 
     def __post_init__(self):
         if not self.matchups:
@@ -80,14 +83,6 @@ class Knockout:
 
         if game.winner:
             return game.winner
-
-        if self.rule.away_goal:
-            game = Match(
-                home_team,
-                away_team,
-                home_score=leg2.away_score,
-                away_score=leg1.away_score,
-            )
 
         return game.winner or self.get_extra_time_winner(
             home_team=away_team,

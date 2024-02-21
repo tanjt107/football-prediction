@@ -30,7 +30,6 @@ class Rules:
     h2h: bool = False
     leg: int = 2
     leg_final: int = 1
-    away_goal: bool = False
 
     def __post_init__(self):
         self.leg = Leg(self.leg)
@@ -183,11 +182,13 @@ class Match:
 
     def update_score(
         self,
-        completed: dict[
-            tuple[str],
-            tuple[int],
-        ]
-        | None = None,
+        completed: (
+            dict[
+                tuple[str],
+                tuple[int],
+            ]
+            | None
+        ) = None,
         round: int = Leg.DOUBLE,
     ) -> tuple[int] | None:
         if not completed:

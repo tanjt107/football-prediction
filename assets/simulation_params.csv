@@ -1,6 +1,6 @@
 International,International AFC Asian Cup,simulate-cup,"{""h2h"": true, ""leg"": 1}",16,,,
 International,International Africa Cup of Nations,simulate-cup,"{""h2h"": true, ""leg"": 1}",16,,,
-Club,Asia AFC Champions League,simulate-cup,"{""h2h"": true, ""leg_final"": 2, ""away_goal"": true}",16,"{""A"": [9048, 5071, 673800, 4399], ""B"": [4103, 9049, 7763, 4407], ""C"": [5070, 11481, 11508, 11507], ""D"": [5066, 11485, 5416, 671157], ""E"": [9050, 4096, 11509, 5069], ""F"": [1173, 1514, 3837, 1335], ""G"": [3840, 2102, 844, 1002], ""H"": [1186, 602, 1014, 839], ""I"": [1182, 138, 1013, 3836], ""J"": [4006, 3835, 1003, 672253]}",,
+Club,Asia AFC Champions League,simulate-cup,"{""h2h"": true, ""leg_final"": 2}",16,"{""A"": [9048, 5071, 673800, 4399], ""B"": [4103, 9049, 7763, 4407], ""C"": [5070, 11481, 11508, 11507], ""D"": [5066, 11485, 5416, 671157], ""E"": [9050, 4096, 11509, 5069], ""F"": [1173, 1514, 3837, 1335], ""G"": [3840, 2102, 844, 1002], ""H"": [1186, 602, 1014, 839], ""I"": [1182, 138, 1013, 3836], ""J"": [4006, 3835, 1003, 672253]}",,
 Club,Germany Bundesliga,simulate-league,,,,,
 Club,China China League One,simulate-league,"{""h2h"": true}",,,,
 Club,China Chinese Super League,simulate-league,"{""h2h"": true}",,,,
