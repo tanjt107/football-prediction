@@ -19,6 +19,7 @@ SELECT
   format = 'Domestic League' AND division > 0 AS is_league,
   non_hkjc_leagues.footystats_id IS NOT NULL AS is_manual,
   seasons.id AS latest_season_id,
+  _YEAR AS latest_season_year,
   _NAME AS footystats_name,
   hkjc_id,
   transfermarkt_id

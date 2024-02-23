@@ -40,6 +40,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "latest_season_year",
+        "type": "STRING",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "footystats_name",
         "type": "STRING",
         "mode": "NULLABLE"
