@@ -6,7 +6,7 @@ WITH
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
-    leagues.display_order,
+    tournament.displayOrder AS display_order,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
     home_teams.type AS home_type,
@@ -52,7 +52,7 @@ WITH
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
   JOIN master.leagues ON matches._NAME = leagues.footystats_id
   WHERE matches.status = 'incomplete'
-    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 2 DAY))
+    AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))
     AND ( home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong' ) 
   ),
