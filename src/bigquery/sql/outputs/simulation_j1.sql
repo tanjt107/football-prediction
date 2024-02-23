@@ -10,7 +10,7 @@ WITH result AS (
     COALESCE(positions._1, 0) AS champ,
     COALESCE(positions._1, 0) + COALESCE(positions._2 , 0) AS acle,
     COALESCE(positions._3, 0) AS acl2,
-    COALESCE(positions._18, 0) AS relegation,
+    COALESCE(positions._18, 0) + COALESCE(positions._19, 0) + COALESCE(positions._20, 0) AS relegation,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN master.teams ON leagues.team = teams.footystats_id
