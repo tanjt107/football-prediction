@@ -40,7 +40,7 @@
         "mode": "NULLABLE"
     },
     {
-        "name": "footystats_id",
+        "name": "footystats_name",
         "type": "STRING",
         "mode": "NULLABLE"
     },

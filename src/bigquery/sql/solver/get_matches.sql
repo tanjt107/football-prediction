@@ -15,7 +15,7 @@ WITH matches AS (
   FROM ${project_id}.footystats.matches
   JOIN `${project_id}.master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `${project_id}.master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-  JOIN ${project_id}.master.leagues ON matches._NAME = leagues.footystats_id
+  JOIN ${project_id}.master.leagues ON matches._NAME = leagues.footystats_name
   JOIN ${project_id}.footystats.matches_transformed USING (id)
   WHERE matches.status = 'complete'
     AND date_unix <= max_time

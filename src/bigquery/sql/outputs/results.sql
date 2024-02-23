@@ -26,7 +26,7 @@ WITH matches AS (
   JOIN footystats.matches_transformed USING (id)
   JOIN `master.teams` home_teams ON matches.homeID = home_teams.footystats_id
   JOIN `master.teams` away_teams ON matches.awayID = away_teams.footystats_id
-  JOIN master.leagues ON matches._NAME = leagues.footystats_id
+  JOIN master.leagues ON matches._NAME = leagues.footystats_name
   JOIN `solver.leagues` league_solver ON league_solver._DATE_UNIX < date_unix
     AND leagues.type = league_solver._TYPE
     AND leagues.division = league_solver.division
