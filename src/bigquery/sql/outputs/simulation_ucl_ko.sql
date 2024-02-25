@@ -31,4 +31,4 @@ SELECT
   ROUND(champ, 3) AS champ,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 3 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY f DESC, sf DESC, qf DESC, r16 DESC, rating DESC
+ORDER BY champ DESC, f DESC, sf DESC, qf DESC, r16 DESC, rating DESC
