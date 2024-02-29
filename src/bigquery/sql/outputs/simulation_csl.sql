@@ -8,8 +8,8 @@ WITH result AS (
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
     COALESCE(positions._1, 0) AS champ,
-    COALESCE(positions._1, 0) + COALESCE(positions._3, 0) + COALESCE(positions._2, 0) * 0.5 AS acle,
-    COALESCE(positions._3, 0) * 0.5 + COALESCE(positions._34, 0) AS acl2,
+    COALESCE(positions._1, 0) + COALESCE(positions._2, 0) + COALESCE(positions._3, 0) * 0.5 AS acle,
+    COALESCE(positions._3, 0) * 0.5 + COALESCE(positions._4, 0) AS acl2,
     COALESCE(positions._15, 0) + COALESCE(positions._16, 0) AS relegation,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
