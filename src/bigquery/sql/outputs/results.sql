@@ -37,6 +37,7 @@ WITH matches AS (
     AND league_solver._TYPE = away_solver._TYPE
     AND away_teams.solver_id = away_solver.id
   WHERE matches.status = 'complete'
+    AND date_unix >= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -5 DAY))
     AND (home_teams.league_name IN (
       '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
       )
