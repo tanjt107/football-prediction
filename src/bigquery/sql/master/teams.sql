@@ -17,7 +17,7 @@ SELECT
     ELSE footystats.country
   END AS solver_id,
   non_hkjc_teams.footystats_id IS NOT NULL AS is_manual,
-  leagues.name AS league_name
+  footystats_name AS league_name
 FROM `footystats.teams` footystats
 LEFT JOIN manual.hkjc_teams ON footystats.id = CAST(hkjc_teams.footystats_id AS INT64)
 LEFT JOIN `hkjc.teams` hkjc ON hkjc_teams.hkjc_id = hkjc.id

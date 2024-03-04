@@ -14,7 +14,7 @@ WITH latest AS (
   FROM solver.team_ratings
   JOIN master.teams ON team_ratings.id = teams.solver_id
     AND team_ratings._TYPE = teams.type
-  JOIN master.leagues ON teams.league_name = leagues.name
+  JOIN master.leagues ON teams.league_name = leagues.footystats_name
   WHERE (leagues.hkjc_id IS NOT NULL
       OR leagues.is_manual)
     AND team_ratings._TYPE = 'Club'

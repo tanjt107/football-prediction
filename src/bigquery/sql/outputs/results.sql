@@ -38,14 +38,18 @@ WITH matches AS (
     AND away_teams.solver_id = away_solver.id
   WHERE matches.status = 'complete'
     AND date_unix >= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -5 DAY))
-    AND (home_teams.league_name IN (
-      '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
-      )
-      OR away_teams.league_name IN (
-      '香港超級聯賽', '中國超級聯賽', '中國甲級聯賽', '英格蘭超級聯賽', '西班牙甲組聯賽', '德國甲組聯賽', '意大利甲組聯賽', '法國甲組聯賽', '日本職業聯賽'
-      )
-      OR leagues.name IN ('亞洲盃', '非洲國家盃', '世盃外圍賽', '亞洲聯賽冠軍盃', '亞洲足協盃', '歐洲聯賽冠軍盃')
-    )
+    AND (EXISTS (
+      SELECT 1
+      FROM simulation.params
+      WHERE home_teams.league_name = params.league
+        OR away_teams.league_name = params.league
+        OR leagues.footystats_name = params.league
+        )
+      OR EXISTS (
+        SELECT 1
+        FROM manual.non_hkjc_leagues 
+        WHERE leagues.footystats_name = non_hkjc_leagues.footystats_id
+        ))
   QUALIFY ROW_NUMBER() OVER (PARTITION BY matches.id ORDER BY league_solver._DATE_UNIX DESC) = 1
   ORDER BY date_unix DESC, display_order, matches.id
   LIMIT 100
