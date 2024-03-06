@@ -32,8 +32,8 @@ class Match:
     recent: float
 
     def __post_init__(self):
-        self.home_error = LpVariable(f"offence_{self.id}")
-        self.away_error = LpVariable(f"defence_{self.id}")
+        self.home_error = LpVariable(f"home_error_{self.id}")
+        self.away_error = LpVariable(f"away_error_{self.id}")
 
     @property
     def home_error_val(self):
