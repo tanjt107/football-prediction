@@ -44,7 +44,7 @@ SELECT
   ROUND(result.qf / slots.qf * 4, 3) AS qf,
   ROUND(result.sf / slots.sf * 2, 3) AS sf,
   ROUND(result.f / slots.f, 3) AS f,
-  ROUND(result.champs / slots.f / 2, 3) AS champs,
+  ROUND(result.champs, 3) AS champs,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 3 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
 JOIN slots USING (region)
