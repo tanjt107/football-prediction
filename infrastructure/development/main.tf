@@ -84,7 +84,7 @@ module "footystats-delta-load" {
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats-delta-load"
-  job_schedule                          = "35 */6 * * *"
+  job_schedule                          = "35 */4 * * *"
   job_paused                            = true
   topic_name                            = "footystats-delta-load"
   function_source_directory             = "../../src/function"
@@ -238,7 +238,7 @@ module "solver" {
   function_available_memory      = "1Gi"
   function_available_cpu         = 2
   job_name                       = "solver"
-  job_schedule                   = "45 */6 * * *"
+  job_schedule                   = "45 */4 * * *"
   job_paused                     = true
   message_data                   = "Club"
   topic_name                     = "solver"
@@ -337,7 +337,7 @@ module "hkjc-get-odds" {
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "hkjc-odds"
-  job_schedule                          = "55 */6 * * *"
+  job_schedule                          = "55 */4 * * *"
   job_paused                            = true
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../src/function"
