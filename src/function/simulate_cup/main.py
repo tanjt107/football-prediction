@@ -36,7 +36,9 @@ def main(cloud_event: CloudEvent):
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
     rule = Rules(**data["rule"]) if data.get("rule") else Rules()
-    completed_gs = queries.get_completed_matches(league, stage="gs")
+    completed_gs = queries.get_completed_matches(
+        league, stage="gs", gs_name=data.get("gs_name", "Group Stage")
+    )
     completed_ko = queries.get_completed_matches(league, stage="ko")
 
     gs_name = data.get("gs_name")
