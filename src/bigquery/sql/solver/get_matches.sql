@@ -20,6 +20,8 @@ WITH matches AS (
   WHERE matches.status = 'complete'
     AND date_unix <= max_time
     AND home_teams.solver_id <> away_teams.solver_id
+    AND home_teams.type = league_type
+    AND away_teams.type = league_type
     AND leagues.type = league_type
 ),
 
