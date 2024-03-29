@@ -725,6 +725,8 @@ module "bigquery-outputs" {
     simulation_cl1             = file("../../src/bigquery/sql/outputs/simulation_cl1.sql")
     simulation_csl             = file("../../src/bigquery/sql/outputs/simulation_csl.sql")
     simulation_epl             = file("../../src/bigquery/sql/outputs/simulation_epl.sql")
+    simulation_euro_gs         = file("../../src/bigquery/sql/outputs/simulation_euro_gs.sql")
+    simulation_euro_ko         = file("../../src/bigquery/sql/outputs/simulation_euro_ko.sql")
     simulation_hkpl            = file("../../src/bigquery/sql/outputs/simulation_hkpl.sql")
     simulation_j1              = file("../../src/bigquery/sql/outputs/simulation_j1.sql")
     simulation_li1             = file("../../src/bigquery/sql/outputs/simulation_li1.sql")
