@@ -6,7 +6,7 @@ variable "name" {
 variable "runtime" {
   description = "The runtime in which the function will be executed."
   type        = string
-  default     = "python311"
+  default     = "python312"
 }
 
 variable "entry_point" {
