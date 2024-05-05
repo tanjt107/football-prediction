@@ -6,6 +6,7 @@ JOIN `${project_id}.master.teams` away_teams ON matches.awayID = away_teams.foot
 JOIN ${project_id}.master.leagues ON matches._NAME = leagues.footystats_name
 WHERE leagues.type = _type
     AND status = 'complete'
+    AND date_unix < UNIX_SECONDS(CURRENT_TIMESTAMP())
     AND (EXISTS (
         SELECT 1
         FROM ${project_id}.simulation.params
