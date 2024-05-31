@@ -4,6 +4,7 @@ Club,Asia AFC Champions League,simulate-cup,"{""h2h"": true, ""leg_final"": 2}",
 Club,Germany Bundesliga,simulate-league,,,,,
 Club,China China League One,simulate-league,"{""h2h"": true}",,,,
 Club,China Chinese Super League,simulate-league,"{""h2h"": true}",,,,
+International,International Copa America,simulate-cup,"{""leg"": 1}",8,,,
 Club,England Premier League,simulate-league,,,,,"{""144"": -8, ""211"": -4}"
 Club,Hong Kong Hong Kong Premier League,simulate-league,"{""h2h"": true}",,,,
 Club,Japan J1 League,simulate-league,"{""h2h"": true}",,,,
