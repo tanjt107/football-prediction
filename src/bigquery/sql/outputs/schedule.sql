@@ -132,7 +132,7 @@ WITH
   )
 
 SELECT
-  FORMAT_TIMESTAMP('%F %H:%M', matchDate, 'Asia/Hong_Kong') AS matchDate,
+  FORMAT_TIMESTAMP('%F %H:%M', matchDate, 'Asia/Hong_Kong') AS match_date,
   league_transfermarkt_id,
   home_transfermarkt_id,
   home_name,
