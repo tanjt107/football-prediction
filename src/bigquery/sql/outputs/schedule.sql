@@ -155,4 +155,4 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
 LEFT JOIN match_probs USING (matchID)
-ORDER BY DATE(matchDate), display_order, league_transfermarkt_id, matchDate, matches.matchID;
+ORDER BY FORMAT_TIMESTAMP('%F', matchDate, 'Etc/GMT+4'), display_order, league_transfermarkt_id, matchDate, matches.matchID;
