@@ -352,19 +352,28 @@
         "fields": [
             {
                 "name": "FHA",
-                "type": "STRING"
+                "type": "STRING",
+                "mode": "REPEATED"
             },
             {
                 "name": "FTS",
-                "type": "STRING"
+                "type": "STRING",
+                "mode": "REPEATED"
             },
             {
                 "name": "NTS1",
-                "type": "STRING"
+                "type": "STRING",
+                "mode": "REPEATED"
             },
             {
                 "name": "NTS2",
-                "type": "STRING"
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "NTS3",
+                "type": "STRING",
+                "mode": "REPEATED"
             }
         ]
     },
