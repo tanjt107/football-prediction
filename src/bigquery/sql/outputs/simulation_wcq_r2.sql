@@ -2,12 +2,13 @@ WITH result AS (
   SELECT
     teams.transfermarkt_id,
     teams.name,
-    RIGHT(leagues.group, 1) AS _group,
+    leagues.group,
     rating,
     offence,
     defence,
     table.wins * 3 + table.draws + COALESCE(table.correction, 0) AS points,
-    COALESCE(positions._1, 0) +  COALESCE(positions._2, 0) AS r3,
+    COALESCE(positions._1, 0) +  COALESCE(positions._2, 0) AS wc,
+    COALESCE(positions._3, 0) +  COALESCE(positions._4, 0) AS r4,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN master.teams ON leagues.team = teams.footystats_id
@@ -19,11 +20,12 @@ WITH result AS (
 SELECT
   transfermarkt_id,
   name,
-  _group,
+  result.group,
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,
-  ROUND(r3, 3) AS r3,
+  ROUND(wc, 3) AS wc,
+  ROUND(r4, 3) AS r4,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 2 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY _group = 'E' DESC, _group, points DESC
+ORDER BY result.group, points DESC

@@ -751,7 +751,8 @@ module "bigquery-outputs" {
     simulation_sea             = file("../../src/bigquery/sql/outputs/simulation_sea.sql")
     simulation_ucl_gs          = file("../../src/bigquery/sql/outputs/simulation_ucl_gs.sql")
     simulation_ucl_ko          = file("../../src/bigquery/sql/outputs/simulation_ucl_ko.sql")
-    simulation_wcq             = file("../../src/bigquery/sql/outputs/simulation_wcq.sql")
+    simulation_wcq_r2          = file("../../src/bigquery/sql/outputs/simulation_wcq_r2.sql")
+    simulation_wcq_r3          = file("../../src/bigquery/sql/outputs/simulation_wcq_r3.sql")
     team_ratings_club          = file("../../src/bigquery/sql/outputs/team_ratings_club.sql")
     team_ratings_international = file("../../src/bigquery/sql/outputs/team_ratings_international.sql")
   }
