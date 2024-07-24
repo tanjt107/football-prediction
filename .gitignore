@@ -4,5 +4,5 @@
 *.zip
 *terraform*
 credentials
-env
+.venv
 tmp
