@@ -26,6 +26,7 @@ WITH
   LEFT JOIN master.leagues ON odds_had_latest.tournament.tournamentShortName = leagues.hkjc_id
   WHERE odds_had_latest.matchState = 'PreEvent'
     AND odds_had_latest.tournament.tournamentShortName NOT IN ('E2Q', 'CLB', 'CUP')
+    AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%奧足'
     AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%U2_'
     AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%女足'
   ),
