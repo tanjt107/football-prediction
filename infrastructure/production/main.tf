@@ -339,15 +339,15 @@ module "hkjc-get-odds" {
   project_id = module.project.project_id
 }
 
-module "hkjc-get-content" {
+module "hkjc-get-team-list" {
   source = "../modules/scheduled-function"
 
-  function_name                  = "hkjc_get_content"
+  function_name                  = "hkjc_get_team_list"
   docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
-  job_name                       = "hkjc-get-content"
+  job_name                       = "hkjc-get-team-list"
   job_schedule                   = "30 23 * * *"
-  topic_name                     = "hkjc-content"
+  topic_name                     = "hkjc-team-list"
   function_source_directory      = "../../src/function"
   function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
   region                         = var.region
