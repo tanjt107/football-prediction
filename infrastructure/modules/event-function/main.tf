@@ -32,7 +32,7 @@ resource "google_cloudfunctions2_function" "function" {
     available_memory                 = var.available_memory
     max_instance_request_concurrency = var.max_instance_request_concurrency
     available_cpu                    = var.available_cpu
-    environment_variables            = var.environment_variables
+    environment_variables            = merge(var.environment_variables, { "LOG_EXECUTION_ID" = true })
     max_instance_count               = var.max_instances
     dynamic "secret_environment_variables" {
       for_each = var.secret_environment_variables

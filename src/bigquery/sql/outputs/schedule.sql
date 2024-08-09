@@ -1,34 +1,41 @@
 WITH
   hkjc AS (
   SELECT
-    odds_had_latest.matchID,
-    odds_had_latest.matchDate,
+    odds_today.id AS match_id,
+    odds_today.matchDate,
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
-    tournament.displayOrder AS display_order,
+    COALESCE(REGEXP_EXTRACT(sequence, r'^\d\.\d{10}\.(\d{2})'), display_order) AS display_order,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
     home_teams.type AS home_type,
-    odds_had_latest.homeTeam.teamNameCH AS home_name,
+    odds_today.homeTeam.name_ch AS home_name,
     away_teams.solver_id AS away_solver_id,
     away_teams.transfermarkt_id AS away_transfermarkt_id,
     away_teams.type AS away_type,
-    odds_had_latest.awayTeam.teamNameCH AS away_name,
-    CAST(odds_had_latest.venue IS NULL AS INT64) AS home_adv,
-    CAST(SPLIT(hadodds.H, '@')[1] AS FLOAT64) AS had_H,
-    CAST(SPLIT(hadodds.D, '@')[1] AS FLOAT64) AS had_D,
-    CAST(SPLIT(hadodds.A, '@')[1] AS FLOAT64) AS had_A,
-    statuslastupdated
-  FROM hkjc.odds_had_latest
-  LEFT JOIN `master.teams` home_teams ON odds_had_latest.homeTeam.teamID = home_teams.hkjc_id
-  LEFT JOIN `master.teams` away_teams ON odds_had_latest.awayTeam.teamID = away_teams.hkjc_id
-  LEFT JOIN master.leagues ON odds_had_latest.tournament.tournamentShortName = leagues.hkjc_id
-  WHERE odds_had_latest.matchState = 'PreEvent'
-    AND odds_had_latest.tournament.tournamentShortName NOT IN ('E2Q', 'CLB', 'CUP')
-    AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%奧足'
-    AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%U2_'
-    AND odds_had_latest.homeTeam.teamNameCH NOT LIKE '%女足'
+    odds_today.awayTeam.name_ch AS away_name,
+    CAST(venue.code IS NULL AS INT64) AS home_adv,
+    MAX(CASE WHEN pool.oddsType = "HAD" AND combination.str = "H" THEN combination.currentOdds END) AS HAD_H,
+    MAX(CASE WHEN pool.oddsType = "HAD" AND combination.str = "D" THEN combination.currentOdds END) AS HAD_D,
+    MAX(CASE WHEN pool.oddsType = "HAD" AND combination.str = "A" THEN combination.currentOdds END) AS HAD_A,
+    odds_today.updateAt
+  FROM hkjc.odds_today,
+  UNNEST(foPools) AS pool,
+  UNNEST(pool.lines) AS line,
+  UNNEST(line.combinations) AS combination
+  LEFT JOIN `master.teams` home_teams ON odds_today.homeTeam.id = home_teams.hkjc_id
+  LEFT JOIN `master.teams` away_teams ON odds_today.awayTeam.id = away_teams.hkjc_id
+  LEFT JOIN master.leagues ON odds_today.tournament.code = leagues.hkjc_id
+  WHERE odds_today.status = 'PREEVENT'
+    AND odds_today.tournament.code NOT IN ('E2Q', 'CLB', 'CUP')
+    AND odds_today.homeTeam.name_ch NOT LIKE '%奧足'
+    AND odds_today.homeTeam.name_ch NOT LIKE '%U2_'
+    AND odds_today.homeTeam.name_ch NOT LIKE '%女足'
+  GROUP BY odds_today.id, matchDate, leagues.division, leagues.type, leagues.transfermarkt_id, 
+  sequence, display_order, home_teams.solver_id, home_teams.transfermarkt_id, home_teams.type, 
+  odds_today.homeTeam.name_ch, away_teams.solver_id, away_teams.transfermarkt_id, away_teams.type,
+  odds_today.awayTeam.name_ch, venue.code, odds_today.updateAt
   ),
 
   footystats AS (
@@ -56,17 +63,13 @@ WITH
     AND date_unix <= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 3 DAY))
     AND (home_teams.country = 'Hong Kong'
       OR away_teams.country = 'Hong Kong'
-      OR EXISTS (
-        SELECT footystats_name
-        FROM manual.non_hkjc_leagues
-        WHERE leagues.footystats_name = non_hkjc_leagues.footystats_id
-        ))
+      OR leagues.is_manual)
   ),
 
   matches AS (
   SELECT
-    matchID,
-    matchDate,
+    match_id,
+    PARSE_TIMESTAMP('%Y-%m-%d%Ez', matchDate) AS match_date,
     league_division,
     league_type,
     league_transfermarkt_id,
@@ -83,7 +86,7 @@ WITH
     had_H,
     had_D,
     had_A,
-    statuslastupdated
+    updateAt
   FROM hkjc
   UNION ALL
   SELECT
@@ -111,7 +114,7 @@ WITH
 
   exp_goals AS (
   SELECT
-    matchID,
+    match_id,
     GREATEST(avg_goal + leagues_latest.home_adv * matches.home_adv + home_solver.offence + away_solver.defence, 0.2) AS home_exp,
     GREATEST(avg_goal - leagues_latest.home_adv * matches.home_adv + away_solver.offence + home_solver.defence, 0.2) AS away_exp
   FROM matches
@@ -125,7 +128,7 @@ WITH
 
   match_probs AS (
   SELECT
-    matchID,
+    match_id,
     home_exp,
     away_exp,
     functions.matchProbs(home_exp, away_exp, '0') AS had_probs
@@ -133,7 +136,7 @@ WITH
   )
 
 SELECT
-  FORMAT_TIMESTAMP('%F %H:%M', matchDate, 'Asia/Hong_Kong') AS match_date,
+  FORMAT_TIMESTAMP('%F %H:%M', match_date, 'Asia/Hong_Kong') AS match_date,
   league_transfermarkt_id,
   home_transfermarkt_id,
   home_name,
@@ -149,11 +152,11 @@ SELECT
   had_H,
   had_D,
   had_A,
-  FORMAT_TIMESTAMP('%F %H:%M', statuslastupdated, 'Asia/Hong_Kong') AS statuslastupdated
+  FORMAT_TIMESTAMP('%F %H:%M', updateAt, 'Asia/Hong_Kong') AS statuslastupdated
 FROM matches
 LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ratings.id
   AND matches.home_type = home_ratings._TYPE
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
-LEFT JOIN match_probs USING (matchID)
-ORDER BY FORMAT_TIMESTAMP('%F', matchDate, 'Etc/GMT+4'), display_order, league_transfermarkt_id, matchDate, matches.matchID;
+LEFT JOIN match_probs USING (match_id)
+ORDER BY FORMAT_TIMESTAMP('%F', matches.match_date, 'Etc/GMT+4'), display_order, league_transfermarkt_id, match_date, match_id;

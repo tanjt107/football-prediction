@@ -1,11 +1,13 @@
 SELECT
-  COALESCE(leagues.nameC, non_hkjc_leagues.nameC, _NAME) AS name,
-  seasons._COUNTRY AS country,
+  COALESCE(name_ch, _NAME) AS name,
+  _COUNTRY AS country,
   CASE
-    WHEN _COUNTRY = 'International' AND _SEASON_ID IN (
-      SELECT _SEASON_ID
-      FROM `footystats.teams`
-      WHERE name LIKE '% National Team'
+    WHEN _COUNTRY = 'International' AND EXISTS (
+      SELECT 1
+      FROM footystats.seasons 
+      JOIN footystats.teams
+      USING (_SEASON_ID)
+      WHERE teams.name LIKE '% National Team'
     )
     THEN 'International'
     ELSE 'Club'
@@ -15,18 +17,14 @@ SELECT
     THEN CONCAT(_COUNTRY, division)
     ELSE _COUNTRY
   END AS division,
-  COALESCE(display_order, REGEXP_EXTRACT(tournament.displayOrder, r'^([0-9]+)\.')) AS display_order,
+  display_order,
   format = 'Domestic League' AND division > 0 AS is_league,
-  non_hkjc_leagues.footystats_id IS NOT NULL AS is_manual,
+  display_order IS NOT NULL AS is_manual,
   seasons.id AS latest_season_id,
   _YEAR AS latest_season_year,
   _NAME AS footystats_name,
   hkjc_id,
   transfermarkt_id
 FROM footystats.seasons 
-LEFT JOIN manual.hkjc_leagues ON seasons._NAME = hkjc_leagues.footystats_id 
-LEFT JOIN hkjc.odds_had ON hkjc_leagues.hkjc_id = odds_had.tournament.tournamentShortName
-LEFT JOIN hkjc.leagues ON hkjc_leagues.hkjc_id = leagues.code
-LEFT JOIN manual.transfermarkt_leagues ON seasons._NAME = transfermarkt_leagues.footystats_id
-LEFT JOIN manual.non_hkjc_leagues ON seasons._NAME = non_hkjc_leagues.footystats_id
+LEFT JOIN manual.leagues ON seasons._NAME = leagues.footystats_id
 QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC) = 1

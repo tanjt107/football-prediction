@@ -13,21 +13,33 @@ setup_logging()
 
 @functions_framework.cloud_event
 def main(_):
-    for content in ["leaguelist.json", "teamlist.json"]:
-        storage.upload_json_to_bucket(
-            data=get_hkjc_content(content),
-            blob_name=content,
-            bucket_name=os.environ["BUCKET_NAME"],
-        )
+    storage.upload_json_to_bucket(
+        data=get_hkjc_team_list(),
+        blob_name="teamList.json",
+        bucket_name=os.environ["BUCKET_NAME"],
+    )
 
 
-def get_hkjc_content(content: str) -> dict:
-    logging.info(f"Getting HKJC data: {content=}")
-    response = requests.get(
-        f"https://bet.hkjc.com/contentserver/jcbw/cmc/fb/{content}", timeout=5
+def get_hkjc_team_list() -> dict:
+    logging.info(f"Getting HKJC team list")
+    body = """query teamList {
+  teamList {
+    id
+    code
+    name_ch
+    name_en
+  }
+}"""
+    response = requests.post(
+        url="https://info.cld.hkjc.com/graphql/base/",
+        headers={"content-type": "application/json"},
+        json={
+            "query": body,
+            "operationName": "teamList",
+        },
+        timeout=5,
     )
     response.raise_for_status()
-    data = response.content.decode("utf-8-sig")
-    data = json.loads(data)
-    logging.info(f"Got HKJC data: {content=}")
-    return data
+    team_list = response.json()["data"]["teamList"]
+    logging.info(f"Got HKJC team list")
+    return team_list

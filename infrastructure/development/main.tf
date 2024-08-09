@@ -45,12 +45,8 @@ module "buckets" {
   ]
   files = {
     manual = [
-      "../../assets/hkjc_leagues.csv",
-      "../../assets/hkjc_teams.csv",
-      "../../assets/non_hkjc_leagues.csv",
-      "../../assets/non_hkjc_teams.csv",
-      "../../assets/transfermarkt_leagues.csv",
-      "../../assets/transfermarkt_teams.csv",
+      "../../assets/leagues.csv",
+      "../../assets/teams.csv",
     ]
     simulation = ["../../assets/simulation_params.csv"]
   }
@@ -344,7 +340,7 @@ module "hkjc-get-odds" {
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
   function_environment_variables = {
     BUCKET_NAME = module.buckets.names["hkjc"]
-    POOLS       = jsonencode(["HAD", "HDC"])
+    ODDS_TYPES  = jsonencode(["HAD", "HDC"])
   }
   region     = var.region
   project_id = module.project.project_id
@@ -374,32 +370,21 @@ module "bigquery-hkjc" {
   project_id          = module.project.project_id
   deletion_protection = false
   external_tables = {
-    leagues = {
-      schema        = file("../../src/bigquery/schema/hkjc/content.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/leaguelist.json"]
-    },
-    odds_had = {
-      schema                    = file("../../src/bigquery/schema/hkjc/odds_had.json")
+    odds = {
+      schema                    = file("../../src/bigquery/schema/hkjc/odds.json")
       source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_had.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
-    },
-    odds_hdc = {
-      schema                    = file("../../src/bigquery/schema/hkjc/odds_hdc.json")
-      source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds_hdc.json"]
+      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds.json"]
       hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     teams = {
-      schema        = file("../../src/bigquery/schema/hkjc/content.json")
+      schema        = file("../../src/bigquery/schema/hkjc/teams.json")
       source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/teamlist.json"]
+      source_uris   = ["${module.buckets.urls["hkjc"]}/teamList.json"]
     }
   }
   views = {
-    odds_had_latest = file("../../src/bigquery/sql/hkjc/odds_had_latest.sql")
-    odds_hdc_latest = file("../../src/bigquery/sql/hkjc/odds_hdc_latest.sql")
+    odds_latest = file("../../src/bigquery/sql/hkjc/odds_latest.sql")
+    odds_today  = file("../../src/bigquery/sql/hkjc/odds_today.sql")
   }
 }
 
@@ -411,35 +396,15 @@ module "bigquery-manual" {
   project_id          = module.project.project_id
   deletion_protection = false
   external_tables = {
-    hkjc_leagues = {
-      schema        = file("../../src/bigquery/schema/manual/hkjc.json")
+    teams = {
+      schema        = file("../../src/bigquery/schema/manual/teams.json")
       source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/hkjc_leagues.csv"]
+      source_uris   = ["${module.buckets.urls["manual"]}/teams.csv"]
     }
-    hkjc_teams = {
-      schema        = file("../../src/bigquery/schema/manual/hkjc.json")
+    leagues = {
+      schema        = file("../../src/bigquery/schema/manual/leagues.json")
       source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/hkjc_teams.csv"]
-    }
-    non_hkjc_leagues = {
-      schema        = file("../../src/bigquery/schema/manual/non_hkjc_leagues.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_leagues.csv"]
-    }
-    non_hkjc_teams = {
-      schema        = file("../../src/bigquery/schema/manual/non_hkjc_teams.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/non_hkjc_teams.csv"]
-    }
-    transfermarkt_leagues = {
-      schema        = file("../../src/bigquery/schema/manual/transfermarkt.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_leagues.csv"]
-    }
-    transfermarkt_teams = {
-      schema        = file("../../src/bigquery/schema/manual/transfermarkt.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/transfermarkt_teams.csv"]
+      source_uris   = ["${module.buckets.urls["manual"]}/leagues.csv"]
     }
   }
 }
@@ -675,6 +640,7 @@ module "bigquery-simulation" {
   views = {
     leagues_latest = file("../../src/bigquery/sql/simulation/leagues_latest.sql")
   }
+  depends_on = [module.bigquery-master.tables]
 }
 
 module "pubsub-simulate-league" {
@@ -758,6 +724,7 @@ module "bigquery-outputs" {
   }
 
   depends_on = [
+    module.bigquery-hkjc.views,
     module.bigquery-solver.external_tables,
     module.bigquery-functions.routines,
     module.bigquery-simulation.external_tables

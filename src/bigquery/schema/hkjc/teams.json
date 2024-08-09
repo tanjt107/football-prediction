@@ -1,7 +1,7 @@
 [
     {
         "name": "id",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "REQUIRED"
     },
     {
@@ -10,12 +10,12 @@
         "mode": "REQUIRED"
     },
     {
-        "name": "nameC",
+        "name": "name_ch",
         "type": "STRING",
         "mode": "REQUIRED"
     },
     {
-        "name": "nameE",
+        "name": "name_en",
         "type": "STRING",
         "mode": "REQUIRED"
     }

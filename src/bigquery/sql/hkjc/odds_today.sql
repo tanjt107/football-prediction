@@ -1,6 +1,6 @@
 SELECT * EXCEPT(_TIMESTAMP)
-FROM `hkjc.odds_hdc`
+FROM `hkjc.odds`
 WHERE _TIMESTAMP = (
   SELECT MAX(_TIMESTAMP)
-  FROM `hkjc.odds_hdc`
+  FROM `hkjc.odds`
   )

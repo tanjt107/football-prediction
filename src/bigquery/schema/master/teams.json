@@ -26,12 +26,12 @@
     },
     {
         "name": "hkjc_id",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "NULLABLE"
     },
     {
         "name": "transfermarkt_id",
-        "type": "STRING",
+        "type": "INTEGER",
         "mode": "NULLABLE"
     },
     {

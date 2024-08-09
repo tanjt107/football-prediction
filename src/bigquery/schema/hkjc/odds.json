@@ -1,0 +1,391 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "frontEndId",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "matchDate",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "kickOffTime",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "updateAt",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "sequence",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "esIndicatorEnabled",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeTeam",
+        "type": "RECORD",
+        "mode": "REQUIRED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "awayTeam",
+        "type": "RECORD",
+        "mode": "REQUIRED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "tournament",
+        "type": "RECORD",
+        "mode": "REQUIRED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "frontEndId",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "nameProfileId",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "isInteractiveServiceAvailable",
+                "type": "BOOLEAN",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "code",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "isInteractiveServiceAvailable",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "inplayDelay",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "venue",
+        "type": "RECORD",
+        "fields": [
+            {
+                "name": "code",
+                "type": "STRING"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING"
+            }
+        ]
+    },
+    {
+        "name": "tvChannels",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "code",
+                "type": "STRING"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING"
+            }
+        ]
+    },
+    {
+        "name": "liveEvents",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "code",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "featureStartTime",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "featureMatchSequence",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "poolInfo",
+        "type": "RECORD",
+        "mode": "REQUIRED",
+        "fields": [
+            {
+                "name": "normalPools",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "inplayPools",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "sellingPools",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "ntsInfo",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "entInfo",
+                "type": "STRING",
+                "mode": "REPEATED"
+            }
+        ]
+    },
+    {
+        "name": "runningResult",
+        "type": "STRING"
+    },
+    {
+        "name": "runningResultExtra",
+        "type": "STRING"
+    },
+    {
+        "name": "adminOperation",
+        "type": "RECORD",
+        "mode": "REQUIRED",
+        "fields": [
+            {
+                "name": "remark",
+                "type": "STRING"
+            }
+        ]
+    },
+    {
+        "name": "foPools",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "id",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "status",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "oddsType",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "instNo",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "inplay",
+                "type": "BOOLEAN",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "updateAt",
+                "type": "TIMESTAMP",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "expectedSuspendDateTime",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "lines",
+                "type": "RECORD",
+                "mode": "REPEATED",
+                "fields": [
+                    {
+                        "name": "lineId",
+                        "type": "INTEGER",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "status",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "condition",
+                        "type": "STRING",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "main",
+                        "type": "BOOLEAN",
+                        "mode": "REQUIRED"
+                    },
+                    {
+                        "name": "combinations",
+                        "type": "RECORD",
+                        "mode": "REPEATED",
+                        "fields": [
+                            {
+                                "name": "combId",
+                                "type": "INTEGER",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "str",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "status",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "offerEarlySettlement",
+                                "type": "STRING",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "currentOdds",
+                                "type": "FLOAT",
+                                "mode": "REQUIRED"
+                            },
+                            {
+                                "name": "selections",
+                                "type": "RECORD",
+                                "mode": "REPEATED",
+                                "fields": [
+                                    {
+                                        "name": "selId",
+                                        "type": "INTEGER",
+                                        "mode": "REQUIRED"
+                                    },
+                                    {
+                                        "name": "str",
+                                        "type": "STRING",
+                                        "mode": "REQUIRED"
+                                    },
+                                    {
+                                        "name": "name_ch",
+                                        "type": "STRING",
+                                        "mode": "REQUIRED"
+                                    },
+                                    {
+                                        "name": "name_en",
+                                        "type": "STRING",
+                                        "mode": "REQUIRED"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

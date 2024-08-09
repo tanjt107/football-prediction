@@ -45,11 +45,7 @@ WITH matches AS (
         OR away_teams.league_name = params.league
         OR leagues.footystats_name = params.league
         )
-      OR EXISTS (
-        SELECT 1
-        FROM manual.non_hkjc_leagues 
-        WHERE leagues.footystats_name = non_hkjc_leagues.footystats_id
-        ))
+      OR leagues.is_manual)
   QUALIFY ROW_NUMBER() OVER (PARTITION BY matches.id ORDER BY league_solver._DATE_UNIX DESC) = 1
   ORDER BY date_unix DESC, display_order, matches.id
   LIMIT 100

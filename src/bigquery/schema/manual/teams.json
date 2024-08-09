@@ -1,0 +1,19 @@
+[
+    {
+        "name": "footystats_id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "hkjc_id",
+        "type": "INTEGER"
+    },
+    {
+        "name": "transfermarkt_id",
+        "type": "INTEGER"
+    },
+    {
+        "name": "name_ch",
+        "type": "STRING"
+    }
+]
