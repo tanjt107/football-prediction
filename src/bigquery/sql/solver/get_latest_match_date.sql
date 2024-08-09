@@ -13,7 +13,4 @@ WHERE leagues.type = _type
         WHERE home_teams.league_name = params.league
             OR away_teams.league_name = params.league
             OR leagues.footystats_name = params.league )
-        OR EXISTS (
-            SELECT 1
-            FROM ${project_id}.manual.non_hkjc_leagues
-            WHERE leagues.footystats_name = non_hkjc_leagues.footystats_id ))
+        OR leagues.is_manual)
