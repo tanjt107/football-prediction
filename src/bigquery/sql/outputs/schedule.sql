@@ -2,7 +2,7 @@ WITH
   hkjc AS (
   SELECT
     odds_today.id AS match_id,
-    odds_today.matchDate,
+    odds_today.kickOffTime,
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
@@ -32,7 +32,7 @@ WITH
     AND odds_today.homeTeam.name_ch NOT LIKE '%奧足'
     AND odds_today.homeTeam.name_ch NOT LIKE '%U2_'
     AND odds_today.homeTeam.name_ch NOT LIKE '%女足'
-  GROUP BY odds_today.id, matchDate, leagues.division, leagues.type, leagues.transfermarkt_id, 
+  GROUP BY odds_today.id, kickOffTime, leagues.division, leagues.type, leagues.transfermarkt_id, 
   sequence, display_order, home_teams.solver_id, home_teams.transfermarkt_id, home_teams.type, 
   odds_today.homeTeam.name_ch, away_teams.solver_id, away_teams.transfermarkt_id, away_teams.type,
   odds_today.awayTeam.name_ch, venue.code, odds_today.updateAt
@@ -69,7 +69,7 @@ WITH
   matches AS (
   SELECT
     match_id,
-    PARSE_TIMESTAMP('%Y-%m-%d%Ez', matchDate) AS match_date,
+    kickOffTime,
     league_division,
     league_type,
     league_transfermarkt_id,
@@ -136,7 +136,7 @@ WITH
   )
 
 SELECT
-  FORMAT_TIMESTAMP('%F %H:%M', match_date, 'Asia/Hong_Kong') AS match_date,
+  FORMAT_TIMESTAMP('%F %H:%M', kickOffTime, 'Asia/Hong_Kong') AS kick_off_time,
   league_transfermarkt_id,
   home_transfermarkt_id,
   home_name,
@@ -159,4 +159,4 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
 LEFT JOIN match_probs USING (match_id)
-ORDER BY FORMAT_TIMESTAMP('%F', matches.match_date, 'Etc/GMT+4'), display_order, league_transfermarkt_id, match_date, match_id;
+ORDER BY FORMAT_TIMESTAMP('%F', kickOffTime, 'Etc/GMT+4'), display_order, league_transfermarkt_id, kick_off_time, match_id;
