@@ -4,10 +4,9 @@ SELECT
   CASE
     WHEN _COUNTRY = 'International' AND EXISTS (
       SELECT 1
-      FROM footystats.seasons 
-      JOIN footystats.teams
-      USING (_SEASON_ID)
-      WHERE teams.name LIKE '% National Team'
+      FROM footystats.teams
+      WHERE seasons._SEASON_ID = teams._SEASON_ID
+      AND teams.name LIKE '% National Team'
     )
     THEN 'International'
     ELSE 'Club'
