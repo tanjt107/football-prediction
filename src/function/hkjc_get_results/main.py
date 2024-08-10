@@ -17,7 +17,7 @@ def main(_):
     date = get_yesterday()
 
     storage.upload_json_to_bucket(
-        date=date,
+        data=get_hkjc_result(date),
         blob_name="results.json",
         bucket_name=os.environ["BUCKET_NAME"],
         hive_partitioning={"_DATE": date},
