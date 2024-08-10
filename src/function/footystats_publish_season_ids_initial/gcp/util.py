@@ -4,12 +4,6 @@ import json
 from cloudevents.http.event import CloudEvent
 
 
-def convert_to_newline_delimited_json(data: dict | list) -> str:
-    if isinstance(data, list):
-        return "\n".join([json.dumps(d) for d in data])
-    return json.dumps(data)
-
-
 def safe_load_json(s: str) -> dict | str:
     try:
         return json.loads(s)

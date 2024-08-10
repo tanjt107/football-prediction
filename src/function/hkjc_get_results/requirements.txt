@@ -1,0 +1,5 @@
+functions-framework
+google-cloud-logging
+google-cloud-storage
+pytz
+requests

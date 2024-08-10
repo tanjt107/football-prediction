@@ -37,7 +37,9 @@ module "buckets" {
     "footystats-seasons",
     "footystats-tables",
     "footystats-teams",
-    "hkjc",
+    "hkjc-odds",
+    "hkjc-results",
+    "hkjc-team-list",
     "manual",
     "solver",
     "simulation",
@@ -339,7 +341,7 @@ module "hkjc-get-odds" {
   function_source_directory             = "../../src/function"
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
   function_environment_variables = {
-    BUCKET_NAME = module.buckets.names["hkjc"]
+    BUCKET_NAME = module.buckets.names["hkjc-odds"]
     ODDS_TYPES  = jsonencode(["HAD", "HDC"])
   }
   region     = var.region
@@ -357,7 +359,23 @@ module "hkjc-get-team-list" {
   job_paused                     = true
   topic_name                     = "hkjc-team-list"
   function_source_directory      = "../../src/function"
-  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc"] }
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-team-list"] }
+  region                         = var.region
+  project_id                     = module.project.project_id
+}
+
+module "hkjc-get-results" {
+  source = "../modules/scheduled-function"
+
+  function_name                  = "hkjc_get_results"
+  docker_repository              = google_artifact_registry_repository.repository.id
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "hkjc-get-results"
+  job_schedule                   = "30 18 * * *"
+  job_paused                     = true
+  topic_name                     = "hkjc-results"
+  function_source_directory      = "../../src/function"
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-results"] }
   region                         = var.region
   project_id                     = module.project.project_id
 }
@@ -373,13 +391,13 @@ module "bigquery-hkjc" {
     odds = {
       schema                    = file("../../src/bigquery/schema/hkjc/odds.json")
       source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["hkjc"]}/*/odds.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc"]}/{_TIMESTAMP:TIMESTAMP}" }
+      source_uris               = ["${module.buckets.urls["hkjc-odds"]}/*/odds.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-odds"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
     teams = {
       schema        = file("../../src/bigquery/schema/hkjc/teams.json")
       source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc"]}/teamList.json"]
+      source_uris   = ["${module.buckets.urls["hkjc-team-list"]}/teamList.json"]
     }
   }
   views = {
