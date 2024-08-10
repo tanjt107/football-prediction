@@ -12,7 +12,7 @@ SELECT
     WHEN latest_season_id IS NOT NULL THEN CAST(footystats.id AS STRING)
     ELSE footystats.country
   END AS solver_id,
-  manual.hkjc_id IS NULL AS is_manual,
+  manual.name_ch IS NOT NULL AS is_manual,
   footystats_name AS league_name
 FROM `footystats.teams` footystats
 LEFT JOIN `manual.teams` manual ON footystats.id = manual.footystats_id
