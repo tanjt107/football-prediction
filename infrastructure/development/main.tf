@@ -394,6 +394,12 @@ module "bigquery-hkjc" {
       source_uris               = ["${module.buckets.urls["hkjc-odds"]}/*/odds.json"]
       hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-odds"]}/{_TIMESTAMP:TIMESTAMP}" }
     },
+    results = {
+      schema                    = file("../../src/bigquery/schema/hkjc/results.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc-results"]}/*/results.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-results"]}/{_DATE:DATE}" }
+    },
     teams = {
       schema        = file("../../src/bigquery/schema/hkjc/teams.json")
       source_format = "NEWLINE_DELIMITED_JSON"

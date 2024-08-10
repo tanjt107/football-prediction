@@ -1,0 +1,168 @@
+[
+    {
+        "name": "id",
+        "type": "INTEGER",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "status",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "frontEndId",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "matchDayOfWeek",
+        "type": "STRING"
+    },
+    {
+        "name": "matchNumber",
+        "type": "STRING"
+    },
+    {
+        "name": "matchDate",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "kickOffTime",
+        "type": "TIMESTAMP",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "sequence",
+        "type": "STRING",
+        "mode": "REQUIRED"
+    },
+    {
+        "name": "homeTeam",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "awayTeam",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "id",
+                "type": "INTEGER",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "tournament",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "code",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_en",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            },
+            {
+                "name": "name_ch",
+                "type": "STRING",
+                "mode": "REQUIRED"
+            }
+        ]
+    },
+    {
+        "name": "results",
+        "type": "RECORD",
+        "mode": "REPEATED",
+        "fields": [
+            {
+                "name": "homeResult",
+                "type": "INTEGER"
+            },
+            {
+                "name": "awayResult",
+                "type": "INTEGER"
+            },
+            {
+                "name": "resultConfirmType",
+                "type": "INTEGER"
+            },
+            {
+                "name": "payoutConfirmed",
+                "type": "BOOLEAN"
+            },
+            {
+                "name": "stageId",
+                "type": "INTEGER"
+            },
+            {
+                "name": "resultType",
+                "type": "INTEGER"
+            },
+            {
+                "name": "sequence",
+                "type": "INTEGER"
+            }
+        ]
+    },
+    {
+        "name": "poolInfo",
+        "type": "RECORD",
+        "mode": "NULLABLE",
+        "fields": [
+            {
+                "name": "payoutRefundPools",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "refundPools",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "ntsInfo",
+                "type": "STRING",
+                "mode": "REPEATED"
+            },
+            {
+                "name": "entInfo",
+                "type": "STRING",
+                "mode": "REPEATED"
+            }
+        ]
+    }
+]
