@@ -6,7 +6,7 @@ WITH
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
-    COALESCE(REGEXP_EXTRACT(sequence, r'^\d\.\d{10}\.(\d{2})'), display_order) AS display_order,
+    COALESCE(sequence, display_order) AS display_order,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
     home_teams.type AS home_type,
