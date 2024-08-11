@@ -16,7 +16,7 @@ SELECT
     THEN CONCAT(_COUNTRY, division)
     ELSE _COUNTRY
   END AS division,
-  display_order,
+  display_order, -- TODO Add HKJC display order
   format = 'Domestic League' AND division > 0 AS is_league,
   display_order IS NOT NULL AS is_manual,
   seasons.id AS latest_season_id,

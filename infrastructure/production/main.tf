@@ -397,8 +397,10 @@ module "bigquery-hkjc" {
     }
   }
   views = {
-    odds_latest = file("../../src/bigquery/sql/hkjc/odds_latest.sql")
-    odds_today  = file("../../src/bigquery/sql/hkjc/odds_today.sql")
+    odds_clean = file("../../src/bigquery/sql/hkjc/odds_clean.sql")
+    odds_last  = file("../../src/bigquery/sql/hkjc/odds_last.sql")
+    odds_today = file("../../src/bigquery/sql/hkjc/odds_today.sql")
+    scores     = file("../../src/bigquery/sql/hkjc/scores.sql")
   }
 }
 
@@ -419,6 +421,20 @@ module "bigquery-manual" {
       source_format = "CSV"
       source_uris   = ["${module.buckets.urls["manual"]}/leagues.csv"]
     }
+  }
+}
+
+module "bigquery-operations" {
+  source = "../modules/bigquery"
+
+  dataset_id = "operations"
+  location   = var.region
+  project_id = module.project.project_id
+  views = {
+    get_kelly_ratio      = file("../../src/bigquery/sql/operations/get_kelly_ratio.sql")
+    map_hkjc_team_list   = file("../../src/bigquery/sql/operations/map_hkjc_team_list.sql")
+    map_hkjc_teams       = file("../../src/bigquery/sql/operations/map_hkjc_teams.sql")
+    map_hkjc_tournaments = file("../../src/bigquery/sql/operations/map_hkjc_tournaments.sql")
   }
 }
 
@@ -470,6 +486,17 @@ module "bigquery-functions" {
   location   = var.region
   project_id = module.project.project_id
   routines = {
+    accent_to_latin = {
+      definition_body = file("../../src/bigquery/sql/functions/accent_to_latin.sql")
+      routine_type    = "SCALAR_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "word"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
     matchProbs = {
       definition_body = file("../../src/bigquery/sql/functions/matchProbs.js")
       routine_type    = "SCALAR_FUNCTION"
