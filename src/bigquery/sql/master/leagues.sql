@@ -16,7 +16,7 @@ SELECT
     THEN CONCAT(_COUNTRY, division)
     ELSE _COUNTRY
   END AS division,
-  display_order, -- TODO Add HKJC display order
+  COALESCE(REGEXP_EXTRACT(sequence, r'\.\d+\.(\d+)\.'), display_order) AS display_order,
   format = 'Domestic League' AND division > 0 AS is_league,
   display_order IS NOT NULL AS is_manual,
   seasons.id AS latest_season_id,
@@ -26,4 +26,5 @@ SELECT
   transfermarkt_id
 FROM footystats.seasons 
 LEFT JOIN manual.leagues ON seasons._NAME = leagues.footystats_id
-QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC) = 1
+LEFT JOIN hkjc.odds_last ON leagues.hkjc_id = odds_last.tournament_id
+QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC, odds_last.update_at DESC) = 1
