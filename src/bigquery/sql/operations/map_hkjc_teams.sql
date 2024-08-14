@@ -1,17 +1,17 @@
 WITH
   hkjc AS (
-  SELECT matchDate, tournament.name_ch AS tournament_name, homeTeam.id, homeTeam.name_ch, homeTeam.name_en
-  FROM hkjc.results
+  SELECT kick_off_time, tournament_name, home_id AS id, home_name AS name, home_name_en AS name_en
+  FROM hkjc.odds_last
   UNION ALL
-  SELECT matchDate, tournament.name_ch AS tournament_name, awayTeam.id, awayTeam.name_ch, awayTeam.name_en
-  FROM hkjc.results)
+  SELECT kick_off_time, tournament_name, away_id, away_name, away_name_en
+  FROM hkjc.odds_last)
 
-SELECT MAX(matchDate) AS matchDate, tournament_name, id, name_ch, name_en, teams.footystats_id
+SELECT MAX(kick_off_time) AS kick_off_time, tournament_name, id, hkjc.name, name_en, footystats_id
 FROM hkjc
 LEFT JOIN master.teams ON hkjc.id = teams.hkjc_id
-WHERE teams.transfermarkt_id IS NULL
-    AND name_ch NOT LIKE '%U2_'
-    AND name_ch NOT LIKE '%女足'
-    AND name_ch NOT LIKE '%奧足'
-GROUP BY tournament_name, id, name_ch, name_en, teams.footystats_id
-ORDER BY tournament_name, matchDate
+WHERE transfermarkt_id IS NULL
+    AND hkjc.name NOT LIKE '%U2_'
+    AND hkjc.name NOT LIKE '%女足'
+    AND hkjc.name NOT LIKE '%奧足'
+GROUP BY tournament_name, id, hkjc.name, name_en, footystats_id
+ORDER BY tournament_name, kick_off_time

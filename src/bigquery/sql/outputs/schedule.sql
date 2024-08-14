@@ -23,7 +23,7 @@ WITH
   FROM hkjc.odds_today
   LEFT JOIN `master.teams` home_teams ON odds_today.home_id = home_teams.hkjc_id
   LEFT JOIN `master.teams` away_teams ON odds_today.away_id = away_teams.hkjc_id
-  LEFT JOIN master.leagues ON odds_today.tournament = leagues.hkjc_id
+  LEFT JOIN master.leagues ON odds_today.tournament_id = leagues.hkjc_id
   ),
 
   footystats AS (

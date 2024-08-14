@@ -15,7 +15,7 @@ WITH matches AS (
     JOIN `solver.teams` away_solver ON away_solver.id = away_teams.solver_id 
       AND away_solver._TYPE = away_teams.type
       AND away_solver._DATE_UNIX = home_solver._DATE_UNIX
-    JOIN master.leagues ON odds_last.tournament = leagues.hkjc_id
+    JOIN master.leagues ON odds_last.tournament_id = leagues.hkjc_id
     JOIN `solver.leagues` league_solver ON leagues.division = league_solver.division
       AND league_solver._TYPE = leagues.type
       AND league_solver._DATE_UNIX = home_solver._DATE_UNIX
