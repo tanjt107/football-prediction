@@ -20,6 +20,10 @@ BUCKET_NAMES = {
 }
 
 
+class TooManyRequestsError(Exception):
+    pass
+
+
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
     message = decode_message(cloud_event)
@@ -47,12 +51,19 @@ def get_footystats(endpoint: str, key: str, **kwargs) -> dict | list[dict]:
     while True:
         logging.info(f"Getting footystats data: {endpoint=}, {page=}, {kwargs=}")
 
-        response = requests.get(
-            f"https://api.football-data-api.com/league-{endpoint}",
-            params={"key": key, "page": page, **kwargs},
-            timeout=5,
-        )
-        response.raise_for_status()
+        try:
+            response = requests.get(
+                f"https://api.football-data-api.com/league-{endpoint}",
+                params={"key": key, "page": page, **kwargs},
+                timeout=5,
+            )
+            response.raise_for_status()
+        except (requests.exceptions.HTTPError, requests.exceptions.ReadTimeout):
+            logging.warning(
+                f"Get footystats data failed: {endpoint=}, {page=}, {kwargs=}"
+            )
+            raise TooManyRequestsError()
+
         response = response.json()
         data = response["data"]
 

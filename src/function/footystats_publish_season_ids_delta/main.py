@@ -16,4 +16,3 @@ def main(_):
             topic=os.environ["TOPIC_NAME"],
             data={"endpoint": "matches", **season},
         )
-        time.sleep(0.05)

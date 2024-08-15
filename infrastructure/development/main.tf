@@ -98,10 +98,10 @@ module "footystats-get-league-list" {
   function_name                         = "footystats_get_league_list"
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "footystats-initial-load"
-  job_schedule                          = "15 23 * * 1"
+  job_name                              = "footystats_get_league_list"
+  job_schedule                          = "0 23 * * 1"
   job_paused                            = true
-  topic_name                            = "footystats-initial-load"
+  topic_name                            = "footystats_get_league_list"
   function_source_directory             = "../../src/function"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
   function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
@@ -109,21 +109,59 @@ module "footystats-get-league-list" {
   project_id                            = module.project.project_id
 }
 
-module "footystats-initial-load" {
-  source = "../modules/event-function"
+module "footystats-initial-load-matches" {
+  source = "../modules/scheduled-function"
 
-  name                         = "footystats_publish_season_ids_initial"
-  docker_repository            = google_artifact_registry_repository.repository.id
-  bucket_name                  = module.buckets.names["gcf"]
-  secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
-  environment_variables        = { TOPIC_NAME = module.footystats-league-list-topic.id }
-  event_type                   = "google.cloud.storage.object.v1.finalized"
-  source_directory             = "../../src/function"
-  region                       = var.region
-  project_id                   = module.project.project_id
-  event_filters = {
-    attribute = "bucket"
-    value     = module.buckets.names["footystats-league-list"]
+  function_name                  = "footystats_publish_season_ids_initial"
+  docker_repository              = google_artifact_registry_repository.repository.id
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "footystats-initial-load-matches"
+  job_schedule                   = "5 23 * * 1"
+  job_paused                     = true
+  message_data                   = "matches"
+  topic_name                     = "footystats-initial-load"
+  function_source_directory      = "../../src/function"
+  function_environment_variables = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
+  region                         = var.region
+  project_id                     = module.project.project_id
+}
+
+resource "google_cloud_scheduler_job" "footystats-initial-load-season" {
+  name     = "footystats-initial-load-season"
+  schedule = "15 23 * * 1"
+  paused   = true
+  region   = var.region
+  project  = module.project.project_id
+
+  pubsub_target {
+    topic_name = "projects/${module.project.project_id}/topics/${module.footystats-initial-load-matches.pubsub_topic_name}"
+    data       = base64encode("season")
+  }
+}
+
+resource "google_cloud_scheduler_job" "footystats-initial-load-tables" {
+  name     = "footystats-initial-load-tables"
+  schedule = "25 23 * * 1"
+  paused   = true
+  region   = var.region
+  project  = module.project.project_id
+
+  pubsub_target {
+    topic_name = "projects/${module.project.project_id}/topics/${module.footystats-initial-load-matches.pubsub_topic_name}"
+    data       = base64encode("tables")
+  }
+}
+
+resource "google_cloud_scheduler_job" "footystats-initial-load-teams" {
+  name     = "footystats-initial-load-teams"
+  schedule = "35 23 * * 1"
+  paused   = true
+  region   = var.region
+  project  = module.project.project_id
+
+  pubsub_target {
+    topic_name = "projects/${module.project.project_id}/topics/${module.footystats-initial-load-matches.pubsub_topic_name}"
+    data       = base64encode("teams")
   }
 }
 
