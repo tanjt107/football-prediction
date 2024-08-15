@@ -241,8 +241,7 @@
     },
     {
         "name": "comp_master_id",
-        "type": "INTEGER",
-        "mode": "REQUIRED"
+        "type": "INTEGER"
     },
     {
         "name": "image",
