@@ -16,7 +16,7 @@ WITH latest AS (
     AND team_ratings._TYPE = teams.type
   JOIN master.leagues ON teams.league_name = leagues.footystats_name
   WHERE team_ratings._TYPE = 'Club'
-    AND teams.is_team_rating
+    AND teams.in_team_rating
 )
 
 SELECT

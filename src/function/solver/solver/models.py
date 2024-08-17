@@ -15,7 +15,7 @@ class League:
 @dataclass
 class Team:
     id: str
-    is_team_rating: bool
+    in_solver_constraints: bool
 
     def __post_init__(self):
         self.offence = LpVariable(f"offence_{self.id}")

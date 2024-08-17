@@ -20,7 +20,7 @@
         "mode": "NULLABLE"
     },
     {
-        "name": "is_team_rating",
+        "name": "in_team_rating",
         "type": "BOOLEAN",
         "mode": "NULLABLE"
     },

@@ -21,8 +21,8 @@ def solver(
     )
 
     # Other constraints
-    prob += lpSum(team.offence for team in teams if team.is_team_rating) == 0
-    prob += lpSum(team.defence for team in teams if team.is_team_rating) == 0
+    prob += lpSum(team.offence for team in teams if team.in_solver_constraints) == 0
+    prob += lpSum(team.defence for team in teams if team.in_solver_constraints) == 0
 
     prob.solve()
 

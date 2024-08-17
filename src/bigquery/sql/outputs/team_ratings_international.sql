@@ -13,7 +13,7 @@ WITH latest AS (
   JOIN master.teams ON team_ratings.id = teams.solver_id
     AND _TYPE = type
   WHERE team_ratings._TYPE = 'International'
-    AND teams.is_team_rating
+    AND teams.in_team_rating
 )
 
 SELECT

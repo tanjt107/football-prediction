@@ -2,9 +2,9 @@ WITH matches AS (
   SELECT
     matches.id,
     home_teams.solver_id AS home_id,
-    home_teams.is_team_rating AS is_home_team_rating,
+    home_teams.in_team_rating AS home_team_in_rating,
     away_teams.solver_id AS away_id,
-    away_teams.is_team_rating AS is_away_team_rating,
+    away_teams.in_team_rating AS away_team_in_rating,
     division,
     CASE
       WHEN (is_league OR home_teams.country = away_teams.country)AND league_type = 'Club' THEN 1
@@ -40,9 +40,9 @@ SELECT
   matches.id,
   division AS league_name,
   home_id,
-  is_home_team_rating,
+  home_team_in_rating,
   away_id,
-  is_away_team_rating,
+  away_team_in_rating,
   recent + GREATEST(recent_bonus, 0) AS recent,
   home_avg,
   away_avg

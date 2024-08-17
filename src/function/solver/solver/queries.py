@@ -29,10 +29,13 @@ def get_matches_and_teams(_type: str, max_time: int) -> dict:
     )
     league_names = {match["league_name"] for match in data}
     leagues = {name: League(name) for name in league_names}
-    team_ids = {(match["home_id"], match["is_home_team_rating"]) for match in data} | {
-        (match["away_id"], match["is_away_team_rating"]) for match in data
+    team_ids = {(match["home_id"], match["home_team_in_rating"]) for match in data} | {
+        (match["away_id"], match["away_team_in_rating"]) for match in data
     }
-    teams = {id: Team(id, is_team_rating) for id, is_team_rating in team_ids}
+    teams = {
+        id: Team(id, in_solver_constraints=in_team_rating)
+        for id, in_team_rating in team_ids
+    }
     return {
         "leagues": leagues.values(),
         "teams": teams.values(),
