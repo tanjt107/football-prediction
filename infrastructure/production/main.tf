@@ -766,6 +766,7 @@ module "bigquery-outputs" {
   views = {
     results                    = file("../../src/bigquery/sql/outputs/results.sql")
     schedule                   = file("../../src/bigquery/sql/outputs/schedule.sql")
+    simulation_acl2_gs         = file("../../src/bigquery/sql/outputs/simulation_acl2_gs.sql")
     simulation_bun             = file("../../src/bigquery/sql/outputs/simulation_bun.sql")
     simulation_cl1             = file("../../src/bigquery/sql/outputs/simulation_cl1.sql")
     simulation_csl             = file("../../src/bigquery/sql/outputs/simulation_csl.sql")
