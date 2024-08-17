@@ -5,7 +5,7 @@ Club,China Chinese Super League,simulate-league,"{""h2h"": true}",,,,
 Club,England Premier League,simulate-league,,,,,
 Club,Hong Kong Hong Kong Premier League,simulate-league,"{""h2h"": true}",,,,
 Club,Japan J1 League,simulate-league,"{""h2h"": true}",,,,
-Club,France Ligue 1,simulate-league,,,,,"{""435"": -1}"
+Club,France Ligue 1,simulate-league,,,,,
 Club,Spain La Liga,simulate-league,"{""h2h"": true}",,,,
 Club,Italy Serie A,simulate-league,"{""h2h"": true}",,,,
 International,International WC Qualification Asia,simulate-cup,,6,"{""A"": [8607, 8589, 8615, 8611, 8621, 8597], ""B"": [8619, 8606, 8580, 8595, 8594, 8620], ""C"": [8579, 8582, 8588, 8584, 8585, 8737]}","3nd Round",
