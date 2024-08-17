@@ -13,6 +13,10 @@ SELECT
     ELSE footystats.country
   END AS solver_id,
   manual.name_ch IS NOT NULL AS is_manual,
+  CASE
+    WHEN _NAME LIKE 'International WC Qualification %' THEN (hkjc.id IS NOT NULL OR footystats.country = 'Hong Kong')
+    ELSE (leagues.hkjc_id IS NOT NULL OR leagues.is_manual IS TRUE) AND leagues.footystats_name <> 'Mexico Ascenso MX'
+  END AS is_team_rating,
   footystats_name AS league_name
 FROM `footystats.teams` footystats
 LEFT JOIN `manual.teams` manual ON footystats.id = manual.footystats_id

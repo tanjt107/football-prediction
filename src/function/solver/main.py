@@ -26,7 +26,7 @@ def main(cloud_event: CloudEvent):
         )
         return
 
-    data = queries.get_matches(_type, latest_match_date)
+    data = queries.get_matches_and_teams(_type, latest_match_date)
 
     for name, data in solver(data["matches"], data["teams"], data["leagues"]).items():
         storage.upload_json_to_bucket(

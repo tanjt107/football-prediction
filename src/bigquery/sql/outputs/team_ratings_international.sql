@@ -12,9 +12,9 @@ WITH latest AS (
   FROM solver.team_ratings
   JOIN master.teams ON team_ratings.id = teams.solver_id
     AND _TYPE = type
-  WHERE (hkjc_id IS NOT NULL
-    OR country = 'Hong Kong')
-    AND _TYPE = 'International')
+  WHERE team_ratings._TYPE = 'International'
+    AND teams.is_team_rating
+)
 
 SELECT
   rank,

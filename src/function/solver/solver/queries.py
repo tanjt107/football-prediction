@@ -22,17 +22,17 @@ def get_latest_match_date(_type: str) -> dict[str, League | Match | Team]:
     )[0]["max_date_unix"]
 
 
-def get_matches(_type: str, max_time: int) -> dict:
+def get_matches_and_teams(_type: str, max_time: int) -> dict:
     data = bigquery.query_dict(
         query="SELECT * FROM `solver.get_matches`(@type, @max_time);",
         params={"type": _type, "max_time": max_time},
     )
     league_names = {match["league_name"] for match in data}
     leagues = {name: League(name) for name in league_names}
-    team_ids = {match["home_id"] for match in data} | {
-        match["away_id"] for match in data
+    team_ids = {(match["home_id"], match["is_home_team_rating"]) for match in data} | {
+        (match["away_id"], match["is_away_team_rating"]) for match in data
     }
-    teams = {id: Team(id) for id in team_ids}
+    teams = {id: Team(id, is_team_rating) for id, is_team_rating in team_ids}
     return {
         "leagues": leagues.values(),
         "teams": teams.values(),

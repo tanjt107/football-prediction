@@ -15,10 +15,8 @@ WITH latest AS (
   JOIN master.teams ON team_ratings.id = teams.solver_id
     AND team_ratings._TYPE = teams.type
   JOIN master.leagues ON teams.league_name = leagues.footystats_name
-  WHERE (leagues.hkjc_id IS NOT NULL
-      OR leagues.is_manual)
-    AND team_ratings._TYPE = 'Club'
-    AND leagues.footystats_name <> 'Mexico Ascenso MX'
+  WHERE team_ratings._TYPE = 'Club'
+    AND teams.is_team_rating
 )
 
 SELECT

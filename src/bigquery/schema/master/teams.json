@@ -20,6 +20,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "is_team_rating",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "footystats_id",
         "type": "INTEGER",
         "mode": "NULLABLE"
