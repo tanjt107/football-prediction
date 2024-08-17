@@ -1,6 +1,6 @@
 SELECT
-  DISTINCT fs_teams.id,
-  hkjc_teams.id,
+  DISTINCT fs_teams.id AS footystats_id,
+  hkjc_teams.id AS hkjc_id,
   hkjc_teams.name_en,
   fs_teams.name,
   fs_teams.cleanName,
