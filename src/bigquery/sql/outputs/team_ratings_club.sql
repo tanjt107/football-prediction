@@ -18,6 +18,7 @@ WITH latest AS (
   WHERE (leagues.hkjc_id IS NOT NULL
       OR leagues.is_manual)
     AND team_ratings._TYPE = 'Club'
+    AND leagues.footystats_name <> 'Mexico Ascenso MX'
 )
 
 SELECT
