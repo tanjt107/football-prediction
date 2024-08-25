@@ -1,21 +1,21 @@
 WITH matches AS (
   SELECT
-    functions.matchProbs(avg_goal + league_solver.home_adv * odds_last.home_adv + home_solver.offence + away_solver.defence, avg_goal - league_solver.home_adv * odds_last.home_adv + away_solver.offence + home_solver.defence, handicap) AS hdc_probs,
+    functions.matchProbs(avg_goal + league_solver.home_adv * odds_latest.home_adv + home_solver.offence + away_solver.defence, avg_goal - league_solver.home_adv * odds_latest.home_adv + away_solver.offence + home_solver.defence, handicap) AS hdc_probs,
     HDC_H,
     HDC_A,
     CAST(SPLIT(handicap, '/')[0] AS FLOAT64) AS HG1,
     CAST(SPLIT(handicap, '/')[SAFE_OFFSET(1)] AS FLOAT64) AS HG2,
     home_score - away_score AS goal_diff
-    FROM hkjc.odds_last
+    FROM hkjc.odds_latest
     JOIN hkjc.scores USING(id)
-    JOIN `master.teams` home_teams ON odds_last.home_id = home_teams.hkjc_id
+    JOIN `master.teams` home_teams ON odds_latest.home_id = home_teams.hkjc_id
     JOIN `solver.teams` home_solver ON home_solver.id = home_teams.solver_id
       AND home_solver._TYPE = home_teams.type
-    JOIN `master.teams` away_teams ON odds_last.away_id = away_teams.hkjc_id
+    JOIN `master.teams` away_teams ON odds_latest.away_id = away_teams.hkjc_id
     JOIN `solver.teams` away_solver ON away_solver.id = away_teams.solver_id 
       AND away_solver._TYPE = away_teams.type
       AND away_solver._DATE_UNIX = home_solver._DATE_UNIX
-    JOIN master.leagues ON odds_last.tournament_id = leagues.hkjc_id
+    JOIN master.leagues ON odds_latest.tournament_id = leagues.hkjc_id
     JOIN `solver.leagues` league_solver ON leagues.division = league_solver.division
       AND league_solver._TYPE = leagues.type
       AND league_solver._DATE_UNIX = home_solver._DATE_UNIX

@@ -430,10 +430,10 @@ module "bigquery-hkjc" {
     }
   }
   views = {
-    odds_clean = file("../../src/bigquery/sql/hkjc/odds_clean.sql")
-    odds_last  = file("../../src/bigquery/sql/hkjc/odds_last.sql")
-    odds_today = file("../../src/bigquery/sql/hkjc/odds_today.sql")
-    scores     = file("../../src/bigquery/sql/hkjc/scores.sql")
+    odds_clean  = file("../../src/bigquery/sql/hkjc/odds_clean.sql")
+    odds_latest = file("../../src/bigquery/sql/hkjc/odds_latest.sql")
+    odds_today  = file("../../src/bigquery/sql/hkjc/odds_today.sql")
+    scores      = file("../../src/bigquery/sql/hkjc/scores.sql")
   }
 }
 

@@ -26,5 +26,5 @@ SELECT
   transfermarkt_id
 FROM footystats.seasons 
 LEFT JOIN manual.leagues ON seasons._NAME = leagues.footystats_id
-LEFT JOIN hkjc.odds_last ON leagues.hkjc_id = odds_last.tournament_id
-QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC, odds_last.update_at DESC) = 1
+LEFT JOIN hkjc.odds_latest ON leagues.hkjc_id = odds_latest.tournament_id
+QUALIFY ROW_NUMBER() OVER (PARTITION BY _NAME ORDER BY RIGHT(_YEAR, 4) DESC, LEFT(_YEAR, 4) DESC, odds_latest.update_at DESC) = 1

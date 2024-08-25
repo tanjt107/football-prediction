@@ -1,10 +1,10 @@
 WITH
   hkjc AS (
   SELECT kick_off_time, tournament_name, home_id AS id, home_name AS name, home_name_en AS name_en
-  FROM hkjc.odds_last
+  FROM hkjc.odds_latest
   UNION ALL
   SELECT kick_off_time, tournament_name, away_id, away_name, away_name_en
-  FROM hkjc.odds_last)
+  FROM hkjc.odds_latest)
 
 SELECT MAX(kick_off_time) AS kick_off_time, tournament_name, id, hkjc.name, name_en, footystats_id
 FROM hkjc
