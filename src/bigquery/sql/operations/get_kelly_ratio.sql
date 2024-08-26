@@ -11,6 +11,7 @@ WITH matches AS (
     JOIN `master.teams` home_teams ON odds_latest.home_id = home_teams.hkjc_id
     JOIN `solver.teams` home_solver ON home_solver.id = home_teams.solver_id
       AND home_solver._TYPE = home_teams.type
+      AND odds_latest._TIMESTAMP >= TIMESTAMP_SECONDS(home_solver._DATE_UNIX)
     JOIN `master.teams` away_teams ON odds_latest.away_id = away_teams.hkjc_id
     JOIN `solver.teams` away_solver ON away_solver.id = away_teams.solver_id 
       AND away_solver._TYPE = away_teams.type
@@ -22,6 +23,7 @@ WITH matches AS (
   WHERE
     (SAFE_CAST(home_teams.solver_id AS INT64) IS NOT NULL OR home_teams.type = 'International')
     AND (SAFE_CAST(away_teams.solver_id AS INT64) IS NOT NULL OR away_teams.type = 'International')
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY odds_latest.id ORDER BY home_solver._DATE_UNIX DESC) = 1
 ),
 
 kelly AS (
