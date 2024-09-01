@@ -1,5 +1,5 @@
 SELECT
-  COALESCE(name_ch, _NAME) AS name,
+  COALESCE(tournament_name, name_ch, _NAME) AS name,
   _COUNTRY AS country,
   CASE
     WHEN _COUNTRY = 'International' AND EXISTS (
