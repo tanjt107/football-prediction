@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from itertools import combinations, permutations
 
-from simulation.models import Leg, Rules, Team, Match
+from simulation.models import Rules, Team, Match
 
 
 @dataclass
@@ -11,23 +11,28 @@ class Season:
     avg_goal: float
     home_adv: float
     rule: Rules
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
+    completed: (
+        dict[
+            tuple[str],
+            tuple[int],
+        ]
+        | None
+    ) = None
 
     def __post_init__(self):
         self._completed = self.completed.copy() if self.completed else {}
 
     @property
     def _home_adv(self):
-        return {Leg.SINGLE: 0, Leg.DOUBLE: self.home_adv}[self.rule.leg]
+        if self.rule.leg == 2:
+            return self.home_adv
+        return 0
 
     @property
     def scheduling(self):
-        if self.rule.leg == Leg.SINGLE:
+        if self.rule.leg == 1:
             return combinations
-        if self.rule.leg == Leg.DOUBLE:
+        if self.rule.leg == 2:
             return permutations
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team):

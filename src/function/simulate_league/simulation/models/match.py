@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .leg import Leg
 from .team import Team
 
 
@@ -47,13 +46,13 @@ class Match:
             ]
             | None
         ) = None,
-        _round: int = Leg.DOUBLE,
+        _round: int = 2,
     ) -> tuple[int] | None:
         if not completed:
             return
         if self.teams in completed:
             self.home_score, self.away_score = completed[self.teams]
-        if _round == Leg.SINGLE and self.teams_reversed in completed:
+        if _round == 1 and self.teams_reversed in completed:
             self.away_score, self.home_score = completed[self.teams_reversed]
 
     def simulate(self, avg_goal: float, home_adv: float, extra_time: bool = False):
