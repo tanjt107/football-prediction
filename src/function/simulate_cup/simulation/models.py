@@ -189,13 +189,13 @@ class Match:
             ]
             | None
         ) = None,
-        round: int = Leg.DOUBLE,
+        _round: int = Leg.DOUBLE,
     ) -> tuple[int] | None:
         if not completed:
             return
         if self.teams in completed:
             self.home_score, self.away_score = completed[self.teams]
-        if round == Leg.SINGLE and self.teams_reversed in completed:
+        if _round == Leg.SINGLE and self.teams_reversed in completed:
             self.away_score, self.home_score = completed[self.teams_reversed]
 
     def simulate(self, avg_goal: float, home_adv: float, extra_time: bool = False):

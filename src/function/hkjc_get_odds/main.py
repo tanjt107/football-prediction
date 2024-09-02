@@ -16,7 +16,7 @@ setup_logging()
 def main(_):
     storage.upload_json_to_bucket(
         data=get_hkjc_odds(odds_types=json.loads(os.environ["ODDS_TYPES"])),
-        blob_name=f"odds.json",
+        blob_name="odds.json",
         bucket_name=os.environ["BUCKET_NAME"],
         hive_partitioning={"_TIMESTAMP": get_current_timestamp()},
     )

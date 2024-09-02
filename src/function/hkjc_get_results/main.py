@@ -25,7 +25,7 @@ def main(_):
 
 
 def get_hkjc_result(date: str) -> list[dict]:
-    PAGE_SIZE = 20
+    page_size = 20
     page = 1
     results = []
 
@@ -90,10 +90,11 @@ def get_hkjc_result(date: str) -> list[dict]:
                 "variables": {
                     "startDate": date,
                     "endDate": date,
-                    "startIndex": (page - 1) * PAGE_SIZE + 1,
-                    "endIndex": page * PAGE_SIZE,
+                    "startIndex": (page - 1) * page_size + 1,
+                    "endIndex": page * page_size,
                 },
             },
+            timeout=5,
         )
         response.raise_for_status()
         data = response.json()["data"]

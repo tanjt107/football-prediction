@@ -1,9 +1,9 @@
 import json
 import logging
-import requests
 import ssl
 import urllib3
 
+import requests
 from google.cloud import storage
 
 CLIENT = storage.Client()

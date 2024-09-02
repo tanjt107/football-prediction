@@ -52,7 +52,7 @@ def get_groups(
 ) -> dict[str, list[Team]]:
     groups = defaultdict(list)
     group_teams = bigquery.query_dict(
-        query=f"SELECT * FROM `simulation.get_groups`(@league, @stage);",
+        query="SELECT * FROM `simulation.get_groups`(@league, @stage);",
         params={"league": league, "stage": gs_name},
     )
     for group_team in group_teams:
@@ -63,7 +63,7 @@ def get_groups(
 def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team]]]:
     rounds = defaultdict(set)
     round_matchups = bigquery.query_dict(
-        query=f"SELECT * FROM `simulation.get_matchups`(@league);",
+        query="SELECT * FROM `simulation.get_matchups`(@league);",
         params={"league": league},
     )
     for round_matchup in round_matchups:

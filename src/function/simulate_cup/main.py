@@ -118,9 +118,9 @@ def simulate_cup(
             completed=completed_ko,
         )
         knockout.simulate()
-        for round, teams in knockout.results.items():
+        for _round, teams in knockout.results.items():
             for team in teams:
-                team.update_sim_rounds(round)
+                team.update_sim_rounds(_round)
 
     for season in groups.values():
         for team in season.teams:

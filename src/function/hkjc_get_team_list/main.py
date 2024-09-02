@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 
@@ -21,7 +20,7 @@ def main(_):
 
 
 def get_hkjc_team_list() -> dict:
-    logging.info(f"Getting HKJC team list")
+    logging.info("Getting HKJC team list")
     body = """query teamList {
   teamList {
     id
@@ -41,5 +40,5 @@ def get_hkjc_team_list() -> dict:
     )
     response.raise_for_status()
     team_list = response.json()["data"]["teamList"]
-    logging.info(f"Got HKJC team list")
+    logging.info("Got HKJC team list")
     return team_list
