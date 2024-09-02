@@ -10,7 +10,7 @@ from dataclasses import asdict
 # from gcp.util import decode_message
 from simulation import queries
 from simulation.tournaments import Season
-from simulation.models import Team, Rules
+from simulation.models import Team
 
 # setup_logging()
 
@@ -21,7 +21,7 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 # def main(cloud_event: CloudEvent):
 def main():
     # message = decode_message(cloud_event)
-    message = {"league": "India Indian Super League", "rule": {"h2h": True}}
+    message = {"league": "India Indian Super League", "h2h": True, "leg": 2}
     league = message["league"]
 
     # last_run = queries.get_last_run(league)
@@ -32,7 +32,6 @@ def main():
 
     factors = queries.get_avg_goal_home_adv(league)
     teams = queries.get_teams(league)
-    rule = Rules(**message["rule"]) if message.get("rule") else Rules()
 
     if corrections := message.get("corrections"):
         for team, correction in corrections.items():
@@ -42,7 +41,8 @@ def main():
         teams=teams.values(),
         avg_goal=factors["avg_goal"],
         home_adv=factors["home_adv"],
-        rule=rule,
+        h2h=message["h2h"],
+        leg=message["leg"],
         completed=queries.get_completed_matches(league),
     )
 

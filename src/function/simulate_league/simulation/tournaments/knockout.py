@@ -1,7 +1,7 @@
 import random
 from dataclasses import dataclass
 
-from simulation.models import Match, Round, Rules, Team
+from simulation.models import Match, Round, Team
 
 
 @dataclass
@@ -9,7 +9,7 @@ class Knockout:
     teams: list[Team]
     avg_goal: float
     home_adv: float
-    rule: Rules
+    leg: int = 2
     matchups: dict[Round, list[tuple[Team, Team]]] | None = None
     completed: (
         dict[
@@ -26,7 +26,7 @@ class Knockout:
 
     @property
     def _home_adv(self):
-        if self.rule.leg == 2:
+        if self.leg == 2:
             return self.home_adv
         return 0
 
@@ -51,14 +51,15 @@ class Knockout:
         if away_team in advanced:
             return away_team
 
-        if self.rule.leg == 1:
+        if self.leg == 1:
             return self.get_single_leg_winner(home_team, away_team)
-        if self.rule.leg == 2:
+        if self.leg == 2:
             return self.get_double_leg_winner(home_team, away_team)
+        raise ValueError
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
         game = Match(home_team, away_team)
-        game.update_score(self.completed, self.rule.leg)
+        game.update_score(self.completed, self.leg)
         if not game.completed:
             game.simulate(self.avg_goal, self._home_adv)
         return game
