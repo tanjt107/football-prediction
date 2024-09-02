@@ -29,13 +29,14 @@ class Match:
         return self.home_score is not None and self.away_score is not None
 
     @property
-    def winner(self):
+    def winner(self) -> Team | None:
         if not self.completed:
-            return
+            return None
         if self.home_score > self.away_score:
             return self.home_team
         if self.away_score > self.home_score:
             return self.away_team
+        return None
 
     def update_score(
         self,

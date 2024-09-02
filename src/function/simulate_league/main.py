@@ -9,7 +9,7 @@ from dataclasses import asdict
 # from gcp.logging import setup_logging
 # from gcp.util import decode_message
 from simulation import queries
-from simulation.league import Season
+from simulation.tournaments import Season
 from simulation.models import Team, Rules
 
 # setup_logging()
@@ -21,7 +21,7 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 # def main(cloud_event: CloudEvent):
 def main():
     # message = decode_message(cloud_event)
-    message = {"league": "India Indian Super League"}
+    message = {"league": "India Indian Super League", "rule": {"h2h": True}}
     league = message["league"]
 
     # last_run = queries.get_last_run(league)
@@ -127,7 +127,7 @@ def main():
             },
             {
                 "team": 5424,
-                "positions": {"_10": 1.0},
+                "positions": {"_11": 1.0},
                 "table": {
                     "wins": 5.0,
                     "draws": 7.0,
@@ -139,7 +139,7 @@ def main():
             },
             {
                 "team": 5425,
-                "positions": {"_11": 1.0},
+                "positions": {"_10": 1.0},
                 "table": {
                     "wins": 5.0,
                     "draws": 7.0,
@@ -151,7 +151,7 @@ def main():
             },
             {
                 "team": 5426,
-                "positions": {"_9": 1.0},
+                "positions": {"_8": 1.0},
                 "table": {
                     "wins": 6.0,
                     "draws": 6.0,
@@ -163,7 +163,7 @@ def main():
             },
             {
                 "team": 5430,
-                "positions": {"_8": 1.0},
+                "positions": {"_9": 1.0},
                 "table": {
                     "wins": 6.0,
                     "draws": 6.0,
