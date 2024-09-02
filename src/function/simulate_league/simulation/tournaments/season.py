@@ -21,21 +21,22 @@ class Season:
     ) = None
 
     def __post_init__(self):
+        if not self.leg in (1, 2):
+            raise ValueError
+
         self._completed = self.completed.copy() if self.completed else {}
 
     @property
     def _home_adv(self):
-        if self.leg == 2:
-            return self.home_adv
-        return 0
+        if self.leg == 1:
+            return 0
+        return self.home_adv
 
     @property
     def scheduling(self):
         if self.leg == 1:
             return combinations
-        if self.leg == 2:
-            return permutations
-        raise ValueError
+        return permutations
 
     @property
     def tiebreaker(self):

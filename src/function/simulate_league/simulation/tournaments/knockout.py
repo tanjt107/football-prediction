@@ -20,6 +20,9 @@ class Knockout:
     ) = None
 
     def __post_init__(self):
+        if not self.leg in (1, 2):
+            raise ValueError
+
         if not self.matchups:
             self.matchups = {}
         self.results = {Round(len(self.teams)): self.teams}
@@ -53,9 +56,7 @@ class Knockout:
 
         if self.leg == 1:
             return self.get_single_leg_winner(home_team, away_team)
-        if self.leg == 2:
-            return self.get_double_leg_winner(home_team, away_team)
-        raise ValueError
+        return self.get_double_leg_winner(home_team, away_team)
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
         game = Match(home_team, away_team)
