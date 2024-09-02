@@ -11,9 +11,8 @@ from dataclasses import asdict
 # from gcp.logging import setup_logging
 # from gcp.util import decode_message
 from simulation import queries
-from simulation.models import Rules, Team, TieBreaker
-from simulation.league import Season
-from simulation.cup import Round, Knockout
+from simulation.models import Team, TieBreaker, Round
+from simulation.tournaments import Season, Knockout
 
 
 # setup_logging()
@@ -27,7 +26,8 @@ def main():
     # data = decode_message(cloud_event)
     data = {
         "league": "International AFC Asian Cup",
-        "rule": {"h2h": True, "leg": 1},
+        "h2h": True,
+        "leg": 1,
         "team_no_ko": 16,
     }
     league = data["league"]
@@ -41,7 +41,6 @@ def main():
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
-    rule = Rules(**data["rule"]) if data.get("rule") else Rules()
     completed_gs = queries.get_completed_matches(
         league, stage="gs", gs_name=data.get("gs_name", "Group Stage")
     )
@@ -60,7 +59,7 @@ def main():
         }
 
     group_seasons = {
-        name: Season(teams, avg_goal, home_adv, rule, completed_gs)
+        name: Season(teams, avg_goal, home_adv, data["h2h"], data["leg"], completed_gs)
         for name, teams in groups.items()
     }
 
@@ -479,7 +478,7 @@ def simulate_cup(
             teams=advanced,
             avg_goal=group.avg_goal,
             home_adv=group.home_adv,
-            rule=group.rule,
+            leg=group.leg,
             matchups=matchups,
             completed=completed_ko,
         )

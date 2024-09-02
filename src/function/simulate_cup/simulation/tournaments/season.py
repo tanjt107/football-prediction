@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from itertools import combinations, permutations
 
-from simulation.models import Leg, Rules, Team, Match
+from simulation.models import Team, TieBreaker, Match
 
 
 @dataclass
@@ -10,29 +10,41 @@ class Season:
     teams: list[Team]
     avg_goal: float
     home_adv: float
-    rule: Rules
-    completed: dict[
-        tuple[str],
-        tuple[int],
-    ] | None = None
+    h2h: bool = False
+    leg: int = 2
+    completed: (
+        dict[
+            tuple[str],
+            tuple[int],
+        ]
+        | None
+    ) = None
 
     def __post_init__(self):
+        if not self.leg in (1, 2):
+            raise ValueError
+
         self._completed = self.completed.copy() if self.completed else {}
 
     @property
     def _home_adv(self):
-        return {Leg.SINGLE: 0, Leg.DOUBLE: self.home_adv}[self.rule.leg]
+        if self.leg == 1:
+            return 0
+        return self.home_adv
 
     @property
     def scheduling(self):
-        if self.rule.leg == Leg.SINGLE:
+        if self.leg == 1:
             return combinations
-        if self.rule.leg == Leg.DOUBLE:
-            return permutations
+        return permutations
+
+    @property
+    def tiebreaker(self):
+        return TieBreaker.h2h if self.h2h else TieBreaker.goal_diff
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team):
         game = Match(home_team, away_team)
-        game.update_score(self._completed, self.rule.leg)
+        game.update_score(self._completed, self.leg)
         if not game.completed:
             game.simulate(self.avg_goal, self._home_adv)
             self._completed[game.teams] = game.score
@@ -52,12 +64,12 @@ class Season:
         for teams in points.values():
             for home_team, away_team in self.scheduling(teams, 2):
                 game = Match(home_team, away_team)
-                game.update_score(self._completed, self.rule.leg)
+                game.update_score(self._completed, self.leg)
                 game.update_teams(h2h=True)
 
         return sorted(
             self.teams,
-            key=self.rule.tiebreaker,
+            key=self.tiebreaker,
             reverse=True,
         )
 
