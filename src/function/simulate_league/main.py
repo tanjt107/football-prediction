@@ -12,21 +12,23 @@ from simulation import queries
 from simulation.league import Season
 from simulation.models import Team, Rules
 
-setup_logging()
+# setup_logging()
 
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 
-@functions_framework.cloud_event
-def main(cloud_event: CloudEvent):
-    message = decode_message(cloud_event)
+# @functions_framework.cloud_event
+# def main(cloud_event: CloudEvent):
+def main():
+    # message = decode_message(cloud_event)
+    message = {"league": "India Indian Super League"}
     league = message["league"]
 
-    last_run = queries.get_last_run(league)
-    latest_match_date = queries.get_latest_match_date(league)
-    if last_run >= latest_match_date:
-        logging.info(f"Already updated. Simulation aborted: {league=}")
-        return
+    # last_run = queries.get_last_run(league)
+    # latest_match_date = queries.get_latest_match_date(league)
+    # if last_run >= latest_match_date:
+    #     logging.info(f"Already updated. Simulation aborted: {league=}")
+    #     return
 
     factors = queries.get_avg_goal_home_adv(league)
     teams = queries.get_teams(league)
@@ -44,16 +46,166 @@ def main(cloud_event: CloudEvent):
         completed=queries.get_completed_matches(league),
     )
 
-    logging.info(f"Simulating: {league=}")
+    # logging.info(f"Simulating: {league=}")
     data = simulate_season(season)
-    logging.info(f"Simulated: {league=}")
+    # logging.info(f"Simulated: {league=}")
 
-    storage.upload_json_to_bucket(
-        data,
-        blob_name="league.json",
-        bucket_name=BUCKET_NAME,
-        hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
+    print(
+        data
+        == [
+            {
+                "team": 5416,
+                "positions": {"_1": 1.0},
+                "table": {
+                    "wins": 16.0,
+                    "draws": 4.0,
+                    "losses": 2.0,
+                    "scored": 46.0,
+                    "conceded": 20.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5417,
+                "positions": {"_6": 1.0},
+                "table": {
+                    "wins": 8.0,
+                    "draws": 3.0,
+                    "losses": 11.0,
+                    "scored": 26.0,
+                    "conceded": 34.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5419,
+                "positions": {"_4": 1.0},
+                "table": {
+                    "wins": 12.0,
+                    "draws": 4.0,
+                    "losses": 6.0,
+                    "scored": 35.0,
+                    "conceded": 24.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5420,
+                "positions": {"_7": 1.0},
+                "table": {
+                    "wins": 6.0,
+                    "draws": 8.0,
+                    "losses": 8.0,
+                    "scored": 30.0,
+                    "conceded": 34.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5421,
+                "positions": {"_3": 1.0},
+                "table": {
+                    "wins": 13.0,
+                    "draws": 4.0,
+                    "losses": 5.0,
+                    "scored": 38.0,
+                    "conceded": 25.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5422,
+                "positions": {"_5": 1.0},
+                "table": {
+                    "wins": 10.0,
+                    "draws": 3.0,
+                    "losses": 9.0,
+                    "scored": 32.0,
+                    "conceded": 31.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5424,
+                "positions": {"_10": 1.0},
+                "table": {
+                    "wins": 5.0,
+                    "draws": 7.0,
+                    "losses": 10.0,
+                    "scored": 28.0,
+                    "conceded": 30.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5425,
+                "positions": {"_11": 1.0},
+                "table": {
+                    "wins": 5.0,
+                    "draws": 7.0,
+                    "losses": 10.0,
+                    "scored": 20.0,
+                    "conceded": 34.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5426,
+                "positions": {"_9": 1.0},
+                "table": {
+                    "wins": 6.0,
+                    "draws": 6.0,
+                    "losses": 10.0,
+                    "scored": 28.0,
+                    "conceded": 35.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 5430,
+                "positions": {"_8": 1.0},
+                "table": {
+                    "wins": 6.0,
+                    "draws": 6.0,
+                    "losses": 10.0,
+                    "scored": 27.0,
+                    "conceded": 29.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 674110,
+                "positions": {"_12": 1.0},
+                "table": {
+                    "wins": 1.0,
+                    "draws": 5.0,
+                    "losses": 16.0,
+                    "scored": 10.0,
+                    "conceded": 43.0,
+                    "correction": 0.0,
+                },
+            },
+            {
+                "team": 688913,
+                "positions": {"_2": 1.0},
+                "table": {
+                    "wins": 15.0,
+                    "draws": 1.0,
+                    "losses": 6.0,
+                    "scored": 47.0,
+                    "conceded": 28.0,
+                    "correction": 0.0,
+                },
+            },
+        ]
     )
+
+    # storage.upload_json_to_bucket(
+    #     data,
+    #     blob_name="league.json",
+    #     bucket_name=BUCKET_NAME,
+    #     hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
+    # )
 
 
 def simulate_season(
@@ -78,3 +230,6 @@ def simulate_season(
         }
         for team in season.teams
     ]
+
+
+main()
