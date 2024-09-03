@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import partial
 from itertools import combinations, permutations
 
 from simulation.models import Team, TieBreaker, Match
@@ -12,6 +13,7 @@ class Season:
     home_adv: float
     h2h: bool = False
     leg: int = 2
+    fixtures: list[tuple[Team, Team]] | None = None
     results: (
         dict[
             tuple[str],
@@ -24,6 +26,7 @@ class Season:
         if not self.leg in (1, 2):
             raise ValueError
 
+        self.fixtures = self.fixtures or list(self.scheduling(self.teams))
         self._results = self.results.copy() if self.results else {}
 
     @property
@@ -35,8 +38,8 @@ class Season:
     @property
     def scheduling(self):
         if self.leg == 1:
-            return combinations
-        return permutations
+            return partial(combinations, r=2)
+        return partial(permutations, r=2)
 
     @property
     def tiebreaker(self):
@@ -51,8 +54,7 @@ class Season:
         game.update_teams()
 
     def simulate(self):
-        self.reset()
-        for home_team, away_team in self.scheduling(self.teams, 2):
+        for home_team, away_team in self.fixtures:
             self.update_or_simulate_match(home_team, away_team)
 
     @property
@@ -62,7 +64,7 @@ class Season:
             points[team.table.points].append(team)
 
         for teams in points.values():
-            for home_team, away_team in self.scheduling(teams, 2):
+            for home_team, away_team in self.scheduling(teams):
                 game = Match(home_team, away_team)
                 game.update_score(self._results, self.leg)
                 game.update_teams(h2h=True)

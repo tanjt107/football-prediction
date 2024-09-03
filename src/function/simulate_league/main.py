@@ -217,6 +217,7 @@ def simulate_season(
         for position, team in enumerate(season.positions, 1):
             team.update_sim_table()
             team.update_sim_positions(position)
+        season.reset()
 
     for team in season.teams:
         team.sim_table /= no_of_simulations
