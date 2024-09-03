@@ -39,7 +39,7 @@ def main():
             teams[int(team)].set_correction(correction)
 
     season = Season(
-        teams=teams.values(),
+        teams=set(teams.values()),
         avg_goal=factors["avg_goal"],
         home_adv=factors["home_adv"],
         h2h=message["h2h"],
@@ -161,6 +161,18 @@ def main():
             },
         },
         {
+            "team": 688913,
+            "positions": {"_1": 1.0},
+            "table": {
+                "wins": 15.0,
+                "draws": 3.0,
+                "losses": 4.0,
+                "scored": 47.0,
+                "conceded": 26.0,
+                "correction": 0.0,
+            },
+        },
+        {
             "team": 5430,
             "positions": {"_9": 1.0},
             "table": {
@@ -181,18 +193,6 @@ def main():
                 "losses": 16.0,
                 "scored": 10.0,
                 "conceded": 43.0,
-                "correction": 0.0,
-            },
-        },
-        {
-            "team": 688913,
-            "positions": {"_1": 1.0},
-            "table": {
-                "wins": 15.0,
-                "draws": 3.0,
-                "losses": 4.0,
-                "scored": 47.0,
-                "conceded": 26.0,
                 "correction": 0.0,
             },
         },

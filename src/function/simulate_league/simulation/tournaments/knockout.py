@@ -67,7 +67,7 @@ class Knockout:
 
     def get_single_leg_winner(self, home_team: Team, away_team: Team):
         game = self.update_or_simulate_match(home_team, away_team)
-        return game.winner or self.get_extra_time_winner(home_team, away_team)
+        return game.winning_team or self.get_extra_time_winner(home_team, away_team)
 
     def get_double_leg_winner(
         self,
@@ -84,10 +84,10 @@ class Knockout:
             away_score=leg1.away_score + leg2.home_score,
         )
 
-        if game.winner:
-            return game.winner
+        if game.winning_team:
+            return game.winning_team
 
-        return game.winner or self.get_extra_time_winner(
+        return game.winning_team or self.get_extra_time_winner(
             home_team=away_team,
             away_team=home_team,
         )
@@ -99,7 +99,7 @@ class Knockout:
     ):
         game = Match(home_team, away_team)
         game.simulate(self.avg_goal, self._home_adv, extra_time=True)
-        return game.winner or random.choice([home_team, away_team])
+        return game.winning_team or random.choice([home_team, away_team])
 
     def simulate(self):
         advanced = self.teams

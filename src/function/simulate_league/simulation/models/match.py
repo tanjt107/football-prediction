@@ -35,7 +35,7 @@ class Match:
         return self.status == "complete"
 
     @property
-    def winner(self) -> Team | None:
+    def winning_team(self) -> Team | None:
         if not self.is_complete:
             return None
         if self.home_score > self.away_score:
@@ -64,10 +64,10 @@ class Match:
             home_table = self.home_team.table
             away_table = self.away_team.table
 
-        if self.winner == self.home_team:
+        if self.winning_team == self.home_team:
             home_table.wins += 1
             away_table.losses += 1
-        elif self.winner == self.away_team:
+        elif self.winning_team == self.away_team:
             away_table.wins += 1
             home_table.losses += 1
         else:

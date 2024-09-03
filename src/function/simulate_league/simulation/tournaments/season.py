@@ -8,7 +8,7 @@ from simulation.models import Team, TieBreaker, Match
 
 @dataclass
 class Season:
-    teams: list[Team]
+    teams: set[Team]
     avg_goal: float
     home_adv: float
     h2h: bool = False
@@ -16,9 +16,7 @@ class Season:
     matches: list[Match] | None = None
 
     def __post_init__(self):
-        self.matches = self.matches or self.scheduling(
-            self.teams
-        )  # TODO check capatibility with groups
+        self.matches = self.matches or self.scheduling(self.teams)
 
     @property
     def _home_adv(self):
