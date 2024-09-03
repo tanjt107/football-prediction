@@ -9,8 +9,14 @@ from .team import Team
 class Match:
     home_team: Team
     away_team: Team
+    status: str = "incomplete"
     home_score: int | None = None
     away_score: int | None = None
+
+    def __post_init__(self):
+        self._status = self.status
+        self._home_score = self.home_score
+        self._away_score = self.away_score
 
     @property
     def teams(self):
@@ -25,36 +31,18 @@ class Match:
         return (self.home_score, self.away_score)
 
     @property
-    def completed(self) -> bool:
-        return self.home_score is not None and self.away_score is not None
+    def is_complete(self) -> bool:
+        return self.status == "complete"
 
     @property
     def winner(self) -> Team | None:
-        if not self.completed:
+        if not self.is_complete:
             return None
         if self.home_score > self.away_score:
             return self.home_team
         if self.away_score > self.home_score:
             return self.away_team
         return None
-
-    def update_score(
-        self,
-        completed: (
-            dict[
-                tuple[str],
-                tuple[int],
-            ]
-            | None
-        ) = None,
-        _round: int = 2,
-    ) -> tuple[int] | None:
-        if not completed:
-            return
-        if self.teams in completed:
-            self.home_score, self.away_score = completed[self.teams]
-        if _round == 1 and self.teams_reversed in completed:
-            self.away_score, self.home_score = completed[self.teams_reversed]
 
     def simulate(self, avg_goal: float, home_adv: float, extra_time: bool = False):
         home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
@@ -66,6 +54,7 @@ class Match:
         away_exp = max(away_exp, 0.2)
         self.home_score = np.random.poisson(home_exp)
         self.away_score = np.random.poisson(away_exp)
+        self.status = "complete"
 
     def update_teams(self, h2h=False):
         if h2h:
@@ -89,3 +78,8 @@ class Match:
         away_table.scored += self.away_score
         home_table.conceded += self.away_score
         away_table.conceded += self.home_score
+
+    def reset(self):
+        self.status = self._status
+        self.home_score = self._home_score
+        self.away_score = self._away_score

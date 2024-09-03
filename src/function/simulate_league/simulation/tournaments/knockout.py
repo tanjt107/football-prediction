@@ -61,7 +61,7 @@ class Knockout:
     def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
         game = Match(home_team, away_team)
         game.update_score(self.results, self.leg)
-        if not game.completed:
+        if not game.is_complete:
             game.simulate(self.avg_goal, self._home_adv)
         return game
 

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from gcp import bigquery
-from simulation.models import Round, Team
+from simulation.models import Round, Team, Match
 
 
 def get_last_run(league: str) -> int:
@@ -74,4 +74,36 @@ def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team
                     {teams[round_matchup["homeID"]], teams[round_matchup["awayID"]]}
                 )
             )
+    return rounds
+
+
+def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
+    rounds = defaultdict(list)
+    query = """
+SELECT
+    specific_tables.round,
+    homeId,
+    awayId,
+    status,
+    homeGoalCount,
+    awayGoalCount
+FROM footystats.matches
+JOIN master.leagues ON matches._SEASON_ID = leagues.latest_season_id
+JOIN footystats.tables USING (_SEASON_ID)
+JOIN tables.specific_tables ON matches.roundID = specific_tables.round_id
+WHERE matches._NAME = @league;
+"""
+    for row in bigquery.query_dict(
+        query,
+        params={"league": league},
+    ):
+        rounds[row["round"]].append(
+            Match(
+                home_team=teams[row["homeId"]],
+                away_team=teams[row["awayId"]],
+                status=row["status"],
+                home_score=row["homeGoalCount"],
+                away_score=row["awayGoalCount"],
+            )
+        )
     return rounds

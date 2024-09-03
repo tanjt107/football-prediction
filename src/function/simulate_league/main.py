@@ -43,162 +43,162 @@ def main():
         home_adv=factors["home_adv"],
         h2h=message["h2h"],
         leg=message["leg"],
-        results=queries.get_completed_matches(league),
+        matches=queries.get_matches(league, teams)["Regular Season"],
     )
 
     # logging.info(f"Simulating: {league=}")
-    data = simulate_season(season)
+    data = simulate_season(season, no_of_simulations=10000)
     # logging.info(f"Simulated: {league=}")
 
-    print(
-        data
-        == [
-            {
-                "team": 5416,
-                "positions": {"_1": 1.0},
-                "table": {
-                    "wins": 16.0,
-                    "draws": 4.0,
-                    "losses": 2.0,
-                    "scored": 46.0,
-                    "conceded": 20.0,
-                    "correction": 0.0,
-                },
+    if data == [
+        {
+            "team": 5416,
+            "positions": {"_2": 1.0},
+            "table": {
+                "wins": 13.0,
+                "draws": 6.0,
+                "losses": 3.0,
+                "scored": 40.0,
+                "conceded": 20.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5417,
-                "positions": {"_6": 1.0},
-                "table": {
-                    "wins": 8.0,
-                    "draws": 3.0,
-                    "losses": 11.0,
-                    "scored": 26.0,
-                    "conceded": 34.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5417,
+            "positions": {"_6": 1.0},
+            "table": {
+                "wins": 8.0,
+                "draws": 3.0,
+                "losses": 11.0,
+                "scored": 26.0,
+                "conceded": 36.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5419,
-                "positions": {"_4": 1.0},
-                "table": {
-                    "wins": 12.0,
-                    "draws": 4.0,
-                    "losses": 6.0,
-                    "scored": 35.0,
-                    "conceded": 24.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5419,
+            "positions": {"_4": 1.0},
+            "table": {
+                "wins": 11.0,
+                "draws": 6.0,
+                "losses": 5.0,
+                "scored": 35.0,
+                "conceded": 23.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5420,
-                "positions": {"_7": 1.0},
-                "table": {
-                    "wins": 6.0,
-                    "draws": 8.0,
-                    "losses": 8.0,
-                    "scored": 30.0,
-                    "conceded": 34.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5420,
+            "positions": {"_7": 1.0},
+            "table": {
+                "wins": 6.0,
+                "draws": 8.0,
+                "losses": 8.0,
+                "scored": 30.0,
+                "conceded": 34.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5421,
-                "positions": {"_3": 1.0},
-                "table": {
-                    "wins": 13.0,
-                    "draws": 4.0,
-                    "losses": 5.0,
-                    "scored": 38.0,
-                    "conceded": 25.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5421,
+            "positions": {"_3": 1.0},
+            "table": {
+                "wins": 13.0,
+                "draws": 6.0,
+                "losses": 3.0,
+                "scored": 39.0,
+                "conceded": 21.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5422,
-                "positions": {"_5": 1.0},
-                "table": {
-                    "wins": 10.0,
-                    "draws": 3.0,
-                    "losses": 9.0,
-                    "scored": 32.0,
-                    "conceded": 31.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5422,
+            "positions": {"_5": 1.0},
+            "table": {
+                "wins": 10.0,
+                "draws": 3.0,
+                "losses": 9.0,
+                "scored": 32.0,
+                "conceded": 31.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5424,
-                "positions": {"_11": 1.0},
-                "table": {
-                    "wins": 5.0,
-                    "draws": 7.0,
-                    "losses": 10.0,
-                    "scored": 28.0,
-                    "conceded": 30.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5424,
+            "positions": {"_11": 1.0},
+            "table": {
+                "wins": 5.0,
+                "draws": 7.0,
+                "losses": 10.0,
+                "scored": 28.0,
+                "conceded": 30.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5425,
-                "positions": {"_10": 1.0},
-                "table": {
-                    "wins": 5.0,
-                    "draws": 7.0,
-                    "losses": 10.0,
-                    "scored": 20.0,
-                    "conceded": 34.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5425,
+            "positions": {"_10": 1.0},
+            "table": {
+                "wins": 5.0,
+                "draws": 7.0,
+                "losses": 10.0,
+                "scored": 20.0,
+                "conceded": 34.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5426,
-                "positions": {"_8": 1.0},
-                "table": {
-                    "wins": 6.0,
-                    "draws": 6.0,
-                    "losses": 10.0,
-                    "scored": 28.0,
-                    "conceded": 35.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5426,
+            "positions": {"_8": 1.0},
+            "table": {
+                "wins": 6.0,
+                "draws": 6.0,
+                "losses": 10.0,
+                "scored": 28.0,
+                "conceded": 35.0,
+                "correction": 0.0,
             },
-            {
-                "team": 5430,
-                "positions": {"_9": 1.0},
-                "table": {
-                    "wins": 6.0,
-                    "draws": 6.0,
-                    "losses": 10.0,
-                    "scored": 27.0,
-                    "conceded": 29.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 5430,
+            "positions": {"_9": 1.0},
+            "table": {
+                "wins": 6.0,
+                "draws": 6.0,
+                "losses": 10.0,
+                "scored": 27.0,
+                "conceded": 29.0,
+                "correction": 0.0,
             },
-            {
-                "team": 674110,
-                "positions": {"_12": 1.0},
-                "table": {
-                    "wins": 1.0,
-                    "draws": 5.0,
-                    "losses": 16.0,
-                    "scored": 10.0,
-                    "conceded": 43.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 674110,
+            "positions": {"_12": 1.0},
+            "table": {
+                "wins": 1.0,
+                "draws": 5.0,
+                "losses": 16.0,
+                "scored": 10.0,
+                "conceded": 43.0,
+                "correction": 0.0,
             },
-            {
-                "team": 688913,
-                "positions": {"_2": 1.0},
-                "table": {
-                    "wins": 15.0,
-                    "draws": 1.0,
-                    "losses": 6.0,
-                    "scored": 47.0,
-                    "conceded": 28.0,
-                    "correction": 0.0,
-                },
+        },
+        {
+            "team": 688913,
+            "positions": {"_1": 1.0},
+            "table": {
+                "wins": 15.0,
+                "draws": 3.0,
+                "losses": 4.0,
+                "scored": 47.0,
+                "conceded": 26.0,
+                "correction": 0.0,
             },
-        ]
-    )
+        },
+    ]:
+        print(True)
+    else:
+        print(data)
 
     # storage.upload_json_to_bucket(
     #     data,
