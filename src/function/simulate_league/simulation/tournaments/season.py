@@ -16,8 +16,6 @@ class Season:
     matches: list[Match] | None = None
 
     def __post_init__(self):
-        if not self.leg in (1, 2):
-            raise ValueError
         self.matches = self.matches or self.scheduling(
             self.teams
         )  # TODO check capatibility with groups
@@ -32,7 +30,9 @@ class Season:
     def scheduling(self):
         if self.leg == 1:
             return partial(combinations, r=2)
-        return partial(permutations, r=2)
+        if self.leg == 2:
+            return partial(permutations, r=2)
+        raise ValueError  # TODO Error message
 
     @property
     def tiebreaker(self):
@@ -41,7 +41,7 @@ class Season:
     def simulate(self):
         for match in self.matches:
             if not match.is_complete:
-                match.simulate()
+                match.simulate(self.avg_goal, self.home_adv)
             match.update_teams()
 
     @property

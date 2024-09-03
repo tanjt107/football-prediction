@@ -22,6 +22,7 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 def main():
     # message = decode_message(cloud_event)
     message = {"league": "India Indian Super League", "h2h": True, "leg": 2}
+    # message = {"league": "Hong Kong Hong Kong Premier League", "h2h": True, "leg": 3}
     league = message["league"]
 
     # last_run = queries.get_last_run(league)
