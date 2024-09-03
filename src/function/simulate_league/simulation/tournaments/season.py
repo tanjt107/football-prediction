@@ -12,7 +12,7 @@ class Season:
     home_adv: float
     h2h: bool = False
     leg: int = 2
-    completed: (
+    results: (
         dict[
             tuple[str],
             tuple[int],
@@ -24,7 +24,7 @@ class Season:
         if not self.leg in (1, 2):
             raise ValueError
 
-        self._completed = self.completed.copy() if self.completed else {}
+        self._results = self.results.copy() if self.results else {}
 
     @property
     def _home_adv(self):
@@ -44,10 +44,10 @@ class Season:
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team):
         game = Match(home_team, away_team)
-        game.update_score(self._completed, self.leg)
+        game.update_score(self._results, self.leg)
         if not game.completed:
             game.simulate(self.avg_goal, self._home_adv)
-            self._completed[game.teams] = game.score
+            self._results[game.teams] = game.score
         game.update_teams()
 
     def simulate(self):
@@ -64,7 +64,7 @@ class Season:
         for teams in points.values():
             for home_team, away_team in self.scheduling(teams, 2):
                 game = Match(home_team, away_team)
-                game.update_score(self._completed, self.leg)
+                game.update_score(self._results, self.leg)
                 game.update_teams(h2h=True)
 
         return sorted(
@@ -74,6 +74,6 @@ class Season:
         )
 
     def reset(self):
-        self._completed = self.completed.copy() if self.completed else {}
+        self._results = self.results.copy() if self.results else {}
         for team in self.teams:
             team.reset()

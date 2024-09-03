@@ -10,8 +10,8 @@ class Knockout:
     avg_goal: float
     home_adv: float
     leg: int = 2
-    matchups: dict[Round, list[tuple[Team, Team]]] | None = None
-    completed: (
+    fixtures: dict[Round, list[tuple[Team, Team]]] | None = None
+    results: (
         dict[
             tuple[str],
             tuple[int],
@@ -23,8 +23,8 @@ class Knockout:
         if not self.leg in (1, 2):
             raise ValueError
 
-        if not self.matchups:
-            self.matchups = {}
+        if not self.fixtures:
+            self.fixtures = {}
         self.results = {Round(len(self.teams)): self.teams}
 
     @property
@@ -60,7 +60,7 @@ class Knockout:
 
     def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
         game = Match(home_team, away_team)
-        game.update_score(self.completed, self.leg)
+        game.update_score(self.results, self.leg)
         if not game.completed:
             game.simulate(self.avg_goal, self._home_adv)
         return game
@@ -107,10 +107,10 @@ class Knockout:
         next_round_len = len(advanced) / 2
 
         while current_round > Round.CHAMPS:
-            matchups = self.matchups.get(current_round, [])
+            matchups = self.fixtures.get(current_round, [])
             next_round = Round(next_round_len)
             winners = [
-                team for teams in self.matchups.get(next_round, []) for team in teams
+                team for teams in self.fixtures.get(next_round, []) for team in teams
             ]
 
             matchups = self.draw_matchup(advanced, matchups)

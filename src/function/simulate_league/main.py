@@ -43,7 +43,7 @@ def main():
         home_adv=factors["home_adv"],
         h2h=message["h2h"],
         leg=message["leg"],
-        completed=queries.get_completed_matches(league),
+        results=queries.get_completed_matches(league),
     )
 
     # logging.info(f"Simulating: {league=}")
