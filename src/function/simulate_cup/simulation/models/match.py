@@ -33,16 +33,6 @@ class Match:
         return (self.home_team, self.away_team)
 
     @property
-    def team_names(self):
-        # TODO Change to name and downstream
-        pass
-
-    @property
-    def team_names_ordered(self):
-        # TODO series_id?
-        pass
-
-    @property
     def is_complete(self) -> bool:
         return self.status == "complete"
 

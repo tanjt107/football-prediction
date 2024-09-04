@@ -47,16 +47,15 @@ class Knockout:
         random.shuffle(undrawn)
 
         for match in scheduled_matches:
-            series_id = f"{match.home_team.name}_{match.away_team.name}"  # TODO Review this logic
-            series[series_id].append(match)
+            series[frozenset(match.teams)].append(match)
 
         for i in range(0, len(undrawn), 2):
             home_team = undrawn[i]
             away_team = undrawn[i + 1]
-            series_id = f"{home_team.name}_{away_team.name}"
-            series[series_id].append(Match(home_team, away_team))
+            key = frozenset((home_team, away_team))
+            series[key].append(Match(home_team, away_team))
             if leg == 2:
-                series[series_id].append(Match(away_team, home_team))
+                series[key].append(Match(away_team, home_team))
 
         return series
 

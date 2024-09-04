@@ -448,7 +448,7 @@ def simulate_cup(
             )
             knockout = Knockout(
                 name=current_round,
-                teams=set(advanced),  # TODO review all data type set/tuple/list
+                teams=set(advanced),
                 avg_goal=groups.avg_goal,
                 home_adv=groups.home_adv,
                 leg=groups.leg,

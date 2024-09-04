@@ -8,7 +8,7 @@ from simulation.models import Team, TieBreaker, Match
 
 @dataclass
 class Season:
-    teams: set[Team]
+    teams: list[Team]
     avg_goal: float
     home_adv: float
     h2h: bool = False
