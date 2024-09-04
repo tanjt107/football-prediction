@@ -74,7 +74,7 @@ class Match:
         self._winning_team = random.choice([self.home_team, self.away_team])
         self.set_status_complete()
 
-    def update_teams(self, h2h=False):
+    def log_teams_table(self, h2h=False):
         if h2h:
             home_table = self.home_team.h2h_table
             away_table = self.away_team.h2h_table

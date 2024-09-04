@@ -40,11 +40,11 @@ class Season:
         for match in self.matches:
             if not match.is_complete:
                 match.simulate(self.avg_goal, self.home_adv)
-            match.update_teams()
+            match.log_teams_table()
 
         for position, team in enumerate(self.positions, 1):
-            team.update_sim_table()
-            team.update_sim_positions(position)
+            team.log_sim_table()
+            team.log_sim_positions(position)
 
     @property
     def positions(self) -> list[Team]:
@@ -58,7 +58,7 @@ class Season:
                     continue
                 for match in self.matches:
                     if match.home_team in teams and match.away_team in teams:
-                        match.update_teams(h2h=True)
+                        match.log_teams_table(h2h=True)
 
         return sorted(
             self.teams,

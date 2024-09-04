@@ -29,13 +29,13 @@ class Team:
     def set_correction(self, value: int):
         self.table.correction = value
 
-    def update_sim_table(self):
+    def log_sim_table(self):
         self.sim_table += self.table
 
-    def update_sim_positions(self, position: int):
+    def log_sim_positions(self, position: int):
         self.sim_positions[f"_{position}"] += 1
 
-    def update_sim_rounds(self, _round: str):
+    def log_sim_rounds(self, _round: str):
         self.sim_rounds[_round] += 1
 
     def reset(self):
