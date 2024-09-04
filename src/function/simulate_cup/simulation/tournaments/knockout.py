@@ -1,125 +1,83 @@
 import random
+from collections import defaultdict
 from dataclasses import dataclass
 
-from simulation.models import Match, Round, Team
+from simulation.models import Match, Team
 
 
 @dataclass
 class Knockout:
-    teams: list[Team]
+    name: str
+    teams: set[Team]
     avg_goal: float
     home_adv: float
     leg: int = 2
-    fixtures: dict[Round, list[tuple[Team, Team]]] | None = None
-    results: (
-        dict[
-            tuple[str],
-            tuple[int],
-        ]
-        | None
-    ) = None
+    matches: list[Match] | None = None
+    winning_teams: set[Team] | None = None
 
     def __post_init__(self):
         if not self.leg in (1, 2):
             raise ValueError
 
-        if not self.fixtures:
-            self.fixtures = {}
-        self.results = {Round(len(self.teams)): self.teams}
+        self.matches = self.matches or []
+        self.winning_teams = self.winning_teams or set()
+        self._teams = self.teams
+        self._matches = self.matches
+        self._winning_teams = self.winning_teams
+
+        for team in self.teams:
+            team.update_sim_rounds(self.name)
 
     @property
     def _home_adv(self):
-        if self.leg == 2:
-            return self.home_adv
-        return 0
+        if self.leg == 1:
+            return 0
+        return self.home_adv
 
     @staticmethod
-    def draw_matchup(
-        teams: list[Team], drawn: set[set[Team]]
-    ) -> list[tuple[Team, Team]]:
-        drawn_teams = [team for teams in drawn for team in teams]
-        undrawn = [team for team in teams if team not in drawn_teams]
+    def draw_series(
+        teams: set[Team], scheduled_matches: list[Match], leg: int = 2
+    ) -> dict[tuple[Team], list[Match]]:
+        if len(teams) == 1:
+            return {}
+
+        series = defaultdict(list)
+        drawn = {team for match in scheduled_matches for team in match.teams}
+        undrawn = [team for team in teams if team not in drawn]
         random.shuffle(undrawn)
-        return [(home, away) for home, away in drawn] + list(
-            zip(undrawn[::2], undrawn[1::2])
-        )
 
-    def get_winner(
-        self, home_team: Team, away_team: Team, advanced: list[Team] | None = None
-    ):
-        advanced = advanced or []
+        for match in scheduled_matches:
+            series_id = f"{match.home_team.name}_{match.away_team.name}"  # TODO Review this logic
+            series[series_id].append(match)
 
-        if home_team in advanced:
-            return home_team
-        if away_team in advanced:
-            return away_team
+        for i in range(0, len(undrawn), 2):
+            home_team = undrawn[i]
+            away_team = undrawn[i + 1]
+            series_id = f"{home_team.name}_{away_team.name}"
+            series[series_id].append(Match(home_team, away_team))
+            if leg == 2:
+                series[series_id].append(Match(away_team, home_team))
 
-        if self.leg == 1:
-            return self.get_single_leg_winner(home_team, away_team)
-        return self.get_double_leg_winner(home_team, away_team)
-
-    def update_or_simulate_match(self, home_team: Team, away_team: Team) -> Match:
-        game = Match(home_team, away_team)
-        game.update_score(self.results, self.leg)
-        if not game.completed:
-            game.simulate(self.avg_goal, self._home_adv)
-        return game
-
-    def get_single_leg_winner(self, home_team: Team, away_team: Team):
-        game = self.update_or_simulate_match(home_team, away_team)
-        return game.winner or self.get_extra_time_winner(home_team, away_team)
-
-    def get_double_leg_winner(
-        self,
-        home_team: Team,
-        away_team: Team,
-    ):
-        leg1 = self.update_or_simulate_match(home_team, away_team)
-        leg2 = self.update_or_simulate_match(home_team=away_team, away_team=home_team)
-
-        game = Match(
-            home_team,
-            away_team,
-            home_score=leg1.home_score + leg2.away_score,
-            away_score=leg1.away_score + leg2.home_score,
-        )
-
-        if game.winner:
-            return game.winner
-
-        return game.winner or self.get_extra_time_winner(
-            home_team=away_team,
-            away_team=home_team,
-        )
-
-    def get_extra_time_winner(
-        self,
-        home_team: Team,
-        away_team: Team,
-    ):
-        game = Match(home_team, away_team)
-        game.simulate(self.avg_goal, self._home_adv, extra_time=True)
-        return game.winner or random.choice([home_team, away_team])
+        return series
 
     def simulate(self):
-        advanced = self.teams
-        current_round = Round(len(advanced))
-        next_round_len = len(advanced) / 2
+        series = self.draw_series(self.teams, self.matches, self.leg)
+        for matches in series.values():
+            if self.leg == 2:
+                leg1 = matches[0]
+                if not leg1.is_complete:
+                    leg1.simulate()
+                leg2 += matches[1]
+            else:
+                leg2 = matches[0]
 
-        while current_round > Round.CHAMPS:
-            matchups = self.fixtures.get(current_round, [])
-            next_round = Round(next_round_len)
-            winners = [
-                team for teams in self.fixtures.get(next_round, []) for team in teams
-            ]
+            if not leg2.is_complete:
+                leg2.simulate(is_cup=True)
 
-            matchups = self.draw_matchup(advanced, matchups)
+            if leg2.winning_team:
+                self.winning_teams.add(leg2.winning_team)
 
-            advanced = [
-                self.get_winner(home_team, away_team, winners)
-                for home_team, away_team in matchups
-            ]
-
-            self.results[next_round] = advanced
-            current_round = next_round
-            next_round_len /= 2
+    def reset(self):
+        self.teams = self._teams
+        self.matches = self._matches
+        self.winning_teams = self._winning_teams

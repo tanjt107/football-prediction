@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import partial
 from itertools import combinations, permutations
 
 from simulation.models import Team, TieBreaker, Match
@@ -7,24 +8,15 @@ from simulation.models import Team, TieBreaker, Match
 
 @dataclass
 class Season:
-    teams: list[Team]
+    teams: set[Team]
     avg_goal: float
     home_adv: float
     h2h: bool = False
     leg: int = 2
-    results: (
-        dict[
-            tuple[str],
-            tuple[int],
-        ]
-        | None
-    ) = None
+    matches: list[Match] | None = None
 
     def __post_init__(self):
-        if not self.leg in (1, 2):
-            raise ValueError
-
-        self._results = self.results.copy() if self.results else {}
+        self.matches = self.matches or self.scheduling(self.teams)
 
     @property
     def _home_adv(self):
@@ -35,25 +27,24 @@ class Season:
     @property
     def scheduling(self):
         if self.leg == 1:
-            return combinations
-        return permutations
+            return partial(combinations, r=2)
+        if self.leg == 2:
+            return partial(permutations, r=2)
+        raise ValueError  # TODO Error message
 
     @property
     def tiebreaker(self):
         return TieBreaker.h2h if self.h2h else TieBreaker.goal_diff
 
-    def update_or_simulate_match(self, home_team: Team, away_team: Team):
-        game = Match(home_team, away_team)
-        game.update_score(self._results, self.leg)
-        if not game.completed:
-            game.simulate(self.avg_goal, self._home_adv)
-            self._results[game.teams] = game.score
-        game.update_teams()
-
     def simulate(self):
-        self.reset()
-        for home_team, away_team in self.scheduling(self.teams, 2):
-            self.update_or_simulate_match(home_team, away_team)
+        for match in self.matches:
+            if not match.is_complete:
+                match.simulate(self.avg_goal, self.home_adv)
+            match.update_teams()
+
+        for position, team in enumerate(self.positions, 1):
+            team.update_sim_table()
+            team.update_sim_positions(position)
 
     @property
     def positions(self) -> list[Team]:
@@ -61,11 +52,13 @@ class Season:
         for team in self.teams:
             points[team.table.points].append(team)
 
-        for teams in points.values():
-            for home_team, away_team in self.scheduling(teams, 2):
-                game = Match(home_team, away_team)
-                game.update_score(self._results, self.leg)
-                game.update_teams(h2h=True)
+        if self.h2h:
+            for teams in points.values():
+                if len(teams) < 2:
+                    continue
+                for match in self.matches:
+                    if match.home_team in teams and match.away_team in teams:
+                        match.update_teams(h2h=True)
 
         return sorted(
             self.teams,
@@ -74,6 +67,7 @@ class Season:
         )
 
     def reset(self):
-        self._results = self.results.copy() if self.results else {}
+        for match in self.matches:
+            match.reset()
         for team in self.teams:
             team.reset()

@@ -215,9 +215,6 @@ def simulate_season(
 ) -> list[Team]:
     for _ in range(no_of_simulations):
         season.simulate()
-        for position, team in enumerate(season.positions, 1):
-            team.update_sim_table()
-            team.update_sim_positions(position)
         season.reset()
 
     for team in season.teams:

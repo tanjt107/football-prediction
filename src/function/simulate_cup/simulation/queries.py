@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from gcp import bigquery
-from simulation.models import Round, Team
+from simulation.models import Team, Match
 
 
 def get_last_run(league: str) -> int:
@@ -60,7 +60,7 @@ def get_groups(
     return groups
 
 
-def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team]]]:
+def get_matchup(league: str, teams: dict[str, Team]) -> dict[str, set[set[Team]]]:
     rounds = defaultdict(set)
     round_matchups = bigquery.query_dict(
         query="SELECT * FROM `simulation.get_matchups`(@league);",
@@ -68,10 +68,39 @@ def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team
     )
     for round_matchup in round_matchups:
         _round = round_matchup["round"].upper().replace("-", "_").replace(" ", "_")
-        if _round in Round.__members__:
-            rounds[Round[_round]].add(
-                frozenset(
-                    {teams[round_matchup["homeID"]], teams[round_matchup["awayID"]]}
-                )
+        rounds[_round].add(
+            frozenset({teams[round_matchup["homeID"]], teams[round_matchup["awayID"]]})
+        )
+    return rounds
+
+
+def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
+    rounds = defaultdict(list)
+    query = """
+SELECT
+    specific_tables.round,
+    homeId,
+    awayId,
+    status,
+    homeGoalCount,
+    awayGoalCount
+FROM footystats.matches
+JOIN master.leagues ON matches._SEASON_ID = leagues.latest_season_id
+JOIN footystats.tables USING (_SEASON_ID)
+JOIN tables.specific_tables ON matches.roundID = specific_tables.round_id
+WHERE matches._NAME = @league;
+"""
+    for row in bigquery.query_dict(
+        query,
+        params={"league": league},
+    ):
+        rounds[row["round"]].append(
+            Match(
+                home_team=teams[row["homeId"]],
+                away_team=teams[row["awayId"]],
+                status=row["status"],
+                home_score=row["homeGoalCount"],
+                away_score=row["awayGoalCount"],
             )
+        )
     return rounds

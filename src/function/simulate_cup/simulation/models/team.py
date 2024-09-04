@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from .results import Results
-from .round import Round
 from .table import Table
 
 
@@ -21,6 +20,9 @@ class Team:
     def __eq__(self, other: "Team") -> bool:
         return other and self.name == other.name
 
+    def __gt__(self, other: "Team") -> bool:
+        return self.name > other.name
+
     def __hash__(self):
         return hash(self.name)
 
@@ -33,8 +35,8 @@ class Team:
     def update_sim_positions(self, position: int):
         self.sim_positions[f"_{position}"] += 1
 
-    def update_sim_rounds(self, _round: Round):
-        self.sim_rounds[_round.name] += 1
+    def update_sim_rounds(self, _round: str):
+        self.sim_rounds[_round] += 1
 
     def reset(self):
         self.table.reset()
