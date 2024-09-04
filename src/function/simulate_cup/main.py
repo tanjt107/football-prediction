@@ -73,10 +73,11 @@ def main():
             "group": "Group A",
             "positions": {"_1": 1.0},
             "rounds": {
-                "Round of 16": 1.0,
-                "Quarter-finals": 1.0,
-                "Semi-finals": 1.0,
-                "Final": 1.0,
+                "round_of_16": 1.0,
+                "quarter_finals": 1.0,
+                "semi_finals": 1.0,
+                "final": 1.0,
+                "winner": 1.0,
             },
             "table": {
                 "wins": 3.0,
@@ -91,7 +92,7 @@ def main():
             "team": 8591,
             "group": "Group A",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -133,7 +134,7 @@ def main():
             "team": 8582,
             "group": "Group B",
             "positions": {"_1": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 1.0,
@@ -147,7 +148,7 @@ def main():
             "team": 8615,
             "group": "Group B",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -161,7 +162,7 @@ def main():
             "team": 8590,
             "group": "Group B",
             "positions": {"_3": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -189,7 +190,7 @@ def main():
             "team": 8607,
             "group": "Group C",
             "positions": {"_1": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0, "semi_finals": 1.0},
             "table": {
                 "wins": 3.0,
                 "draws": 0.0,
@@ -203,7 +204,7 @@ def main():
             "team": 8611,
             "group": "Group C",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -217,7 +218,7 @@ def main():
             "team": 8594,
             "group": "Group C",
             "positions": {"_3": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -245,7 +246,7 @@ def main():
             "team": 8606,
             "group": "Group D",
             "positions": {"_1": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 3.0,
                 "draws": 0.0,
@@ -259,7 +260,7 @@ def main():
             "team": 8579,
             "group": "Group D",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 0.0,
@@ -273,7 +274,7 @@ def main():
             "team": 8737,
             "group": "Group D",
             "positions": {"_3": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 0.0,
@@ -301,7 +302,7 @@ def main():
             "team": 8584,
             "group": "Group E",
             "positions": {"_1": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 0.0,
@@ -315,7 +316,7 @@ def main():
             "team": 8619,
             "group": "Group E",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
+            "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0, "semi_finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -330,10 +331,10 @@ def main():
             "group": "Group E",
             "positions": {"_3": 1.0},
             "rounds": {
-                "Round of 16": 1.0,
-                "Quarter-finals": 1.0,
-                "Semi-finals": 1.0,
-                "Final": 1.0,
+                "round_of_16": 1.0,
+                "quarter_finals": 1.0,
+                "semi_finals": 1.0,
+                "final": 1.0,
             },
             "table": {
                 "wins": 1.0,
@@ -362,7 +363,7 @@ def main():
             "team": 8588,
             "group": "Group F",
             "positions": {"_1": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 1.0,
@@ -376,7 +377,7 @@ def main():
             "team": 8613,
             "group": "Group F",
             "positions": {"_2": 1.0},
-            "rounds": {"Round of 16": 1.0},
+            "rounds": {"round_of_16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -443,7 +444,6 @@ def simulate_cup(
             "Final",
             "Winner",
         ]  # TODO Currently hard coded. Should be from json.
-        # TODO Missing winner logic
         for i in range(len(rounds) - 1):
             current_round = rounds[i]
             next_round = rounds[i + 1]
@@ -463,7 +463,17 @@ def simulate_cup(
             knockout.simulate()
             advanced = knockout.winning_teams
 
+        knockout = Knockout(
+            name="Winner",
+            teams=set(advanced),
+            avg_goal=groups.avg_goal,
+            home_adv=groups.home_adv,
+            leg=groups.leg,
+            winning_teams=winners,
+        )
+
         groups.reset()
+        # TODO knockout reset
 
     for team in groups.teams:
         team.sim_table /= no_of_simulations

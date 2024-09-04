@@ -4,10 +4,11 @@ data = [
         "group": "Group A",
         "positions": {"_1": 1.0},
         "rounds": {
-            "Round of 16": 1.0,
-            "Quarter-finals": 1.0,
-            "Semi-finals": 1.0,
-            "Final": 1.0,
+            "round_of_16": 1.0,
+            "quarter_finals": 1.0,
+            "semi_finals": 1.0,
+            "final": 1.0,
+            "winner": 1.0,
         },
         "table": {
             "wins": 3.0,
@@ -22,7 +23,7 @@ data = [
         "team": 8591,
         "group": "Group A",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 1.0,
@@ -64,7 +65,7 @@ data = [
         "team": 8582,
         "group": "Group B",
         "positions": {"_1": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
         "table": {
             "wins": 2.0,
             "draws": 1.0,
@@ -78,7 +79,7 @@ data = [
         "team": 8615,
         "group": "Group B",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 2.0,
@@ -92,7 +93,7 @@ data = [
         "team": 8590,
         "group": "Group B",
         "positions": {"_3": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 1.0,
@@ -120,7 +121,7 @@ data = [
         "team": 8607,
         "group": "Group C",
         "positions": {"_1": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0, "semi_finals": 1.0},
         "table": {
             "wins": 3.0,
             "draws": 0.0,
@@ -134,7 +135,7 @@ data = [
         "team": 8611,
         "group": "Group C",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 1.0,
@@ -148,7 +149,7 @@ data = [
         "team": 8594,
         "group": "Group C",
         "positions": {"_3": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 1.0,
@@ -176,7 +177,7 @@ data = [
         "team": 8606,
         "group": "Group D",
         "positions": {"_1": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 3.0,
             "draws": 0.0,
@@ -190,7 +191,7 @@ data = [
         "team": 8579,
         "group": "Group D",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0},
         "table": {
             "wins": 2.0,
             "draws": 0.0,
@@ -204,7 +205,7 @@ data = [
         "team": 8737,
         "group": "Group D",
         "positions": {"_3": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 0.0,
@@ -232,7 +233,7 @@ data = [
         "team": 8584,
         "group": "Group E",
         "positions": {"_1": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 2.0,
             "draws": 0.0,
@@ -246,7 +247,7 @@ data = [
         "team": 8619,
         "group": "Group E",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
+        "rounds": {"round_of_16": 1.0, "quarter_finals": 1.0, "semi_finals": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 2.0,
@@ -261,10 +262,10 @@ data = [
         "group": "Group E",
         "positions": {"_3": 1.0},
         "rounds": {
-            "Round of 16": 1.0,
-            "Quarter-finals": 1.0,
-            "Semi-finals": 1.0,
-            "Final": 1.0,
+            "round_of_16": 1.0,
+            "quarter_finals": 1.0,
+            "semi_finals": 1.0,
+            "final": 1.0,
         },
         "table": {
             "wins": 1.0,
@@ -293,7 +294,7 @@ data = [
         "team": 8588,
         "group": "Group F",
         "positions": {"_1": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 2.0,
             "draws": 1.0,
@@ -307,7 +308,7 @@ data = [
         "team": 8613,
         "group": "Group F",
         "positions": {"_2": 1.0},
-        "rounds": {"Round of 16": 1.0},
+        "rounds": {"round_of_16": 1.0},
         "table": {
             "wins": 1.0,
             "draws": 2.0,

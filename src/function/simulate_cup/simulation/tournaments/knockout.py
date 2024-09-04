@@ -21,18 +21,22 @@ class Knockout:
 
         self.matches = self.matches or []
         self.winning_teams = self.winning_teams or set()
-        self._teams = self.teams
+        self.series = self.draw_series(self.teams, self.matches, self.leg)
         self._matches = self.matches
         self._winning_teams = self.winning_teams
 
-        for team in self.teams:
-            team.update_sim_rounds(self.name)
+        self.update_team_sim_rounds()
 
     @property
     def _home_adv(self):
         if self.leg == 1:
             return 0
         return self.home_adv
+
+    def update_team_sim_rounds(self):
+        name = self.name.lower().replace(" ", "_").replace("-", "_")
+        for team in self.teams:
+            team.update_sim_rounds(name)
 
     @staticmethod
     def draw_series(
@@ -60,8 +64,7 @@ class Knockout:
         return series
 
     def simulate(self):
-        series = self.draw_series(self.teams, self.matches, self.leg)
-        for matches in series.values():
+        for matches in self.series.values():
             if self.leg == 2:
                 leg1 = matches[0]
                 if not leg1.is_complete:
@@ -77,6 +80,5 @@ class Knockout:
                 self.winning_teams.add(leg2.winning_team)
 
     def reset(self):
-        self.teams = self._teams
         self.matches = self._matches
         self.winning_teams = self._winning_teams
