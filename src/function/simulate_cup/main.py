@@ -1,7 +1,6 @@
 # import logging
 # import math
 import os
-from collections import defaultdict
 from dataclasses import asdict
 
 # import functions_framework
@@ -11,7 +10,7 @@ from dataclasses import asdict
 # from gcp.logging import setup_logging
 # from gcp.util import decode_message
 from simulation import queries
-from simulation.models import TieBreaker, Match
+from simulation.models import Match
 from simulation.tournaments import Groups, Knockout
 
 
