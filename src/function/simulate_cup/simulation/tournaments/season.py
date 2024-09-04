@@ -30,7 +30,7 @@ class Season:
             return partial(combinations, r=2)
         if self.leg == 2:
             return partial(permutations, r=2)
-        raise ValueError  # TODO Error message
+        raise ValueError
 
     @property
     def tiebreaker(self):

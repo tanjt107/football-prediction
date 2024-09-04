@@ -439,6 +439,7 @@ def simulate_cup(
             "Final",
             "Winner",
         ]  # TODO Currently hard coded. Should be from json.
+        # TODO Missing winner logic
         for i in range(len(rounds) - 1):
             current_round = rounds[i]
             next_round = rounds[i + 1]

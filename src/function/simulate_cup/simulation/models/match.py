@@ -30,9 +30,17 @@ class Match:
 
     @property
     def teams(self) -> tuple[Team]:
-        return (self.home_team, self.away_team)  # TODO Change to name and downstream
+        return (self.home_team, self.away_team)
 
-    # TODO series_id?
+    @property
+    def team_names(self):
+        # TODO Change to name and downstream
+        pass
+
+    @property
+    def team_names_ordered(self):
+        # TODO series_id?
+        pass
 
     @property
     def is_complete(self) -> bool:

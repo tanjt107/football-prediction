@@ -16,13 +16,12 @@ class Groups:
 
     def __post_init__(self):
         if not self.leg in (1, 2):
-            raise ValueError  # TODO Error Message
+            raise ValueError
 
         self.matches = self.matches or []
         self._matches = self.matches
         self.positions = defaultdict(list)
 
-        # TODO review this logic
         team_group = {
             team: group for group, teams in self.groups.items() for team in teams
         }
