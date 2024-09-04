@@ -12,7 +12,7 @@ from dataclasses import asdict
 # from gcp.util import decode_message
 from simulation import queries
 from simulation.models import TieBreaker, Match
-from simulation.tournaments import Season, Knockout
+from simulation.tournaments import Groups, Knockout
 
 
 # setup_logging()
@@ -55,20 +55,12 @@ def main():
             for group, _teams in data["groups"].items()
         }
 
-    teams_group = {team: group for group, teams in groups.items() for team in teams}
-    group_matches = defaultdict(list)
-    for match in matches["Group Stage"]:
-        group_matches[teams_group[match.home_team]].append(match)
-
-    group_seasons = {
-        name: Season(
-            teams, avg_goal, home_adv, data["h2h"], data["leg"], group_matches[name]
-        )
-        for name, teams in groups.items()
-    }
+    groups = Groups(
+        groups, avg_goal, home_adv, data["h2h"], data["leg"], matches["Group Stage"]
+    )
 
     # logging.info(f"Simulating: {league=}")
-    data = simulate_cup(group_seasons, data["team_no_ko"], matches)
+    data = simulate_cup(groups, data["team_no_ko"], matches)
     # logging.info(f"Simulated: {league=}")
 
     if data == [
@@ -77,11 +69,10 @@ def main():
             "group": "Group A",
             "positions": {"_1": 1.0},
             "rounds": {
-                "ROUND_OF_16": 1.0,
-                "QUARTER_FINALS": 1.0,
-                "SEMI_FINALS": 1.0,
-                "FINAL": 1.0,
-                "CHAMPS": 1.0,
+                "Round of 16": 1.0,
+                "Quarter-finals": 1.0,
+                "Semi-finals": 1.0,
+                "Final": 1.0,
             },
             "table": {
                 "wins": 3.0,
@@ -96,7 +87,7 @@ def main():
             "team": 8591,
             "group": "Group A",
             "positions": {"_2": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0, "QUARTER_FINALS": 1.0},
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -138,7 +129,7 @@ def main():
             "team": 8582,
             "group": "Group B",
             "positions": {"_1": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0, "QUARTER_FINALS": 1.0},
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 1.0,
@@ -152,7 +143,7 @@ def main():
             "team": 8615,
             "group": "Group B",
             "positions": {"_2": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0, "QUARTER_FINALS": 1.0},
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -166,7 +157,7 @@ def main():
             "team": 8590,
             "group": "Group B",
             "positions": {"_3": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -194,11 +185,7 @@ def main():
             "team": 8607,
             "group": "Group C",
             "positions": {"_1": 1.0},
-            "rounds": {
-                "ROUND_OF_16": 1.0,
-                "QUARTER_FINALS": 1.0,
-                "SEMI_FINALS": 1.0,
-            },
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
             "table": {
                 "wins": 3.0,
                 "draws": 0.0,
@@ -212,7 +199,7 @@ def main():
             "team": 8611,
             "group": "Group C",
             "positions": {"_2": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -226,7 +213,7 @@ def main():
             "team": 8594,
             "group": "Group C",
             "positions": {"_3": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 1.0,
@@ -254,7 +241,7 @@ def main():
             "team": 8606,
             "group": "Group D",
             "positions": {"_1": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 3.0,
                 "draws": 0.0,
@@ -268,7 +255,7 @@ def main():
             "team": 8579,
             "group": "Group D",
             "positions": {"_2": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0, "QUARTER_FINALS": 1.0},
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 0.0,
@@ -282,7 +269,7 @@ def main():
             "team": 8737,
             "group": "Group D",
             "positions": {"_3": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 0.0,
@@ -310,7 +297,7 @@ def main():
             "team": 8584,
             "group": "Group E",
             "positions": {"_1": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 0.0,
@@ -324,11 +311,7 @@ def main():
             "team": 8619,
             "group": "Group E",
             "positions": {"_2": 1.0},
-            "rounds": {
-                "ROUND_OF_16": 1.0,
-                "QUARTER_FINALS": 1.0,
-                "SEMI_FINALS": 1.0,
-            },
+            "rounds": {"Round of 16": 1.0, "Quarter-finals": 1.0, "Semi-finals": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -343,10 +326,10 @@ def main():
             "group": "Group E",
             "positions": {"_3": 1.0},
             "rounds": {
-                "ROUND_OF_16": 1.0,
-                "QUARTER_FINALS": 1.0,
-                "SEMI_FINALS": 1.0,
-                "FINAL": 1.0,
+                "Round of 16": 1.0,
+                "Quarter-finals": 1.0,
+                "Semi-finals": 1.0,
+                "Final": 1.0,
             },
             "table": {
                 "wins": 1.0,
@@ -375,7 +358,7 @@ def main():
             "team": 8588,
             "group": "Group F",
             "positions": {"_1": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 2.0,
                 "draws": 1.0,
@@ -389,7 +372,7 @@ def main():
             "team": 8613,
             "group": "Group F",
             "positions": {"_2": 1.0},
-            "rounds": {"ROUND_OF_16": 1.0},
+            "rounds": {"Round of 16": 1.0},
             "table": {
                 "wins": 1.0,
                 "draws": 2.0,
@@ -440,38 +423,15 @@ def main():
 
 
 def simulate_cup(
-    groups: dict[str, Season],
+    groups: Groups,
     team_no_ko: int,
     matches: dict[str, list[Match]] | None = None,
     no_of_simulations: int = 10000,
 ):
-    direct, wildcard = divmod(team_no_ko, len(groups))
 
     for _ in range(no_of_simulations):
-        positions = defaultdict(list)
-        for group in groups.values():
-            group.reset()  # TODO Review reset timing/position
-            group.simulate()
-            for position, team in enumerate(group.positions, 1):
-                positions[position].append(team)
-
-        # if not math.log2(team_no_ko).is_integer():
-        #     continue
-
-        advanced = []
-        for position, teams in positions.items():
-            if position <= direct:
-                advanced.extend(teams)
-            if position == direct + 1:
-                advanced.extend(
-                    sorted(
-                        positions[direct + 1],
-                        key=TieBreaker.goal_diff,
-                        reverse=True,
-                    )[:wildcard]
-                )
-
-        group = list(groups.values())[0]
+        groups.simulate()
+        advanced = groups.get_advanced(team_no_ko)
         rounds = [
             "Round of 16",
             "Quarter-finals",
@@ -488,9 +448,9 @@ def simulate_cup(
             knockout = Knockout(
                 name=current_round,
                 teams=set(advanced),  # TODO review all data type set/tuple/list
-                avg_goal=group.avg_goal,
-                home_adv=group.home_adv,
-                leg=group.leg,
+                avg_goal=groups.avg_goal,
+                home_adv=groups.home_adv,
+                leg=groups.leg,
                 matches=matches[current_round],
                 winning_teams=winners,
             )
@@ -498,11 +458,12 @@ def simulate_cup(
             knockout.simulate()
             advanced = knockout.winning_teams
 
-    for season in groups.values():
-        for team in season.teams:
-            team.sim_table /= no_of_simulations
-            team.sim_rounds /= no_of_simulations
-            team.sim_positions /= no_of_simulations
+        groups.reset()
+
+    for team in groups.teams:
+        team.sim_table /= no_of_simulations
+        team.sim_rounds /= no_of_simulations
+        team.sim_positions /= no_of_simulations
 
     return [
         {
@@ -512,8 +473,8 @@ def simulate_cup(
             "rounds": dict(team.sim_rounds),
             "table": asdict(team.sim_table),
         }
-        for group, season in groups.items()
-        for team in season.teams
+        for group, teams in groups.groups.items()
+        for team in teams
     ]
 
 

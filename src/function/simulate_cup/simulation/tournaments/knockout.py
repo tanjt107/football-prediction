@@ -17,7 +17,7 @@ class Knockout:
 
     def __post_init__(self):
         if not self.leg in (1, 2):
-            raise ValueError
+            raise ValueError  # TODO Error Message
 
         self.matches = self.matches or []
         self.winning_teams = self.winning_teams or set()
