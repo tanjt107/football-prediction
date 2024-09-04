@@ -11,8 +11,8 @@ class Knockout:
     teams: set[Team]
     avg_goal: float
     home_adv: float
-    leg: int = 2
     matches: list[Match] | None = None
+    leg: int = 2
     winning_teams: set[Team] | None = None
 
     def __post_init__(self):

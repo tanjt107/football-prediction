@@ -10,9 +10,9 @@ class Groups:
     groups: dict[str, list[Team]]
     avg_goal: float
     home_adv: float
+    matches: list[Match]
     h2h: bool = False
     leg: int = 2
-    matches: list[Match] | None = None
 
     def __post_init__(self):
         if not self.leg in (1, 2):
@@ -22,23 +22,28 @@ class Groups:
         self._matches = self.matches
         self.positions = defaultdict(list)
 
-        team_group = {
-            team: group for group, teams in self.groups.items() for team in teams
-        }
-        group_matches = defaultdict(list)
-        for match in self.matches:
-            group_matches[team_group[match.home_team]].append(match)
+        group_matches = self.get_matches_by_groups(self.matches, self.groups)
         self._groups = [
             Season(
                 teams,
                 self.avg_goal,
                 self.home_adv,
+                group_matches[name],
                 self.h2h,
                 self.leg,
-                group_matches[name],
             )
             for name, teams in self.groups.items()
         ]
+
+    @staticmethod
+    def get_matches_by_groups(
+        matches: list[Match], groups: dict[str, list[Team]]
+    ) -> dict[str, list[Match]]:
+        team_group = {team: group for group, teams in groups.items() for team in teams}
+        group_matches = defaultdict(list)
+        for match in matches:
+            group_matches[team_group[match.home_team]].append(match)
+        return group_matches
 
     @property
     def teams(self) -> list[Team]:

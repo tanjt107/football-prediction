@@ -56,7 +56,12 @@ def main():
         }
 
     groups = Groups(
-        groups, avg_goal, home_adv, data["h2h"], data["leg"], matches["Group Stage"]
+        groups,
+        avg_goal,
+        home_adv,
+        matches["Group Stage"],
+        data["h2h"],
+        data["leg"],
     )
 
     # logging.info(f"Simulating: {league=}")
@@ -451,8 +456,8 @@ def simulate_cup(
                 teams=set(advanced),
                 avg_goal=groups.avg_goal,
                 home_adv=groups.home_adv,
-                leg=groups.leg,
                 matches=matches[current_round],
+                leg=groups.leg,
                 winning_teams=winners,
             )
 

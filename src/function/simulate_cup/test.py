@@ -42,9 +42,9 @@ def main():
         teams=set(teams.values()),
         avg_goal=factors["avg_goal"],
         home_adv=factors["home_adv"],
+        matches=queries.get_matches(league, teams)["Regular Season"],
         h2h=message["h2h"],
         leg=message["leg"],
-        matches=queries.get_matches(league, teams)["Regular Season"],
     )
 
     # logging.info(f"Simulating: {league=}")
