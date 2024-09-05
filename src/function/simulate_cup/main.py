@@ -25,40 +25,35 @@ def main():
     # data = decode_message(cloud_event)
     data = {
         "league": "International AFC Asian Cup",
-        "rounds": [
-            {
-                "name": "Group Stage",
+        "rounds": {
+            "Group Stage": {
                 "format": "Groups",
                 "h2h": False,
                 "leg": 1,
                 "advance_to": {"name": "Round of 16", "n": 16},
             },
-            {
-                "name": "Round of 16",
+            "Round of 16": {
                 "format": "Knockout",
                 "leg": 1,
                 "advance_to": {"name": "Quarter-finals"},
             },
-            {
-                "name": "Quarter-finals",
+            "Quarter-finals": {
                 "format": "Knockout",
                 "leg": 1,
                 "advance_to": {"name": "Semi-finals"},
             },
-            {
-                "name": "Semi-finals",
+            "Semi-finals": {
                 "format": "Knockout",
                 "leg": 1,
                 "advance_to": {"name": "Final"},
             },
-            {
-                "name": "Final",
+            "Final": {
                 "format": "Knockout",
                 "leg": 1,
                 "advance_to": {"name": "Winner"},
             },
-            {"name": "Winner", "format": "Winner"},
-        ],
+            "Winner": {"format": "Winner"},
+        },
     }
     league = data["league"]
 
@@ -96,7 +91,7 @@ def main():
 
 
 def simulate_cup(
-    rounds: str,
+    rounds: dict,
     avg_goal: float,
     home_adv: float,
     teams: dict[str, Team],
@@ -105,52 +100,51 @@ def simulate_cup(
     no_of_simulations: int = 10000,
 ):
 
-    _rounds = {}
     groups = None
-    for _round in rounds:
-        if _round["format"] == "Groups":
-            groups = queries.get_groups(league, teams, _round["name"])
+    for name, param in rounds.items():
+        if param["format"] == "Groups":
+            groups = queries.get_groups(league, teams, name)
             if not groups:
                 groups = {
                     group: [teams[team] for team in _teams]
-                    for group, _teams in _round["groups"].items()
+                    for group, _teams in param["groups"].items()
                 }
-            _rounds[_round["name"]] = Groups(
+            param["object"] = Groups(
                 groups,
                 avg_goal,
                 home_adv,
-                matches[_round["name"]],
-                _round["h2h"],
-                _round["leg"],
+                matches[name],
+                param["h2h"],
+                param["leg"],
             )
-        elif _round["format"] == "Knockout":
-            _rounds[_round["name"]] = Knockout(
-                _round["name"],
+        elif param["format"] == "Knockout":
+            param["object"] = Knockout(
+                name,
                 avg_goal,
                 home_adv,
-                matches[_round["name"]],
-                _round["leg"],
+                matches[name],
+                param["leg"],
                 winning_teams={
                     team
-                    for match in matches.get(_round["advance_to"]["name"], [])
+                    for match in matches.get(param["advance_to"]["name"], [])
                     for team in match.teams
                 },
             )
-        elif _round["format"] == "Winner":
-            _rounds[_round["name"]] = Winner()
+        elif param["format"] == "Winner":
+            param["object"] = Winner()
 
     for _ in range(no_of_simulations):
-        for _round in rounds:
-            __round = _rounds[_round["name"]]
-            __round.simulate()
-            if "advance_to" in _round:
-                if isinstance(__round, Groups):
-                    advanced = __round.get_advanced(_round["advance_to"]["n"])
-                elif isinstance(__round, Knockout):
-                    advanced = __round.winning_teams
-                _rounds[_round["advance_to"]["name"]].add_teams(advanced)
+        for param in rounds.values():
+            _round = param["object"]
+            _round.simulate()
+            if "advance_to" in param:
+                if isinstance(_round, Groups):
+                    advanced = _round.get_advanced(param["advance_to"]["n"])
+                elif isinstance(_round, Knockout):
+                    advanced = _round.winning_teams
+                rounds[param["advance_to"]["name"]]["object"].add_teams(advanced)
 
-            __round.reset()
+            _round.reset()
 
     for team in teams.values():
         team.sim_table /= no_of_simulations
