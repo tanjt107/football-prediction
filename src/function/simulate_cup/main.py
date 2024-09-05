@@ -2,6 +2,7 @@
 # import math
 import os
 from dataclasses import asdict
+import json
 
 # import functions_framework
 # from cloudevents.http.event import CloudEvent
@@ -23,39 +24,9 @@ BUCKET_NAME = os.getenv("BUCKET_NAME")
 # def main(cloud_event: CloudEvent):
 def main():
     # data = decode_message(cloud_event)
-    data = {
-        "league": "International AFC Asian Cup",
-        "rounds": {
-            "Group Stage": {
-                "format": "Groups",
-                "h2h": False,
-                "leg": 1,
-                "advance_to": {"Round of 16": {"start": 1, "end": 16}},
-            },
-            "Round of 16": {
-                "format": "Knockout",
-                "leg": 1,
-                "advance_to": "Quarter-finals",
-            },
-            "Quarter-finals": {
-                "format": "Knockout",
-                "leg": 1,
-                "advance_to": "Semi-finals",
-            },
-            "Semi-finals": {
-                "format": "Knockout",
-                "leg": 1,
-                "advance_to": "Final",
-            },
-            "Final": {
-                "format": "Knockout",
-                "leg": 1,
-                "advance_to": "Winner",
-            },
-            "Winner": {"format": "Winner"},
-        },
-    }
-    league = data["league"]
+    league = "International AFC Asian Cup"
+    with open(f"assets/input/{league}.json") as f:
+        rounds = json.load(f)
 
     # last_run = queries.get_last_run(league)
     # latest_match_date = queries.get_latest_match_date(league)
@@ -69,7 +40,7 @@ def main():
 
     # logging.info(f"Simulating: {league=}")
     data = simulate_cup(
-        data["rounds"],
+        rounds,
         avg_goal,
         home_adv,
         teams.values(),
@@ -78,9 +49,7 @@ def main():
     )
     # logging.info(f"Simulated: {league=}")
 
-    import json
-
-    with open("check.json", "w") as f:
+    with open(f"assets/results/{league}.json", "w") as f:
         json.dump(data, f)
     # storage.upload_json_to_bucket(
     #     data,
