@@ -49,17 +49,8 @@ def get_completed_matches(
 
 def get_groups(league: str, teams: dict[str, Team]) -> dict[str, list[Team]]:
     rounds = defaultdict(lambda: defaultdict(list))
-    query = """SELECT
-  specific_tables.round, group_tables.name, table.id
-FROM footystats.tables
-CROSS JOIN tables.specific_tables
-CROSS JOIN specific_tables.groups group_tables
-CROSS JOIN group_tables.table
-JOIN master.leagues ON tables._SEASON_ID = leagues.latest_season_id
-WHERE tables._NAME = @league
-  AND tables._SEASON_ID = leagues.latest_season_id;"""
     rows = bigquery.query_dict(
-        query,
+        query="SELECT * FROM `simulation.get_groups`(@league);",
         params={"league": league},
     )
     for row in rows:
@@ -67,38 +58,10 @@ WHERE tables._NAME = @league
     return rounds
 
 
-def get_matchup(league: str, teams: dict[str, Team]) -> dict[str, set[set[Team]]]:
-    rounds = defaultdict(set)
-    round_matchups = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_matchups`(@league);",
-        params={"league": league},
-    )
-    for round_matchup in round_matchups:
-        _round = round_matchup["round"].upper().replace("-", "_").replace(" ", "_")
-        rounds[_round].add(
-            frozenset({teams[round_matchup["homeID"]], teams[round_matchup["awayID"]]})
-        )
-    return rounds
-
-
 def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
     rounds = defaultdict(list)
-    query = """
-SELECT
-    specific_tables.round,
-    homeId,
-    awayId,
-    status,
-    homeGoalCount,
-    awayGoalCount
-FROM footystats.matches
-JOIN master.leagues ON matches._SEASON_ID = leagues.latest_season_id
-JOIN footystats.tables USING (_SEASON_ID)
-JOIN tables.specific_tables ON matches.roundID = specific_tables.round_id
-WHERE matches._NAME = @league;
-"""
     for row in bigquery.query_dict(
-        query,
+        query="SELECT * FROM `simulation.get_matches`(@league);",
         params={"league": league},
     ):
         rounds[row["round"]].append(

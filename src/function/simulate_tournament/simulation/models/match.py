@@ -23,10 +23,17 @@ class Match:
     def __add__(self, other: "Match") -> "Match":
         if (self.home_team, self.away_team) != (other.away_team, other.home_team):
             raise ValueError
-        if not self.is_complete or not other.is_complete:
-            self.status = "incomplete"
-        self.home_score += self.away_score
-        self.away_score += self.home_score
+        if self.is_complete and other.is_complete:
+            status = "complete"
+        else:
+            status = "incomplete"
+        return Match(
+            home_team=self.away_team,
+            away_team=self.home_team,
+            status=status,
+            home_score=self.away_score + other.home_score,
+            away_score=self.home_score + other.away_score,
+        )
 
     @property
     def teams(self) -> tuple[Team]:
@@ -47,7 +54,7 @@ class Match:
             return self.home_team
         if self.away_score > self.home_score:
             return self.away_team
-        return None
+        return self._winning_team
 
     def _simulate(self, avg_goal: float, home_adv: float, extra_time: bool = False):
         home_exp = avg_goal + home_adv + self.home_team.offence + self.away_team.defence
@@ -60,7 +67,7 @@ class Match:
         self.home_score += np.random.poisson(home_exp)
         self.away_score += np.random.poisson(away_exp)
 
-    def simulate(self, avg_goal: float, home_adv: float, is_cup: bool = True):
+    def simulate(self, avg_goal: float, home_adv: float, is_cup: bool = False):
         self._simulate(avg_goal, home_adv)
         if self.winning_team or not is_cup:
             self.set_status_complete()

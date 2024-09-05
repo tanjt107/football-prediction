@@ -49,7 +49,19 @@ module "buckets" {
       "../../assets/leagues.csv",
       "../../assets/teams.csv",
     ]
-    simulation = ["../../assets/simulation_params.csv"]
+    simulation = [
+      "../../assets/simulation/Asia AFC Cup.json",
+      "../../assets/simulation/China China League One.json",
+      "../../assets/simulation/China Chinese Super League.json",
+      "../../assets/simulation/England Premier League.json",
+      "../../assets/simulation/France Ligue 1.json",
+      "../../assets/simulation/Germany Bundesliga.json",
+      "../../assets/simulation/Hong Kong Hong Kong Premier League.json",
+      "../../assets/simulation/International WC Qualification Asia.json",
+      "../../assets/simulation/Italy Serie A.json",
+      "../../assets/simulation/Japan J1 League.json",
+      "../../assets/simulation/Spain La Liga.json",
+    ]
   }
 }
 
@@ -621,36 +633,6 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_gs_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_gs_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "stage"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_ko_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_ko_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "stage"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
     get_last_run = {
       definition_body = templatefile("../../src/bigquery/sql/simulation/get_last_run.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
@@ -673,13 +655,17 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_matchups = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matchups.sql", { project_id = module.project.project_id })
+    get_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [
         {
           name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
           data_type = jsonencode({ "typeKind" : "STRING" })
         }
       ]

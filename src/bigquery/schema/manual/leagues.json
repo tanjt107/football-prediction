@@ -17,6 +17,11 @@
         "type": "STRING"
     },
     {
+        "name": "is_simulate",
+        "type": "BOOLEAN",
+        "mode": "REQUIRED"
+    },
+    {
         "name": "display_order",
         "type": "STRING"
     }

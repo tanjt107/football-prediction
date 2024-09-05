@@ -18,11 +18,11 @@ class Knockout:
         if not self.leg in (1, 2):
             raise ValueError
 
-        self.teams: set[Team] = set()
+        self.teams: list[Team] = []
         self.matches = self.matches or []
         self.winning_teams = self.winning_teams or set()
-        self._matches = self.matches
-        self._winning_teams = self.winning_teams
+        self._matches = self.matches.copy()
+        self._winning_teams = self.winning_teams.copy()
 
     @property
     def _home_adv(self):
@@ -33,16 +33,13 @@ class Knockout:
     def add_teams(self, teams: list[Team]):
         name = self.name.lower().replace(" ", "_").replace("-", "_")
         for team in teams:
-            self.teams.add(team)
+            self.teams.append(team)
             team.log_sim_rounds(name)
 
     @staticmethod
     def draw_series(
         teams: set[Team], scheduled_matches: list[Match], leg: int = 2
     ) -> dict[tuple[Team], list[Match]]:
-        if len(teams) == 1:
-            return {}
-
         series = defaultdict(list)
         drawn = {team for match in scheduled_matches for team in match.teams}
         undrawn = [team for team in teams if team not in drawn]
@@ -65,23 +62,22 @@ class Knockout:
         series = self.draw_series(self.teams, self.matches, self.leg)
         for matches in series.values():
             if self.leg == 2:
-                leg1 = matches[0]
+                leg1, leg2 = matches[0], matches[1]
                 if not leg1.is_complete:
                     leg1.simulate(self.avg_goal, self.home_adv)
-                leg2 = leg1 + matches[1]
+                agg = leg1 + leg2
             else:
-                leg2 = matches[0]
+                agg = matches[0]
 
-            if not leg2.is_complete:
-                leg2.simulate(self.avg_goal, self.home_adv, is_cup=True)
+            if not agg.is_complete:
+                agg.simulate(self.avg_goal, self.home_adv, is_cup=True)
 
-            if leg2.winning_team:
-                self.winning_teams.add(leg2.winning_team)
+            self.winning_teams.add(agg.winning_team)
 
     def get_advanced(self) -> list[Team]:
         return self.winning_teams
 
     def reset(self):
-        self.teams = set()
-        self.matches = self._matches
-        self.winning_teams = self._winning_teams
+        self.teams = []
+        self.matches = self._matches.copy()
+        self.winning_teams = self._winning_teams.copy()
