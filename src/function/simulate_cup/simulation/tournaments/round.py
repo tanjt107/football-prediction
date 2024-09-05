@@ -1,0 +1,9 @@
+from typing import Protocol
+
+
+class Round(Protocol):
+    def __post_init__(self): ...
+
+    def simulate(self): ...
+
+    def reset(self): ...

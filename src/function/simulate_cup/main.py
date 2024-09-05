@@ -11,7 +11,7 @@ from dataclasses import asdict
 # from gcp.util import decode_message
 from simulation import queries
 from simulation.models import Match, Team
-from simulation.tournaments import Groups, Knockout, Winner
+from simulation.tournaments import Groups, Knockout, Round, Winner
 
 
 # setup_logging()
@@ -66,15 +66,16 @@ def main():
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
+    rounds = data["rounds"]
 
     # logging.info(f"Simulating: {league=}")
     data = simulate_cup(
         data["rounds"],
         avg_goal,
         home_adv,
-        teams,
-        league,
+        teams.values(),
         matches=queries.get_matches(league, teams),
+        groups=get_groups(rounds, league, teams),
     )
     # logging.info(f"Simulated: {league=}")
 
@@ -90,25 +91,32 @@ def main():
     # )
 
 
+def get_groups(
+    rounds: dict, league: str, teams: dict[str, Team]
+) -> dict[str, list[Team]] | None:
+    for name, param in rounds.items():
+        if param["format"] == "Groups":
+            if groups := queries.get_groups(league, teams, name):
+                return groups
+            return {
+                group: [teams[team] for team in _teams]
+                for group, _teams in param["groups"].items()
+            }
+    return None
+
+
 def simulate_cup(
     rounds: dict,
     avg_goal: float,
     home_adv: float,
-    teams: dict[str, Team],
-    league: str,
+    teams: list[Team],
     matches: dict[str, list[Match]] | None = None,
+    groups: dict[str, list[Team]] | None = None,
     no_of_simulations: int = 10000,
 ):
 
-    groups = None
     for name, param in rounds.items():
         if param["format"] == "Groups":
-            groups = queries.get_groups(league, teams, name)
-            if not groups:
-                groups = {
-                    group: [teams[team] for team in _teams]
-                    for group, _teams in param["groups"].items()
-                }
             param["object"] = Groups(
                 groups,
                 avg_goal,
@@ -135,7 +143,7 @@ def simulate_cup(
 
     for _ in range(no_of_simulations):
         for param in rounds.values():
-            _round = param["object"]
+            _round: Round = param["object"]
             _round.simulate()
             if "advance_to" in param:
                 if isinstance(_round, Groups):
@@ -146,7 +154,7 @@ def simulate_cup(
 
             _round.reset()
 
-    for team in teams.values():
+    for team in teams:
         team.sim_table /= no_of_simulations
         team.sim_rounds /= no_of_simulations
         team.sim_positions /= no_of_simulations
@@ -170,7 +178,7 @@ def simulate_cup(
             "rounds": dict(team.sim_rounds),
             "table": asdict(team.sim_table),
         }
-        for team in teams.values()
+        for team in teams
     ]
 
 
