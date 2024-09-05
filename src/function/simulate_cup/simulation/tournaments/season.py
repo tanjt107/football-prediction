@@ -66,7 +66,7 @@ class Season:
             reverse=True,
         )
 
-    def get_advanced(self, start: int, end: int) -> list[Team]:
+    def get_advanced(self, end: int, start: int = 1) -> list[Team]:
         return self.positions[start - 1 : end]
 
     def reset(self):

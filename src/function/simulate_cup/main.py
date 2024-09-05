@@ -103,13 +103,13 @@ def simulate_cup(
     _groups = None
 
     for name, param in rounds.items():
-        if param["format"] == "Groups":
-            _groups = groups.get(name)
-            if not _groups and "groups" in param:
-                _groups = {
-                    group: [teams[team] for team in _teams]
-                    for group, _teams in param["groups"].items()
-                }
+        _format = param["format"]
+
+        if _format == "Groups":
+            _groups = groups.get(name) or {
+                group: [teams[team] for team in _teams]
+                for group, _teams in param["groups"].items()
+            }
             round_objs[name] = Groups(
                 _groups,
                 avg_goal,
@@ -118,7 +118,8 @@ def simulate_cup(
                 param["h2h"],
                 param["leg"],
             )
-        elif param["format"] == "Knockout":
+
+        elif _format == "Knockout":
             round_objs[name] = Knockout(
                 name,
                 avg_goal,
@@ -131,17 +132,19 @@ def simulate_cup(
                     for team in match.teams
                 },
             )
-        elif param["format"] == "Winner":
+
+        elif _format == "Winner":
             round_objs[name] = Winner()
 
     for _ in range(no_of_simulations):
         for name, round_obj in round_objs.items():
             round_obj.simulate()
-            if zones := rounds[name].get("advance_to"):
-                if isinstance(zones, str):
-                    round_objs[zones].add_teams(round_obj.get_advanced())
+
+            if advance_to := rounds[name].get("advance_to"):
+                if isinstance(advance_to, str):
+                    round_objs[advance_to].add_teams(round_obj.get_advanced())
                 else:
-                    for name, positions in zones.items():
+                    for name, positions in advance_to.items():
                         round_objs[name].add_teams(round_obj.get_advanced(**positions))
             round_obj.reset()
 
@@ -162,6 +165,7 @@ def simulate_cup(
             for group, teams in _groups.items()
             for team in teams
         ]
+
     return [
         {
             "team": team.name,
