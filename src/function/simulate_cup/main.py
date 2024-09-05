@@ -35,22 +35,22 @@ def main():
             "Round of 16": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"Quarter-finals": {}},
+                "advance_to": "Quarter-finals",
             },
             "Quarter-finals": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"Semi-finals": {}},
+                "advance_to": "Semi-finals",
             },
             "Semi-finals": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"Final": {}},
+                "advance_to": "Final",
             },
             "Final": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"Winner": {}},
+                "advance_to": "Winner",
             },
             "Winner": {"format": "Winner"},
         },
@@ -99,6 +99,9 @@ def simulate_cup(
     groups: dict[dict[str, list[Team]]] | None = None,
     no_of_simulations: int = 10000,
 ):
+    round_objs = {}
+    _groups = None
+
     for name, param in rounds.items():
         if param["format"] == "Groups":
             _groups = groups.get(name)
@@ -107,7 +110,7 @@ def simulate_cup(
                     group: [teams[team] for team in _teams]
                     for group, _teams in param["groups"].items()
                 }
-            param["object"] = Groups(
+            round_objs[name] = Groups(
                 _groups,
                 avg_goal,
                 home_adv,
@@ -116,7 +119,7 @@ def simulate_cup(
                 param["leg"],
             )
         elif param["format"] == "Knockout":
-            param["object"] = Knockout(
+            round_objs[name] = Knockout(
                 name,
                 avg_goal,
                 home_adv,
@@ -124,21 +127,23 @@ def simulate_cup(
                 param["leg"],
                 winning_teams={
                     team
-                    for match in matches.get(list(param["advance_to"].keys())[0], [])
+                    for match in matches.get(param["advance_to"], [])
                     for team in match.teams
                 },
             )
         elif param["format"] == "Winner":
-            param["object"] = Winner()
+            round_objs[name] = Winner()
 
     for _ in range(no_of_simulations):
-        for param in rounds.values():
-            _round = param["object"]
-            _round.simulate()
-            if "advance_to" in param:
-                for name, positions in param["advance_to"].items():
-                    rounds[name]["object"].add_teams(_round.get_advanced(**positions))
-            _round.reset()
+        for name, round_obj in round_objs.items():
+            round_obj.simulate()
+            if zones := rounds[name].get("advance_to"):
+                if isinstance(zones, str):
+                    round_objs[zones].add_teams(round_obj.get_advanced())
+                else:
+                    for name, positions in zones.items():
+                        round_objs[name].add_teams(round_obj.get_advanced(**positions))
+            round_obj.reset()
 
     for team in teams:
         team.sim_table /= no_of_simulations
@@ -154,7 +159,7 @@ def simulate_cup(
                 "rounds": dict(team.sim_rounds),
                 "table": asdict(team.sim_table),
             }
-            for group, teams in list(groups.values())[0].items()
+            for group, teams in _groups.items()
             for team in teams
         ]
     return [
