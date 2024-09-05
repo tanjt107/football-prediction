@@ -447,7 +447,7 @@ def simulate_cup(
     rounds: str,
     avg_goal: float,
     home_adv: float,
-    teams: list[Team],
+    teams: dict[str, Team],
     league: str,
     matches: dict[str, list[Match]] | None = None,
     no_of_simulations: int = 10000,
@@ -499,45 +499,6 @@ def simulate_cup(
                 _rounds[_round["advance_to"]["name"]].add_teams(advanced)
 
             __round.reset()
-
-        # groups.simulate()
-        # advanced = groups.get_advanced(team_no_ko)
-        # _rounds = [
-        #     "Round of 16",
-        #     "Quarter-finals",
-        #     "Semi-finals",
-        #     "Final",
-        #     "Winner",
-        # ]
-        # for i in range(len(_rounds) - 1):
-        #     current_round = _rounds[i]
-        #     next_round = _rounds[i + 1]
-        #     winners = set(
-        #         team for match in matches.get(next_round, []) for team in match.teams
-        #     )
-        #     knockout = Knockout(
-        #         name=current_round,
-        #         teams=set(advanced),
-        #         avg_goal=groups.avg_goal,
-        #         home_adv=groups.home_adv,
-        #         matches=matches[current_round],
-        #         leg=groups.leg,
-        #         winning_teams=winners,
-        #     )
-
-        #     knockout.simulate()
-        #     advanced = knockout.winning_teams
-
-        # knockout = Knockout(
-        #     name="Winner",
-        #     teams=set(advanced),
-        #     avg_goal=groups.avg_goal,
-        #     home_adv=groups.home_adv,
-        #     leg=groups.leg,
-        #     winning_teams=winners,
-        # )
-
-        # groups.reset()
 
     for team in teams.values():
         team.sim_table /= no_of_simulations
