@@ -1,0 +1,55 @@
+{
+    "Group Stage": {
+        "format": "Groups",
+        "h2h": false,
+        "leg": 1,
+        "advance_to": [
+            {
+                "name": "Round of 16",
+                "positions": {
+                    "start": 1,
+                    "end": 16
+                }
+            }
+        ]
+    },
+    "Round of 16": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": [
+            {
+                "name": "Quarter-finals"
+            }
+        ]
+    },
+    "Quarter-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": [
+            {
+                "name": "Semi-finals"
+            }
+        ]
+    },
+    "Semi-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": [
+            {
+                "name": "Final"
+            }
+        ]
+    },
+    "Final": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": [
+            {
+                "name": "Winner"
+            }
+        ]
+    },
+    "Winner": {
+        "format": "Winner"
+    }
+}

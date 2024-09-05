@@ -78,6 +78,9 @@ class Knockout:
             if leg2.winning_team:
                 self.winning_teams.add(leg2.winning_team)
 
+    def get_advanced(self) -> list[Team]:
+        return self.winning_teams
+
     def reset(self):
         self.teams = set()
         self.matches = self._matches

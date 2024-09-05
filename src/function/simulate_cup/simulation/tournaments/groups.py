@@ -20,7 +20,7 @@ class Groups:
 
         self.matches = self.matches or []
         self._matches = self.matches
-        self.positions = defaultdict(list)
+        self._positions = defaultdict(list)
 
         group_matches = self.get_matches_by_groups(self.matches, self.groups)
         self._groups = [
@@ -53,27 +53,21 @@ class Groups:
         for group in self._groups:
             group.simulate()
             for position, team in enumerate(group.positions, 1):
-                self.positions[position].append(team)
+                self._positions[position].append(team)
 
     def reset(self):
         self.matches = self._matches
-        self.positions = defaultdict(list)
+        self._positions = defaultdict(list)
 
         for group in self._groups:
             group.reset()
 
-    def get_advanced(self, n: int) -> list[Team]:
-        direct, wildcard = divmod(n, len(self.groups))
-        advanced = []
-        for position, teams in self.positions.items():
-            if position <= direct:
-                advanced.extend(teams)
-            if position == direct + 1:
-                advanced.extend(
-                    sorted(
-                        self.positions[direct + 1],
-                        key=TieBreaker.goal_diff,
-                        reverse=True,
-                    )[:wildcard]
-                )
-        return advanced
+    @property
+    def positions(self) -> list[Team]:
+        positions = []
+        for _, teams in sorted(self._positions.items()):
+            positions.extend(sorted(teams, key=TieBreaker.goal_diff, reverse=True))
+        return positions
+
+    def get_advanced(self, start: int, end: int) -> list[Team]:
+        return self.positions[start - 1 : end]

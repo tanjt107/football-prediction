@@ -11,7 +11,7 @@ from dataclasses import asdict
 # from gcp.util import decode_message
 from simulation import queries
 from simulation.models import Match, Team
-from simulation.tournaments import Groups, Knockout, Round, Winner
+from simulation.tournaments import Groups, Knockout, Winner
 
 
 # setup_logging()
@@ -30,27 +30,27 @@ def main():
                 "format": "Groups",
                 "h2h": False,
                 "leg": 1,
-                "advance_to": {"name": "Round of 16", "n": 16},
+                "advance_to": {"Round of 16": {"start": 1, "end": 16}},
             },
             "Round of 16": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"name": "Quarter-finals"},
+                "advance_to": {"Quarter-finals": {}},
             },
             "Quarter-finals": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"name": "Semi-finals"},
+                "advance_to": {"Semi-finals": {}},
             },
             "Semi-finals": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"name": "Final"},
+                "advance_to": {"Final": {}},
             },
             "Final": {
                 "format": "Knockout",
                 "leg": 1,
-                "advance_to": {"name": "Winner"},
+                "advance_to": {"Winner": {}},
             },
             "Winner": {"format": "Winner"},
         },
@@ -100,6 +100,7 @@ def simulate_cup(
     no_of_simulations: int = 10000,
 ):
     group_round_name = None
+
     for name, param in rounds.items():
         if param["format"] == "Groups":
             group_round_name = name
@@ -126,7 +127,7 @@ def simulate_cup(
                 param["leg"],
                 winning_teams={
                     team
-                    for match in matches.get(param["advance_to"]["name"], [])
+                    for match in matches.get(list(param["advance_to"].keys())[0], [])
                     for team in match.teams
                 },
             )
@@ -135,15 +136,11 @@ def simulate_cup(
 
     for _ in range(no_of_simulations):
         for param in rounds.values():
-            _round: Round = param["object"]
+            _round = param["object"]
             _round.simulate()
             if "advance_to" in param:
-                if isinstance(_round, Groups):
-                    advanced = _round.get_advanced(param["advance_to"]["n"])
-                elif isinstance(_round, Knockout):
-                    advanced = _round.winning_teams
-                rounds[param["advance_to"]["name"]]["object"].add_teams(advanced)
-
+                for name, positions in param["advance_to"].items():
+                    rounds[name]["object"].add_teams(_round.get_advanced(**positions))
             _round.reset()
 
     for team in teams:
