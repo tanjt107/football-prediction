@@ -99,11 +99,8 @@ def simulate_cup(
     groups: dict[dict[str, list[Team]]] | None = None,
     no_of_simulations: int = 10000,
 ):
-    group_round_name = None
-
     for name, param in rounds.items():
         if param["format"] == "Groups":
-            group_round_name = name
             _groups = groups.get(name)
             if not _groups and "groups" in param:
                 _groups = {
@@ -148,7 +145,7 @@ def simulate_cup(
         team.sim_rounds /= no_of_simulations
         team.sim_positions /= no_of_simulations
 
-    if group_round_name:
+    if groups:
         return [
             {
                 "team": team.name,
@@ -157,7 +154,7 @@ def simulate_cup(
                 "rounds": dict(team.sim_rounds),
                 "table": asdict(team.sim_table),
             }
-            for group, teams in groups[group_round_name].items()
+            for group, teams in list(groups.values())[0].items()
             for team in teams
         ]
     return [
