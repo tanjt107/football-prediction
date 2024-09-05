@@ -8,7 +8,6 @@ from simulation.models import Match, Team
 @dataclass
 class Knockout:
     name: str
-    teams: set[Team]
     avg_goal: float
     home_adv: float
     matches: list[Match] | None = None
@@ -19,12 +18,11 @@ class Knockout:
         if not self.leg in (1, 2):
             raise ValueError
 
+        self.teams: set[Team] = set()
         self.matches = self.matches or []
         self.winning_teams = self.winning_teams or set()
         self._matches = self.matches
         self._winning_teams = self.winning_teams
-
-        self.log_team_sim_rounds()
 
     @property
     def _home_adv(self):
@@ -32,9 +30,10 @@ class Knockout:
             return 0
         return self.home_adv
 
-    def log_team_sim_rounds(self):
+    def add_teams(self, teams: list[Team]):
         name = self.name.lower().replace(" ", "_").replace("-", "_")
-        for team in self.teams:
+        for team in teams:
+            self.teams.add(team)
             team.log_sim_rounds(name)
 
     @staticmethod
@@ -68,17 +67,18 @@ class Knockout:
             if self.leg == 2:
                 leg1 = matches[0]
                 if not leg1.is_complete:
-                    leg1.simulate()
-                leg2 += matches[1]
+                    leg1.simulate(self.avg_goal, self.home_adv)
+                leg2 = leg1 + matches[1]
             else:
                 leg2 = matches[0]
 
             if not leg2.is_complete:
-                leg2.simulate(is_cup=True)
+                leg2.simulate(self.avg_goal, self.home_adv, is_cup=True)
 
             if leg2.winning_team:
                 self.winning_teams.add(leg2.winning_team)
 
     def reset(self):
+        self.teams = set()
         self.matches = self._matches
         self.winning_teams = self._winning_teams

@@ -11,8 +11,8 @@ class Match:
     home_team: Team
     away_team: Team
     status: str = "incomplete"
-    home_score: int | None = None
-    away_score: int | None = None
+    home_score: int = 0
+    away_score: int = 0
 
     def __post_init__(self):
         self._status = self.status
