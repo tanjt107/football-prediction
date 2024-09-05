@@ -47,17 +47,24 @@ def get_completed_matches(
     }
 
 
-def get_groups(
-    league: str, teams: dict[str, Team], gs_name: str = "Group Stage"
-) -> dict[str, list[Team]]:
-    groups = defaultdict(list)
-    group_teams = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_groups`(@league, @stage);",
-        params={"league": league, "stage": gs_name},
+def get_groups(league: str, teams: dict[str, Team]) -> dict[str, list[Team]]:
+    rounds = defaultdict(lambda: defaultdict(list))
+    query = """SELECT
+  specific_tables.round, group_tables.name, table.id
+FROM footystats.tables
+CROSS JOIN tables.specific_tables
+CROSS JOIN specific_tables.groups group_tables
+CROSS JOIN group_tables.table
+JOIN master.leagues ON tables._SEASON_ID = leagues.latest_season_id
+WHERE tables._NAME = @league
+  AND tables._SEASON_ID = leagues.latest_season_id;"""
+    rows = bigquery.query_dict(
+        query,
+        params={"league": league},
     )
-    for group_team in group_teams:
-        groups[group_team["name"]].append(teams[group_team["id"]])
-    return groups
+    for row in rows:
+        rounds[row["round"]][row["name"]].append(teams[row["id"]])
+    return rounds
 
 
 def get_matchup(league: str, teams: dict[str, Team]) -> dict[str, set[set[Team]]]:

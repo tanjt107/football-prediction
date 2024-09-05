@@ -66,7 +66,6 @@ def main():
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
-    rounds = data["rounds"]
 
     # logging.info(f"Simulating: {league=}")
     data = simulate_cup(
@@ -75,7 +74,7 @@ def main():
         home_adv,
         teams.values(),
         matches=queries.get_matches(league, teams),
-        groups=get_groups(rounds, league, teams),
+        groups=queries.get_groups(league, teams),
     )
     # logging.info(f"Simulated: {league=}")
 
@@ -91,34 +90,27 @@ def main():
     # )
 
 
-def get_groups(
-    rounds: dict, league: str, teams: dict[str, Team]
-) -> dict[str, list[Team]] | None:
-    for name, param in rounds.items():
-        if param["format"] == "Groups":
-            if groups := queries.get_groups(league, teams, name):
-                return groups
-            return {
-                group: [teams[team] for team in _teams]
-                for group, _teams in param["groups"].items()
-            }
-    return None
-
-
 def simulate_cup(
     rounds: dict,
     avg_goal: float,
     home_adv: float,
     teams: list[Team],
     matches: dict[str, list[Match]] | None = None,
-    groups: dict[str, list[Team]] | None = None,
+    groups: dict[dict[str, list[Team]]] | None = None,
     no_of_simulations: int = 10000,
 ):
-
+    group_round_name = None
     for name, param in rounds.items():
         if param["format"] == "Groups":
+            group_round_name = name
+            _groups = groups.get(name)
+            if not _groups and "groups" in param:
+                _groups = {
+                    group: [teams[team] for team in _teams]
+                    for group, _teams in param["groups"].items()
+                }
             param["object"] = Groups(
-                groups,
+                _groups,
                 avg_goal,
                 home_adv,
                 matches[name],
@@ -159,7 +151,7 @@ def simulate_cup(
         team.sim_rounds /= no_of_simulations
         team.sim_positions /= no_of_simulations
 
-    if groups:
+    if group_round_name:
         return [
             {
                 "team": team.name,
@@ -168,7 +160,7 @@ def simulate_cup(
                 "rounds": dict(team.sim_rounds),
                 "table": asdict(team.sim_table),
             }
-            for group, teams in groups.items()
+            for group, teams in groups[group_round_name].items()
             for team in teams
         ]
     return [
