@@ -594,11 +594,6 @@ module "bigquery-simulation" {
   location   = var.region
   project_id = module.project.project_id
   external_tables = {
-    params = {
-      schema        = file("../../src/bigquery/schema/simulation/params.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["simulation"]}/simulation_params.csv"]
-    }
     leagues = {
       schema                    = file("../../src/bigquery/schema/simulation/leagues.json")
       source_format             = "NEWLINE_DELIMITED_JSON"

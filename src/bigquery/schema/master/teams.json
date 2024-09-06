@@ -20,6 +20,11 @@
         "mode": "NULLABLE"
     },
     {
+        "name": "is_simulate",
+        "type": "BOOLEAN",
+        "mode": "NULLABLE"
+    },
+    {
         "name": "in_team_rating",
         "type": "BOOLEAN",
         "mode": "NULLABLE"

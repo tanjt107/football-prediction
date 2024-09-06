@@ -13,6 +13,7 @@ SELECT
     ELSE footystats.country
   END AS solver_id,
   manual.name_ch IS NOT NULL AS is_manual,
+  COALESCE(is_simulate, FALSE) AS is_simulate,
   CASE
     WHEN _NAME LIKE 'International WC Qualification %' THEN (hkjc.id IS NOT NULL OR footystats.country = 'Hong Kong')
     ELSE (leagues.hkjc_id IS NOT NULL OR leagues.is_manual IS TRUE) AND leagues.footystats_name <> 'Mexico Ascenso MX'

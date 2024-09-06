@@ -38,14 +38,9 @@ WITH matches AS (
     AND away_teams.solver_id = away_solver.id
   WHERE matches.status = 'complete'
     AND date_unix >= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -5 DAY))
-    AND (EXISTS (
-      SELECT 1
-      FROM simulation.params
-      WHERE home_teams.league_name = params.league
-        OR away_teams.league_name = params.league
-        OR leagues.footystats_name = params.league
-        )
-      OR leagues.is_manual)
+    AND (home_teams.is_simulate
+      OR away_teams.is_simulate
+      OR leagues.is_simulate)
   QUALIFY ROW_NUMBER() OVER (PARTITION BY matches.id ORDER BY league_solver._DATE_UNIX DESC) = 1
   ORDER BY date_unix DESC, display_order, matches.id
   LIMIT 100
