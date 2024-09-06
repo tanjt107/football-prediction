@@ -1,45 +1,44 @@
-# import logging
-# import math
+import json
+import logging
 import os
 from dataclasses import asdict
-import json
 
-# import functions_framework
-# from cloudevents.http.event import CloudEvent
+import functions_framework
+from cloudevents.http.event import CloudEvent
 
-# from gcp import storage
-# from gcp.logging import setup_logging
-# from gcp.util import decode_message
+from gcp import storage
+from gcp.logging import setup_logging
+
+from gcp.util import decode_message
 from simulation import queries
 from simulation.models import Match, Team
 from simulation.tournaments import Groups, Knockout, Season, Winner
 
 
-# setup_logging()
-
-BUCKET_NAME = os.getenv("BUCKET_NAME")
+setup_logging()
 
 
-# @functions_framework.cloud_event
-# def main(cloud_event: CloudEvent):
-def main():
-    # data = decode_message(cloud_event)
-    league = "International WC Qualification Asia"
-    path = "/Users/tanjt107/Documents/GitHub/football-prediction/assets/simulation"
-    with open(f"{path}/{league}.json") as f:
-        rounds = json.load(f)
+@functions_framework.cloud_event
+def main(cloud_event: CloudEvent):
+    league = decode_message(cloud_event)
+    rounds = json.loads(
+        storage.download_blob(
+            blob_name=f"{league}.json", bucket_name=os.environ("INPUT_BUCKET_NAME")
+        )
+    )
 
+    # TODO update in simulation_publish_competitions
     # last_run = queries.get_last_run(league)
     # latest_match_date = queries.get_latest_match_date(league)
     # if last_run >= latest_match_date:
-    # logging.info(f"Already updated. Simulation aborted: {league=}")
-    # return
+    #     logging.info(f"Already updated. Simulation aborted: {league=}")
+    #     return
 
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
 
-    # logging.info(f"Simulating: {league=}")
+    logging.info(f"Simulating: {league=}")
     data = simulate_cup(
         rounds,
         avg_goal,
@@ -48,13 +47,12 @@ def main():
         matches=queries.get_matches(league, teams),
         groups=queries.get_groups(league, teams),
     )
-    # logging.info(f"Simulated: {league=}")
+    logging.info(f"Simulated: {league=}")
 
-    print(data)
     # storage.upload_json_to_bucket(
     #     data,
     #     blob_name="league.json",
-    #     bucket_name=BUCKET_NAME,
+    #     bucket_name=os.environ("RESULT_BUCKET_NAME"),
     #     hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
     # )
 
@@ -154,6 +152,3 @@ def simulate_cup(
         }
         for team in teams.values()
     ]
-
-
-main()

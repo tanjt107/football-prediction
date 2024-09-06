@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from dataclasses import asdict
@@ -16,13 +17,15 @@ from simulation.tournaments import Groups, Knockout, Season, Winner
 
 setup_logging()
 
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
-    league = decode_message(cloud_event)  # TODO Update simulation_publish_competitions
-    rounds = None  # TODO Read JSON from bucket
+    league = decode_message(cloud_event)
+    rounds = json.loads(
+        storage.download_blob(
+            blob_name=f"{league}.json", bucket_name=os.environ["INPUT_BUCKET_NAME"]
+        )
+    )
 
     # TODO update in simulation_publish_competitions
     last_run = queries.get_last_run(league)
@@ -49,7 +52,7 @@ def main(cloud_event: CloudEvent):
     storage.upload_json_to_bucket(
         data,
         blob_name="league.json",
-        bucket_name=BUCKET_NAME,
+        bucket_name=os.environ["RESULT_BUCKET_NAME"],
         hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
     )
 
