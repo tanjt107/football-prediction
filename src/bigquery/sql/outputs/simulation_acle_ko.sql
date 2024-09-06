@@ -2,7 +2,6 @@ WITH result AS (
   SELECT
     teams.transfermarkt_id,
     teams.name,
-    leagues.group AS _group,
     rating,
     offence,
     defence,
@@ -23,7 +22,6 @@ WITH result AS (
 SELECT
   transfermarkt_id,
   name,
-  _group,
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,

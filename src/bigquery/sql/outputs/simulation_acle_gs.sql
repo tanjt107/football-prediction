@@ -2,7 +2,10 @@ WITH result AS (
   SELECT
     teams.transfermarkt_id,
     teams.name,
-    leagues.group AS _group,
+    CASE
+      WHEN leagues.group = 'East' THEN '東'
+      ELSE '西'
+    END AS _group,
     rating,
     offence,
     defence,
