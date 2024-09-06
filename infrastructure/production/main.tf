@@ -48,10 +48,12 @@ module "buckets" {
     manual = [
       "../../assets/leagues.csv",
       "../../assets/teams.csv",
+      "../../assets/simulation/Asia AFC Champions League.json",
       "../../assets/simulation/Asia AFC Cup.json",
       "../../assets/simulation/China China League One.json",
       "../../assets/simulation/China Chinese Super League.json",
       "../../assets/simulation/England Premier League.json",
+      "../../assets/simulation/Europe UEFA Champions League.json",
       "../../assets/simulation/France Ligue 1.json",
       "../../assets/simulation/Germany Bundesliga.json",
       "../../assets/simulation/Hong Kong Hong Kong Premier League.json",
@@ -725,6 +727,7 @@ module "bigquery-outputs" {
     results                    = file("../../src/bigquery/sql/outputs/results.sql")
     schedule                   = file("../../src/bigquery/sql/outputs/schedule.sql")
     simulation_acl2_gs         = file("../../src/bigquery/sql/outputs/simulation_acl2_gs.sql")
+    simulation_acle_gs         = file("../../src/bigquery/sql/outputs/simulation_acle_gs.sql")
     simulation_bun             = file("../../src/bigquery/sql/outputs/simulation_bun.sql")
     simulation_cl1             = file("../../src/bigquery/sql/outputs/simulation_cl1.sql")
     simulation_csl             = file("../../src/bigquery/sql/outputs/simulation_csl.sql")
@@ -734,6 +737,7 @@ module "bigquery-outputs" {
     simulation_li1             = file("../../src/bigquery/sql/outputs/simulation_li1.sql")
     simulation_ll              = file("../../src/bigquery/sql/outputs/simulation_ll.sql")
     simulation_sea             = file("../../src/bigquery/sql/outputs/simulation_sea.sql")
+    simulation_ucl_gs          = file("../../src/bigquery/sql/outputs/simulation_ucl_gs.sql")
     simulation_wcq_r3          = file("../../src/bigquery/sql/outputs/simulation_wcq_r3.sql")
     team_ratings_club          = file("../../src/bigquery/sql/outputs/team_ratings_club.sql")
     team_ratings_international = file("../../src/bigquery/sql/outputs/team_ratings_international.sql")

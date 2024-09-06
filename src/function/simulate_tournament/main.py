@@ -17,6 +17,8 @@ from simulation.tournaments import Groups, Knockout, Season, Winner
 
 setup_logging()
 
+Round = Groups | Knockout | Season | Winner
+
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
@@ -24,7 +26,7 @@ def main(cloud_event: CloudEvent):
     league = message["footystats_name"]
     rounds = json.loads(
         storage.download_blob(
-            blob_name=f"{league}.json", bucket_name=os.environ["INPUT_BUCKET_NAME"]
+            blob_name=f"{league}.json", bucket_name="manual-340977255134-asia-east2"
         )
     )
 
@@ -49,28 +51,28 @@ def main(cloud_event: CloudEvent):
         bucket_name=os.environ["RESULT_BUCKET_NAME"],
         hive_partitioning={
             "_LEAGUE": league,
-            "_DATE_UNIX": message[["latest_match_date"]],
+            "_DATE_UNIX": message["latest_match_date"],
         },
     )
 
 
 def simulate_tournament(
-    rounds: dict,
+    rounds: dict[str, dict],
     avg_goal: float,
     home_adv: float,
-    teams: dict[list[Team]],
+    teams: dict[str, Team],
     matches: dict[str, list[Match]] | None = None,
     groups: dict[dict[str, list[Team]]] | None = None,
     no_of_simulations: int = 10000,
 ):
-    round_objs = {}
+    round_objs: dict[str, Round] = {}
     _groups = None
 
     for name, param in rounds.items():
         _format = param["format"]
 
         if _format == "Groups":
-            _groups = groups.get(name) or {
+            _groups: dict[str, list[Team]] = groups.get(name) or {
                 group: [teams[team] for team in _teams]
                 for group, _teams in param["groups"].items()
             }

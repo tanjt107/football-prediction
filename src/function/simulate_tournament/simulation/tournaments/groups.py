@@ -15,9 +15,6 @@ class Groups:
     leg: int = 2
 
     def __post_init__(self):
-        if not self.leg in (1, 2):
-            raise ValueError
-
         self.matches = self.matches or []
         self._matches = self.matches.copy()
         self._positions = defaultdict(list)

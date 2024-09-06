@@ -99,19 +99,27 @@
         "type": "RECORD",
         "fields": [
             {
-                "name": "ROUND_OF_16",
+                "name": "knockout_round_play_offs",
                 "type": "FLOAT"
             },
             {
-                "name": "QUARTER_FINALS",
+                "name": "round_of_16",
                 "type": "FLOAT"
             },
             {
-                "name": "SEMI_FINALS",
+                "name": "quarter_finals",
                 "type": "FLOAT"
             },
             {
-                "name": "FINAL",
+                "name": "semi_finals",
+                "type": "FLOAT"
+            },
+            {
+                "name": "final",
+                "type": "FLOAT"
+            },
+            {
+                "name": "winner",
                 "type": "FLOAT"
             },
             {
