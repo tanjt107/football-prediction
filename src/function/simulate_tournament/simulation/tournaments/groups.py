@@ -35,6 +35,17 @@ class Groups:
             for name, teams in self.groups.items()
         ]
 
+    @property
+    def teams(self) -> list[Team]:
+        return [team for group in self._groups for team in group.teams]
+
+    @property
+    def positions(self) -> list[Team]:
+        positions = []
+        for _, teams in sorted(self._positions.items()):
+            positions.extend(sorted(teams, key=TieBreaker.goal_diff, reverse=True))
+        return positions
+
     @staticmethod
     def get_matches_by_groups(
         matches: list[Match], groups: dict[str, list[Team]]
@@ -45,15 +56,14 @@ class Groups:
             group_matches[team_group[match.home_team]].append(match)
         return group_matches
 
-    @property
-    def teams(self) -> list[Team]:
-        return [team for group in self._groups for team in group.teams]
-
     def simulate(self):
         for group in self._groups:
             group.simulate()
             for position, team in enumerate(group.positions, 1):
                 self._positions[position].append(team)
+
+    def get_advanced(self, end: int, start: int = 1) -> list[Team]:
+        return self.positions[start - 1 : end]
 
     def reset(self):
         self.matches = self._matches.copy()
@@ -61,13 +71,3 @@ class Groups:
 
         for group in self._groups:
             group.reset()
-
-    @property
-    def positions(self) -> list[Team]:
-        positions = []
-        for _, teams in sorted(self._positions.items()):
-            positions.extend(sorted(teams, key=TieBreaker.goal_diff, reverse=True))
-        return positions
-
-    def get_advanced(self, end: int, start: int = 1) -> list[Team]:
-        return self.positions[start - 1 : end]

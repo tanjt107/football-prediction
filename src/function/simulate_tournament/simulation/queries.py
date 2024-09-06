@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from gcp import bigquery
+
 from simulation.models import Team, Match
 
 
@@ -35,29 +36,6 @@ def get_teams(league: str) -> dict[str, Team]:
     }
 
 
-def get_completed_matches(
-    league: str, stage: str = "ko", gs_name: str = "Group Stage"
-) -> dict[tuple[int], tuple[int]]:
-    return {
-        (row["homeId"], row["awayId"]): (row["homeGoalCount"], row["awayGoalCount"])
-        for row in bigquery.query_dict(
-            query=f"SELECT * FROM `simulation.get_{stage}_matches`(@league, @stage);",
-            params={"league": league, "stage": gs_name},
-        )
-    }
-
-
-def get_groups(league: str, teams: dict[str, Team]) -> dict[str, list[Team]]:
-    rounds = defaultdict(lambda: defaultdict(list))
-    rows = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_groups`(@league);",
-        params={"league": league},
-    )
-    for row in rows:
-        rounds[row["round"]][row["name"]].append(teams[row["id"]])
-    return rounds
-
-
 def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
     rounds = defaultdict(list)
     for row in bigquery.query_dict(
@@ -73,4 +51,15 @@ def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
                 away_score=row["awayGoalCount"],
             )
         )
+    return rounds
+
+
+def get_groups(league: str, teams: dict[str, Team]) -> dict[str, list[Team]]:
+    rounds = defaultdict(lambda: defaultdict(list))
+    rows = bigquery.query_dict(
+        query="SELECT * FROM `simulation.get_groups`(@league);",
+        params={"league": league},
+    )
+    for row in rows:
+        rounds[row["round"]][row["name"]].append(teams[row["id"]])
     return rounds

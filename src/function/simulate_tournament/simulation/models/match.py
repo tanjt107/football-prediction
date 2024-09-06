@@ -43,9 +43,6 @@ class Match:
     def is_complete(self) -> bool:
         return self.status == "complete"
 
-    def set_status_complete(self):
-        self.status = "complete"
-
     @property
     def winning_team(self) -> Team | None:
         if not self.is_complete:
@@ -66,6 +63,9 @@ class Match:
         away_exp = max(away_exp, 0.2)
         self.home_score += np.random.poisson(home_exp)
         self.away_score += np.random.poisson(away_exp)
+
+    def set_status_complete(self):
+        self.status = "complete"
 
     def simulate(self, avg_goal: float, home_adv: float, is_cup: bool = False):
         self._simulate(avg_goal, home_adv)

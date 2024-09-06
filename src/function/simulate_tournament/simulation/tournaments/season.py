@@ -19,12 +19,6 @@ class Season:
         self.matches = self.matches or self.scheduling(self.teams)
 
     @property
-    def _home_adv(self):
-        if self.leg == 1:
-            return 0
-        return self.home_adv
-
-    @property
     def scheduling(self):
         if self.leg == 1:
             return partial(combinations, r=2)
@@ -33,18 +27,14 @@ class Season:
         raise ValueError
 
     @property
+    def _home_adv(self):
+        if self.leg == 1:
+            return 0
+        return self.home_adv
+
+    @property
     def tiebreaker(self):
         return TieBreaker.h2h if self.h2h else TieBreaker.goal_diff
-
-    def simulate(self):
-        for match in self.matches:
-            if not match.is_complete:
-                match.simulate(self.avg_goal, self.home_adv)
-            match.log_teams_table()
-
-        for position, team in enumerate(self.positions, 1):
-            team.log_sim_table()
-            team.log_sim_positions(position)
 
     @property
     def positions(self) -> list[Team]:
@@ -65,6 +55,16 @@ class Season:
             key=self.tiebreaker,
             reverse=True,
         )
+
+    def simulate(self):
+        for match in self.matches:
+            if not match.is_complete:
+                match.simulate(self.avg_goal, self.home_adv)
+            match.log_teams_table()
+
+        for position, team in enumerate(self.positions, 1):
+            team.log_sim_table()
+            team.log_sim_positions(position)
 
     def get_advanced(self, end: int, start: int = 1) -> list[Team]:
         return self.positions[start - 1 : end]

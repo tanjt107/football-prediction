@@ -10,14 +10,6 @@ class Table:
     conceded: int = 0
     correction: int = 0
 
-    @property
-    def points(self) -> int:
-        return self.wins * 3 + self.draws + self.correction
-
-    @property
-    def goal_diff(self) -> int:
-        return self.scored - self.conceded
-
     def __add__(self, other: "Table"):
         return Table(
             self.wins + other.wins,
@@ -37,6 +29,14 @@ class Table:
             self.conceded / other,
             self.correction / other,
         )
+
+    @property
+    def points(self) -> int:
+        return self.wins * 3 + self.draws + self.correction
+
+    @property
+    def goal_diff(self) -> int:
+        return self.scored - self.conceded
 
     def reset(self):
         self.wins = 0

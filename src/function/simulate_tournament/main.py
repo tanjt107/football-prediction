@@ -39,7 +39,7 @@ def main(cloud_event: CloudEvent):
     teams = queries.get_teams(league)
 
     logging.info(f"Simulating: {league=}")
-    data = simulate_cup(
+    data = simulate_tournament(
         rounds,
         avg_goal,
         home_adv,
@@ -57,7 +57,7 @@ def main(cloud_event: CloudEvent):
     )
 
 
-def simulate_cup(
+def simulate_tournament(
     rounds: dict,
     avg_goal: float,
     home_adv: float,
