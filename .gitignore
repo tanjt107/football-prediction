@@ -6,3 +6,4 @@
 credentials
 .venv
 tmp
+__pycache__

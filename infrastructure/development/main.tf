@@ -26,10 +26,9 @@ module "project" {
 module "buckets" {
   source = "../modules/storage"
 
-  suffix        = "${module.project.project_number}-${var.region}"
-  location      = var.region
-  project_id    = module.project.project_id
-  force_destroy = true
+  suffix     = "${module.project.project_number}-${var.region}"
+  location   = var.region
+  project_id = module.project.project_id
   names = [
     "footystats-league-list",
     "footystats-matches",
@@ -49,8 +48,18 @@ module "buckets" {
     manual = [
       "../../assets/leagues.csv",
       "../../assets/teams.csv",
+      "../../assets/simulation/Asia AFC Cup.json",
+      "../../assets/simulation/China China League One.json",
+      "../../assets/simulation/China Chinese Super League.json",
+      "../../assets/simulation/England Premier League.json",
+      "../../assets/simulation/France Ligue 1.json",
+      "../../assets/simulation/Germany Bundesliga.json",
+      "../../assets/simulation/Hong Kong Hong Kong Premier League.json",
+      "../../assets/simulation/International WC Qualification Asia.json",
+      "../../assets/simulation/Italy Serie A.json",
+      "../../assets/simulation/Japan J1 League.json",
+      "../../assets/simulation/Spain La Liga.json",
     ]
-    simulation = ["../../assets/simulation_params.csv"]
   }
 }
 
@@ -78,18 +87,16 @@ resource "google_artifact_registry_repository" "repository" {
 module "footystats-delta-load" {
   source = "../modules/scheduled-function"
 
-  function_name                         = "footystats_publish_season_ids_delta"
-  docker_repository                     = google_artifact_registry_repository.repository.id
-  bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "footystats-delta-load"
-  job_schedule                          = "35 */6 * * *"
-  job_paused                            = true
-  topic_name                            = "footystats-delta-load"
-  function_source_directory             = "../../src/function"
-  function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
-  function_environment_variables        = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
-  region                                = var.region
-  project_id                            = module.project.project_id
+  function_name                  = "footystats_publish_season_ids_delta"
+  docker_repository              = google_artifact_registry_repository.repository.id
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "footystats-delta-load"
+  job_schedule                   = "35 */6 * * *"
+  topic_name                     = "footystats-delta-load"
+  function_source_directory      = "../../src/function"
+  function_environment_variables = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
+  region                         = var.region
+  project_id                     = module.project.project_id
 }
 
 module "footystats-get-league-list" {
@@ -209,10 +216,9 @@ module "footystats-transform-matches" {
 module "bigquery-footystats" {
   source = "../modules/bigquery"
 
-  dataset_id          = "footystats"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "footystats"
+  location   = var.region
+  project_id = module.project.project_id
   external_tables = {
     league_list = {
       schema        = file("../../src/bigquery/schema/footystats/league_list.json")
@@ -300,10 +306,9 @@ resource "google_cloud_scheduler_job" "solver-international" {
 module "bigquery-solver" {
   source = "../modules/bigquery"
 
-  dataset_id          = "solver"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "solver"
+  location   = var.region
+  project_id = module.project.project_id
   external_tables = {
     leagues = {
       schema                    = file("../../src/bigquery/schema/solver/leagues.json")
@@ -369,12 +374,12 @@ module "bigquery-solver" {
 module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
-  function_name                         = "hkjc_get_odds"
-  docker_repository                     = google_artifact_registry_repository.repository.id
-  bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "hkjc-odds"
-  job_schedule                          = "55 */6 * * *"
-  job_paused                            = true
+  function_name     = "hkjc_get_odds"
+  docker_repository = google_artifact_registry_repository.repository.id
+  bucket_name       = module.buckets.names["gcf"]
+  job_name          = "hkjc-odds"
+  job_schedule      = "55 */6 * * *"
+
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../src/function"
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
@@ -421,10 +426,9 @@ module "hkjc-get-results" {
 module "bigquery-hkjc" {
   source = "../modules/bigquery"
 
-  dataset_id          = "hkjc"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "hkjc"
+  location   = var.region
+  project_id = module.project.project_id
   external_tables = {
     odds = {
       schema                    = file("../../src/bigquery/schema/hkjc/odds.json")
@@ -455,10 +459,9 @@ module "bigquery-hkjc" {
 module "bigquery-manual" {
   source = "../modules/bigquery"
 
-  dataset_id          = "manual"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "manual"
+  location   = var.region
+  project_id = module.project.project_id
   external_tables = {
     teams = {
       schema        = file("../../src/bigquery/schema/manual/teams.json")
@@ -532,10 +535,9 @@ module "bigquery-master" {
 module "bigquery-functions" {
   source = "../modules/bigquery"
 
-  dataset_id          = "functions"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "functions"
+  location   = var.region
+  project_id = module.project.project_id
   routines = {
     accent_to_latin = {
       definition_body = file("../../src/bigquery/sql/functions/accent_to_latin.sql")
@@ -582,7 +584,7 @@ module "simulation-publish-competitions" {
   name                  = "simulation_publish_competitions"
   docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
-  environment_variables = { GCP_PROJECT = module.project.project_id }
+  environment_variables = { TOPIC_NAME = module.pubsub-simulate-tournament.id }
   event_type            = "google.cloud.storage.object.v1.finalized"
   source_directory      = "../../src/function"
   region                = var.region
@@ -596,10 +598,9 @@ module "simulation-publish-competitions" {
 module "bigquery-simulation" {
   source = "../modules/bigquery"
 
-  dataset_id          = "simulation"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "simulation"
+  location   = var.region
+  project_id = module.project.project_id
   external_tables = {
     params = {
       schema        = file("../../src/bigquery/schema/simulation/params.json")
@@ -692,8 +693,8 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_matchups = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matchups.sql", { project_id = module.project.project_id })
+    get_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [
@@ -732,57 +733,38 @@ module "bigquery-simulation" {
   depends_on = [module.bigquery-master.tables]
 }
 
-module "pubsub-simulate-league" {
+module "pubsub-simulate-tournament" {
   source = "../modules/pubsub"
 
-  topic      = "simulate-league"
+  topic      = "simulate-tournament"
   project_id = module.project.project_id
 }
 
-module "simulate-league" {
+module "simulate-tournament" {
   source = "../modules/event-function"
 
-  name                  = "simulate_league"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  timeout_s             = 300
-  environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
-  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulate-league.id
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
+  name              = "simulate_tournament"
+  docker_repository = google_artifact_registry_repository.repository.id
+  bucket_name       = module.buckets.names["gcf"]
+  timeout_s         = 300
+  environment_variables = {
+    INPUT_BUCKET_NAME  = module.buckets.names["manual"],
+    RESULT_BUCKET_NAME = module.buckets.names["simulation"]
+  }
+  event_type       = "google.cloud.pubsub.topic.v1.messagePublished"
+  topic_name       = module.pubsub-simulate-tournament.id
+  source_directory = "../../src/function"
+  region           = var.region
+  project_id       = module.project.project_id
 }
 
-module "pubsub-simulate-cup" {
-  source = "../modules/pubsub"
-
-  topic      = "simulate-cup"
-  project_id = module.project.project_id
-}
-
-module "simulate-cup" {
-  source = "../modules/event-function"
-
-  name                  = "simulate_cup"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  timeout_s             = 300
-  environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
-  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulate-cup.id
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
-}
 
 module "bigquery-outputs" {
   source = "../modules/bigquery"
 
-  dataset_id          = "outputs"
-  location            = var.region
-  project_id          = module.project.project_id
-  deletion_protection = false
+  dataset_id = "outputs"
+  location   = var.region
+  project_id = module.project.project_id
   views = {
     results                    = file("../../src/bigquery/sql/outputs/results.sql")
     schedule                   = file("../../src/bigquery/sql/outputs/schedule.sql")

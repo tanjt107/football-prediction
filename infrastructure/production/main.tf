@@ -48,8 +48,18 @@ module "buckets" {
     manual = [
       "../../assets/leagues.csv",
       "../../assets/teams.csv",
+      "../../assets/simulation/Asia AFC Cup.json",
+      "../../assets/simulation/China China League One.json",
+      "../../assets/simulation/China Chinese Super League.json",
+      "../../assets/simulation/England Premier League.json",
+      "../../assets/simulation/France Ligue 1.json",
+      "../../assets/simulation/Germany Bundesliga.json",
+      "../../assets/simulation/Hong Kong Hong Kong Premier League.json",
+      "../../assets/simulation/International WC Qualification Asia.json",
+      "../../assets/simulation/Italy Serie A.json",
+      "../../assets/simulation/Japan J1 League.json",
+      "../../assets/simulation/Spain La Liga.json",
     ]
-    simulation = ["../../assets/simulation_params.csv"]
   }
 }
 
@@ -564,7 +574,7 @@ module "simulation-publish-competitions" {
   name                  = "simulation_publish_competitions"
   docker_repository     = google_artifact_registry_repository.repository.id
   bucket_name           = module.buckets.names["gcf"]
-  environment_variables = { GCP_PROJECT = module.project.project_id }
+  environment_variables = { TOPIC_NAME = module.pubsub-simulate-tournament.id }
   event_type            = "google.cloud.storage.object.v1.finalized"
   source_directory      = "../../src/function"
   region                = var.region
@@ -614,40 +624,6 @@ module "bigquery-simulation" {
         {
           name      = "league"
           data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "stage"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_gs_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_gs_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "stage"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_ko_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_ko_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        },
-        {
-          name      = "stage"
-          data_type = jsonencode({ "typeKind" : "STRING" })
         }
       ]
     }
@@ -673,8 +649,8 @@ module "bigquery-simulation" {
         }
       ]
     }
-    get_matchups = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matchups.sql", { project_id = module.project.project_id })
+    get_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
       arguments = [
@@ -713,49 +689,31 @@ module "bigquery-simulation" {
   depends_on = [module.bigquery-master.tables]
 }
 
-module "pubsub-simulate-league" {
+module "pubsub-simulate-tournament" {
   source = "../modules/pubsub"
 
-  topic      = "simulate-league"
+  topic      = "simulate-tournament"
   project_id = module.project.project_id
 }
 
-module "simulate-league" {
+module "simulate-tournament" {
   source = "../modules/event-function"
 
-  name                  = "simulate_league"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  timeout_s             = 300
-  environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
-  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulate-league.id
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
+  name              = "simulate_tournament"
+  docker_repository = google_artifact_registry_repository.repository.id
+  bucket_name       = module.buckets.names["gcf"]
+  timeout_s         = 300
+  environment_variables = {
+    INPUT_BUCKET_NAME  = module.buckets.names["manual"],
+    RESULT_BUCKET_NAME = module.buckets.names["simulation"]
+  }
+  event_type       = "google.cloud.pubsub.topic.v1.messagePublished"
+  topic_name       = module.pubsub-simulate-tournament.id
+  source_directory = "../../src/function"
+  region           = var.region
+  project_id       = module.project.project_id
 }
 
-module "pubsub-simulate-cup" {
-  source = "../modules/pubsub"
-
-  topic      = "simulate-cup"
-  project_id = module.project.project_id
-}
-
-module "simulate-cup" {
-  source = "../modules/event-function"
-
-  name                  = "simulate_cup"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  timeout_s             = 300
-  environment_variables = { BUCKET_NAME = module.buckets.names["simulation"] }
-  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-simulate-cup.id
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
-}
 
 module "bigquery-outputs" {
   source = "../modules/bigquery"

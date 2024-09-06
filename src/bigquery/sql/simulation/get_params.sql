@@ -1,4 +1,5 @@
 SELECT
-    * EXCEPT(type)
-FROM ${project_id}.simulation.params
-WHERE params.type = _type
+    footystats_name
+FROM ${project_id}.master.leagues
+WHERE is_simulate
+    AND type = type

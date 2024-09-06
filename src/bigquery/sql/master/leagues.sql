@@ -19,6 +19,7 @@ SELECT
   COALESCE(REGEXP_EXTRACT(sequence, r'\.\d+\.(\d+)\.'), display_order) AS display_order,
   format = 'Domestic League' AND division > 0 AS is_league,
   display_order IS NOT NULL AS is_manual,
+  COALESCE(is_simulate, FALSE) AS is_simulate,
   seasons.id AS latest_season_id,
   _YEAR AS latest_season_year,
   _NAME AS footystats_name,

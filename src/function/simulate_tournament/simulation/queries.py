@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from gcp import bigquery
-from simulation.models import Round, Team
+from simulation.models import Team, Match
 
 
 def get_last_run(league: str) -> int:
@@ -47,31 +47,30 @@ def get_completed_matches(
     }
 
 
-def get_groups(
-    league: str, teams: dict[str, Team], gs_name: str = "Group Stage"
-) -> dict[str, list[Team]]:
-    groups = defaultdict(list)
-    group_teams = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_groups`(@league, @stage);",
-        params={"league": league, "stage": gs_name},
-    )
-    for group_team in group_teams:
-        groups[group_team["name"]].append(teams[group_team["id"]])
-    return groups
-
-
-def get_matchup(league: str, teams: dict[str, Team]) -> dict[Round, set[set[Team]]]:
-    rounds = defaultdict(set)
-    round_matchups = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_matchups`(@league);",
+def get_groups(league: str, teams: dict[str, Team]) -> dict[str, list[Team]]:
+    rounds = defaultdict(lambda: defaultdict(list))
+    rows = bigquery.query_dict(
+        query="SELECT * FROM `simulation.get_groups`(@league);",
         params={"league": league},
     )
-    for round_matchup in round_matchups:
-        _round = round_matchup["round"].upper().replace("-", "_").replace(" ", "_")
-        if _round in Round.__members__:
-            rounds[Round[_round]].add(
-                frozenset(
-                    {teams[round_matchup["homeID"]], teams[round_matchup["awayID"]]}
-                )
+    for row in rows:
+        rounds[row["round"]][row["name"]].append(teams[row["id"]])
+    return rounds
+
+
+def get_matches(league: str, teams: dict[str, Team]) -> dict[str, Match]:
+    rounds = defaultdict(list)
+    for row in bigquery.query_dict(
+        query="SELECT * FROM `simulation.get_matches`(@league);",
+        params={"league": league},
+    ):
+        rounds[row["round"]].append(
+            Match(
+                home_team=teams[row["homeId"]],
+                away_team=teams[row["awayId"]],
+                status=row["status"],
+                home_score=row["homeGoalCount"],
+                away_score=row["awayGoalCount"],
             )
+        )
     return rounds
