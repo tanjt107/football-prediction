@@ -1,0 +1,36 @@
+{
+    "Group Stage": {
+        "format": "Groups",
+        "h2h": true,
+        "leg": "Swiss",
+        "advance_to": {
+            "Round of 16": {
+                "start": 1,
+                "end": 16
+            }
+        }
+    },
+    "Round of 16": {
+        "format": "Knockout",
+        "leg": 2,
+        "advance_to": "Quarter-finals"
+    },
+    "Quarter-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Semi-finals"
+    },
+    "Semi-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Final"
+    },
+    "Final": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Winner"
+    },
+    "Winner": {
+        "format": "Winner"
+    }
+}

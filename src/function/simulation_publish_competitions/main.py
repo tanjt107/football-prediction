@@ -22,5 +22,5 @@ def main(cloud_event: CloudEvent):
     for league in leagues:
         pubsub.publish_json_message(
             topic=os.environ["TOPIC_NAME"],
-            data=list(league.values())[0],
+            data=league,
         )

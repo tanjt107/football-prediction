@@ -20,19 +20,13 @@ setup_logging()
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
-    league = decode_message(cloud_event)
+    message = decode_message(cloud_event)
+    league = message["footystats_name"]
     rounds = json.loads(
         storage.download_blob(
             blob_name=f"{league}.json", bucket_name=os.environ["INPUT_BUCKET_NAME"]
         )
     )
-
-    # TODO update in simulation_publish_competitions
-    last_run = queries.get_last_run(league)
-    latest_match_date = queries.get_latest_match_date(league)
-    if last_run >= latest_match_date:
-        logging.info(f"Already updated. Simulation aborted: {league=}")
-        return
 
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
@@ -53,7 +47,10 @@ def main(cloud_event: CloudEvent):
         data,
         blob_name="league.json",
         bucket_name=os.environ["RESULT_BUCKET_NAME"],
-        hive_partitioning={"_LEAGUE": league, "_DATE_UNIX": latest_match_date},
+        hive_partitioning={
+            "_LEAGUE": league,
+            "_DATE_UNIX": message[["latest_match_date"]],
+        },
     )
 
 

@@ -1,0 +1,45 @@
+{
+    "League Stage": {
+        "format": "Groups",
+        "h2h": false,
+        "leg": "Swiss",
+        "advance_to": {
+            "Round of 16": {
+                "start": 1,
+                "end": 8
+            },
+            "Knockout Round Play-offs": {
+                "start": 9,
+                "end": 24
+            }
+        }
+    },
+    "Knockout Round Play-offs": {
+        "format": "Knockout",
+        "leg": 2,
+        "advance_to": "Round of 16"
+    },
+    "Round of 16": {
+        "format": "Knockout",
+        "leg": 2,
+        "advance_to": "Quarter-finals"
+    },
+    "Quarter-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Semi-finals"
+    },
+    "Semi-finals": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Final"
+    },
+    "Final": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Winner"
+    },
+    "Winner": {
+        "format": "Winner"
+    }
+}
