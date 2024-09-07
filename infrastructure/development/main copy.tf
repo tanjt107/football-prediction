@@ -26,9 +26,10 @@ module "project" {
 module "buckets" {
   source = "../modules/storage"
 
-  suffix     = "${module.project.project_number}-${var.region}"
-  location   = var.region
-  project_id = module.project.project_id
+  suffix        = "${module.project.project_number}-${var.region}"
+  location      = var.region
+  project_id    = module.project.project_id
+  force_destroy = true
   names = [
     "footystats-league-list",
     "footystats-matches",
@@ -72,9 +73,6 @@ module "api-key" {
   project_id = module.project.project_id
 }
 
-/*****************************************
-  footystats
- *****************************************/
 module "footystats-league-list-topic" {
   source = "../modules/pubsub"
 
@@ -97,6 +95,7 @@ module "footystats-delta-load" {
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "footystats-delta-load"
   job_schedule                   = "35 */6 * * *"
+  job_paused                     = true
   topic_name                     = "footystats-delta-load"
   function_source_directory      = "../../src/function"
   function_environment_variables = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
@@ -112,6 +111,7 @@ module "footystats-get-league-list" {
   bucket_name                           = module.buckets.names["gcf"]
   job_name                              = "footystats_get_league_list"
   job_schedule                          = "0 23 * * 1"
+  job_paused                            = true
   topic_name                            = "footystats_get_league_list"
   function_source_directory             = "../../src/function"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
@@ -128,6 +128,7 @@ module "footystats-initial-load-matches" {
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "footystats-initial-load-matches"
   job_schedule                   = "5 23 * * 1"
+  job_paused                     = true
   message_data                   = "matches"
   topic_name                     = "footystats-initial-load"
   function_source_directory      = "../../src/function"
@@ -139,6 +140,7 @@ module "footystats-initial-load-matches" {
 resource "google_cloud_scheduler_job" "footystats-initial-load-season" {
   name     = "footystats-initial-load-season"
   schedule = "15 23 * * 1"
+  paused   = true
   region   = var.region
   project  = module.project.project_id
 
@@ -151,6 +153,7 @@ resource "google_cloud_scheduler_job" "footystats-initial-load-season" {
 resource "google_cloud_scheduler_job" "footystats-initial-load-tables" {
   name     = "footystats-initial-load-tables"
   schedule = "25 23 * * 1"
+  paused   = true
   region   = var.region
   project  = module.project.project_id
 
@@ -163,6 +166,7 @@ resource "google_cloud_scheduler_job" "footystats-initial-load-tables" {
 resource "google_cloud_scheduler_job" "footystats-initial-load-teams" {
   name     = "footystats-initial-load-teams"
   schedule = "35 23 * * 1"
+  paused   = true
   region   = var.region
   project  = module.project.project_id
 
@@ -216,9 +220,10 @@ module "footystats-transform-matches" {
 module "bigquery-footystats" {
   source = "../modules/bigquery"
 
-  dataset_id = "footystats"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id          = "footystats"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
   external_tables = {
     league_list = {
       schema        = file("../../src/bigquery/schema/footystats/league_list.json")
@@ -270,208 +275,46 @@ module "bigquery-footystats" {
   }
 }
 
-/*****************************************
-  manual
- *****************************************/
-module "bigquery-manual" {
-  source = "../modules/bigquery"
-
-  dataset_id = "manual"
-  location   = var.region
-  project_id = module.project.project_id
-  external_tables = {
-    teams = {
-      schema        = file("../../src/bigquery/schema/manual/teams.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/teams.csv"]
-    }
-    leagues = {
-      schema        = file("../../src/bigquery/schema/manual/leagues.json")
-      source_format = "CSV"
-      source_uris   = ["${module.buckets.urls["manual"]}/leagues.csv"]
-    }
-  }
-}
-
-
-/*****************************************
-  hkjc
- *****************************************/
-module "hkjc-get-odds" {
+module "solver" {
   source = "../modules/scheduled-function"
 
-  function_name     = "hkjc_get_odds"
-  docker_repository = google_artifact_registry_repository.repository.id
-  bucket_name       = module.buckets.names["gcf"]
-  job_name          = "hkjc-odds"
-  job_schedule      = "55 */6 * * *"
-
-  topic_name                            = "hkjc-odds"
-  function_source_directory             = "../../src/function"
-  function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
-  function_environment_variables = {
-    BUCKET_NAME = module.buckets.names["hkjc-odds"]
-    ODDS_TYPES  = jsonencode(["HAD", "HDC"])
-  }
-  region     = var.region
-  project_id = module.project.project_id
-}
-
-module "hkjc-get-team-list" {
-  source = "../modules/scheduled-function"
-
-  function_name                  = "hkjc_get_team_list"
+  function_name                  = "solver"
   docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
-  job_name                       = "hkjc-get-team-list"
-  job_schedule                   = "30 23 * * *"
-  topic_name                     = "hkjc-team-list"
-  function_source_directory      = "../../src/function"
-  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-team-list"] }
-  region                         = var.region
-  project_id                     = module.project.project_id
-}
-
-module "hkjc-get-results" {
-  source = "../modules/scheduled-function"
-
-  function_name                  = "hkjc_get_results"
-  docker_repository              = google_artifact_registry_repository.repository.id
-  bucket_name                    = module.buckets.names["gcf"]
-  job_name                       = "hkjc-get-results"
-  job_schedule                   = "30 18 * * *"
-  topic_name                     = "hkjc-results"
-  function_source_directory      = "../../src/function"
-  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-results"] }
-  region                         = var.region
-  project_id                     = module.project.project_id
-}
-
-module "bigquery-hkjc" {
-  source = "../modules/bigquery"
-
-  dataset_id = "hkjc"
-  location   = var.region
-  project_id = module.project.project_id
-  external_tables = {
-    odds = {
-      schema                    = file("../../src/bigquery/schema/hkjc/odds.json")
-      source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["hkjc-odds"]}/*/odds.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-odds"]}/{_TIMESTAMP:TIMESTAMP}" }
-    },
-    results = {
-      schema                    = file("../../src/bigquery/schema/hkjc/results.json")
-      source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["hkjc-results"]}/*/results.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-results"]}/{_DATE:DATE}" }
-    },
-    teams = {
-      schema        = file("../../src/bigquery/schema/hkjc/teams.json")
-      source_format = "NEWLINE_DELIMITED_JSON"
-      source_uris   = ["${module.buckets.urls["hkjc-team-list"]}/teamList.json"]
-    }
-  }
-  views = {
-    odds_clean  = file("../../src/bigquery/sql/hkjc/odds_clean.sql")
-    odds_latest = file("../../src/bigquery/sql/hkjc/odds_latest.sql")
-    odds_today  = file("../../src/bigquery/sql/hkjc/odds_today.sql")
-    scores      = file("../../src/bigquery/sql/hkjc/scores.sql")
-  }
-}
-
-/*****************************************
-  master
- *****************************************/
-module "service-accounts" {
-  source = "../modules/service-accounts"
-
-  project_id = module.project.project_id
-  roles = {
-    bigquery-scheduled-queries = [
-      "roles/bigquery.admin",
-      "roles/storage.objectViewer"
-    ]
-  }
-}
-
-module "bigquery-master" {
-  source = "../modules/bigquery"
-
-  dataset_id           = "master"
-  service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
-  location             = var.region
-  project_id           = module.project.project_id
-  tables = {
-    leagues = file("../../src/bigquery/schema/master/leagues.json")
-    teams   = file("../../src/bigquery/schema/master/teams.json")
-  }
-  scheduled_queries = {
-    leagues = {
-      schedule = "every monday 23:40"
-      query    = file("../../src/bigquery/sql/master/leagues.sql")
-    }
-    teams = {
-      schedule = "every monday 23:40"
-      query    = file("../../src/bigquery/sql/master/teams.sql")
-    }
-  }
-
-  depends_on = [
-    module.bigquery-footystats.external_tables,
-    module.bigquery-hkjc.external_tables,
-    module.bigquery-manual.external_tables
-  ]
-}
-
-/*****************************************
-  solver
- *****************************************/
-module "pubsub-solver" {
-  source = "../modules/pubsub"
-
-  topic      = "simulate-solver"
-  project_id = module.project.project_id
-}
-
-module "solver-publish-messages" {
-  source = "../modules/scheduled-function"
-
-  function_name                  = "solver_publish_messages"
-  docker_repository              = google_artifact_registry_repository.repository.id
-  bucket_name                    = module.buckets.names["gcf"]
+  function_timeout_s             = 540
+  function_available_memory      = "1Gi"
+  function_available_cpu         = 2
   job_name                       = "solver"
   job_schedule                   = "45 */6 * * *"
+  job_paused                     = true
+  message_data                   = "Club"
   topic_name                     = "solver"
   function_source_directory      = "../../src/function"
-  function_environment_variables = { TOPIC_NAME = module.pubsub-solver.id }
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["solver"] }
   region                         = var.region
   project_id                     = module.project.project_id
 }
 
-module "solver" {
-  source = "../modules/event-function"
+resource "google_cloud_scheduler_job" "solver-international" {
+  name     = "solver-international"
+  schedule = "45 0 * 1-3,6-7,9-11 *"
+  paused   = true
+  region   = var.region
+  project  = module.project.project_id
 
-  name                  = "solver"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  timeout_s             = 540
-  available_memory      = "1Gi"
-  available_cpu         = 2
-  environment_variables = { BUCKET_NAME = module.buckets.names["solver"] }
-  event_type            = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name            = module.pubsub-solver.id
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
+  pubsub_target {
+    topic_name = "projects/${module.project.project_id}/topics/${module.solver.pubsub_topic_name}"
+    data       = base64encode("International")
+  }
 }
 
 module "bigquery-solver" {
   source = "../modules/bigquery"
 
-  dataset_id = "solver"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id          = "solver"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
   external_tables = {
     leagues = {
       schema                    = file("../../src/bigquery/schema/solver/leagues.json")
@@ -506,6 +349,12 @@ module "bigquery-solver" {
       definition_body = templatefile("../../src/bigquery/sql/solver/get_messages.sql", { project_id = module.project.project_id })
       routine_type    = "TABLE_VALUED_FUNCTION"
       language        = "SQL"
+      arguments = [
+        {
+          name      = "_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
     }
   }
   views = {
@@ -515,141 +364,179 @@ module "bigquery-solver" {
     team_ratings_7d = file("../../src/bigquery/sql/solver/team_ratings_7d.sql")
     team_ratings    = file("../../src/bigquery/sql/solver/team_ratings.sql")
   }
-
-  depends_on = [module.bigquery-master.native_tables]
 }
 
-/*****************************************
-  simulation
- *****************************************/
-module "pubsub-simulate-tournament" {
-  source = "../modules/pubsub"
+module "hkjc-get-odds" {
+  source = "../modules/scheduled-function"
 
-  topic      = "simulate-tournament"
-  project_id = module.project.project_id
-}
-
-module "simulation-publish-message" {
-  source = "../modules/event-function"
-
-  name                  = "simulation_publish_messages"
-  docker_repository     = google_artifact_registry_repository.repository.id
-  bucket_name           = module.buckets.names["gcf"]
-  environment_variables = { TOPIC_NAME = module.pubsub-simulate-tournament.id }
-  event_type            = "google.cloud.storage.object.v1.finalized"
-  source_directory      = "../../src/function"
-  region                = var.region
-  project_id            = module.project.project_id
-  event_filters = {
-    attribute = "bucket"
-    value     = module.buckets.names["solver"]
-  }
-}
-
-module "simulate-tournament" {
-  source = "../modules/event-function"
-
-  name              = "simulate_tournament"
+  function_name     = "hkjc_get_odds"
   docker_repository = google_artifact_registry_repository.repository.id
   bucket_name       = module.buckets.names["gcf"]
-  timeout_s         = 300
-  environment_variables = {
-    INPUT_BUCKET_NAME  = module.buckets.names["manual"],
-    RESULT_BUCKET_NAME = module.buckets.names["simulation"]
+  job_name          = "hkjc-odds"
+  job_schedule      = "55 */6 * * *"
+  job_paused        = true
+
+  topic_name                            = "hkjc-odds"
+  function_source_directory             = "../../src/function"
+  function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
+  function_environment_variables = {
+    BUCKET_NAME = module.buckets.names["hkjc-odds"]
+    ODDS_TYPES  = jsonencode(["HAD", "HDC"])
   }
-  event_type       = "google.cloud.pubsub.topic.v1.messagePublished"
-  topic_name       = module.pubsub-simulate-tournament.id
-  source_directory = "../../src/function"
-  region           = var.region
-  project_id       = module.project.project_id
+  region     = var.region
+  project_id = module.project.project_id
 }
 
-module "bigquery-simulation" {
+module "hkjc-get-team-list" {
+  source = "../modules/scheduled-function"
+
+  function_name                  = "hkjc_get_team_list"
+  docker_repository              = google_artifact_registry_repository.repository.id
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "hkjc-get-team-list"
+  job_schedule                   = "30 23 * * *"
+  job_paused                     = true
+  topic_name                     = "hkjc-team-list"
+  function_source_directory      = "../../src/function"
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-team-list"] }
+  region                         = var.region
+  project_id                     = module.project.project_id
+}
+
+module "hkjc-get-results" {
+  source = "../modules/scheduled-function"
+
+  function_name                  = "hkjc_get_results"
+  docker_repository              = google_artifact_registry_repository.repository.id
+  bucket_name                    = module.buckets.names["gcf"]
+  job_name                       = "hkjc-get-results"
+  job_schedule                   = "30 18 * * *"
+  job_paused                     = true
+  topic_name                     = "hkjc-results"
+  function_source_directory      = "../../src/function"
+  function_environment_variables = { BUCKET_NAME = module.buckets.names["hkjc-results"] }
+  region                         = var.region
+  project_id                     = module.project.project_id
+}
+
+module "bigquery-hkjc" {
   source = "../modules/bigquery"
 
-  dataset_id = "simulation"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id          = "hkjc"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
   external_tables = {
-    leagues = {
-      schema                    = file("../../src/bigquery/schema/simulation/leagues.json")
+    odds = {
+      schema                    = file("../../src/bigquery/schema/hkjc/odds.json")
       source_format             = "NEWLINE_DELIMITED_JSON"
-      source_uris               = ["${module.buckets.urls["simulation"]}/*/league.json"]
-      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["simulation"]}/{_LEAGUE:STRING}/{_DATE_UNIX:INTEGER}" }
-    }
-  }
-  routines = {
-    get_avg_goal_home_adv = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_avg_goal_home_adv.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_groups = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_groups.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_matches = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_messages = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_messages.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "type"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
-    }
-    get_teams = {
-      definition_body = templatefile("../../src/bigquery/sql/simulation/get_teams.sql", { project_id = module.project.project_id })
-      routine_type    = "TABLE_VALUED_FUNCTION"
-      language        = "SQL"
-      arguments = [
-        {
-          name      = "league"
-          data_type = jsonencode({ "typeKind" : "STRING" })
-        }
-      ]
+      source_uris               = ["${module.buckets.urls["hkjc-odds"]}/*/odds.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-odds"]}/{_TIMESTAMP:TIMESTAMP}" }
+    },
+    results = {
+      schema                    = file("../../src/bigquery/schema/hkjc/results.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["hkjc-results"]}/*/results.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["hkjc-results"]}/{_DATE:DATE}" }
+    },
+    teams = {
+      schema        = file("../../src/bigquery/schema/hkjc/teams.json")
+      source_format = "NEWLINE_DELIMITED_JSON"
+      source_uris   = ["${module.buckets.urls["hkjc-team-list"]}/teamList.json"]
     }
   }
   views = {
-    leagues_latest = file("../../src/bigquery/sql/simulation/leagues_latest.sql")
+    odds_clean  = file("../../src/bigquery/sql/hkjc/odds_clean.sql")
+    odds_latest = file("../../src/bigquery/sql/hkjc/odds_latest.sql")
+    odds_today  = file("../../src/bigquery/sql/hkjc/odds_today.sql")
+    scores      = file("../../src/bigquery/sql/hkjc/scores.sql")
   }
-  depends_on = [module.bigquery-master.tables]
 }
 
-/*****************************************
-  functions
- *****************************************/
+module "bigquery-manual" {
+  source = "../modules/bigquery"
+
+  dataset_id          = "manual"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  external_tables = {
+    teams = {
+      schema        = file("../../src/bigquery/schema/manual/teams.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["manual"]}/teams.csv"]
+    }
+    leagues = {
+      schema        = file("../../src/bigquery/schema/manual/leagues.json")
+      source_format = "CSV"
+      source_uris   = ["${module.buckets.urls["manual"]}/leagues.csv"]
+    }
+  }
+}
+
+module "bigquery-operations" {
+  source = "../modules/bigquery"
+
+  dataset_id = "operations"
+  location   = var.region
+  project_id = module.project.project_id
+  views = {
+    get_kelly_ratio      = file("../../src/bigquery/sql/operations/get_kelly_ratio.sql")
+    map_hkjc_team_list   = file("../../src/bigquery/sql/operations/map_hkjc_team_list.sql")
+    map_hkjc_teams       = file("../../src/bigquery/sql/operations/map_hkjc_teams.sql")
+    map_hkjc_tournaments = file("../../src/bigquery/sql/operations/map_hkjc_tournaments.sql")
+  }
+}
+
+module "service-accounts" {
+  source = "../modules/service-accounts"
+
+  project_id = module.project.project_id
+  roles = {
+    bigquery-scheduled-queries = [
+      "roles/bigquery.admin",
+      "roles/storage.objectViewer"
+    ]
+  }
+}
+
+module "bigquery-master" {
+  source = "../modules/bigquery"
+
+  dataset_id           = "master"
+  service_account_name = module.service-accounts.emails["bigquery-scheduled-queries"]
+  location             = var.region
+  project_id           = module.project.project_id
+  deletion_protection  = false
+  tables = {
+    leagues = file("../../src/bigquery/schema/master/leagues.json")
+    teams   = file("../../src/bigquery/schema/master/teams.json")
+  }
+  scheduled_queries = {
+    leagues = {
+      schedule = "every monday 23:40"
+      query    = file("../../src/bigquery/sql/master/leagues.sql")
+    }
+    teams = {
+      schedule = "every monday 23:40"
+      query    = file("../../src/bigquery/sql/master/teams.sql")
+    }
+  }
+
+  depends_on = [
+    module.bigquery-footystats.external_tables,
+    module.bigquery-hkjc.external_tables,
+    module.bigquery-manual.external_tables
+  ]
+}
+
 module "bigquery-functions" {
   source = "../modules/bigquery"
 
-  dataset_id = "functions"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id          = "functions"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
   routines = {
     accent_to_latin = {
       definition_body = file("../../src/bigquery/sql/functions/accent_to_latin.sql")
@@ -686,40 +573,172 @@ module "bigquery-functions" {
       ]
     }
   }
+
+  depends_on = [module.bigquery-master.native_tables]
 }
 
-/*****************************************
-  operations
- *****************************************/
+module "pubsub-simulate-tournament" {
+  source = "../modules/pubsub"
 
-module "bigquery-operations" {
+  topic      = "simulate-tournament"
+  project_id = module.project.project_id
+}
+
+module "simulation-publish-message" {
+  source = "../modules/event-function"
+
+  name                  = "simulation_publish_messages"
+  docker_repository     = google_artifact_registry_repository.repository.id
+  bucket_name           = module.buckets.names["gcf"]
+  environment_variables = { TOPIC_NAME = module.pubsub-simulate-tournament.id }
+  event_type            = "google.cloud.storage.object.v1.finalized"
+  source_directory      = "../../src/function"
+  region                = var.region
+  project_id            = module.project.project_id
+  event_filters = {
+    attribute = "bucket"
+    value     = module.buckets.names["solver"]
+  }
+}
+
+module "bigquery-simulation" {
   source = "../modules/bigquery"
 
-  dataset_id = "operations"
-  location   = var.region
-  project_id = module.project.project_id
-  views = {
-    get_kelly_ratio      = file("../../src/bigquery/sql/operations/get_kelly_ratio.sql")
-    map_hkjc_team_list   = file("../../src/bigquery/sql/operations/map_hkjc_team_list.sql")
-    map_hkjc_teams       = file("../../src/bigquery/sql/operations/map_hkjc_teams.sql")
-    map_hkjc_tournaments = file("../../src/bigquery/sql/operations/map_hkjc_tournaments.sql")
+  dataset_id          = "simulation"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
+  external_tables = {
+    leagues = {
+      schema                    = file("../../src/bigquery/schema/simulation/leagues.json")
+      source_format             = "NEWLINE_DELIMITED_JSON"
+      source_uris               = ["${module.buckets.urls["simulation"]}/*/league.json"]
+      hive_partitioning_options = { source_uri_prefix = "${module.buckets.urls["simulation"]}/{_LEAGUE:STRING}/{_DATE_UNIX:INTEGER}" }
+    }
   }
-  depends_on = [
-    module.bigquery-hkjc.views,
-    module.bigquery-solver.external_tables,
-    module.bigquery-functions.routines,
-  ]
+  routines = {
+    get_avg_goal_home_adv = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_avg_goal_home_adv.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_groups = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_groups.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_gs_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_gs_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_ko_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_ko_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        },
+        {
+          name      = "stage"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_matches = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_matches.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_messages = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_messages.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "_type"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+    get_teams = {
+      definition_body = templatefile("../../src/bigquery/sql/simulation/get_teams.sql", { project_id = module.project.project_id })
+      routine_type    = "TABLE_VALUED_FUNCTION"
+      language        = "SQL"
+      arguments = [
+        {
+          name      = "league"
+          data_type = jsonencode({ "typeKind" : "STRING" })
+        }
+      ]
+    }
+  }
+  views = {
+    leagues_latest = file("../../src/bigquery/sql/simulation/leagues_latest.sql")
+  }
+  depends_on = [module.bigquery-master.tables]
 }
 
-/*****************************************
-  outputs
- *****************************************/
+module "simulate-tournament" {
+  source = "../modules/event-function"
+
+  name              = "simulate_tournament"
+  docker_repository = google_artifact_registry_repository.repository.id
+  bucket_name       = module.buckets.names["gcf"]
+  timeout_s         = 300
+  environment_variables = {
+    INPUT_BUCKET_NAME  = module.buckets.names["manual"],
+    RESULT_BUCKET_NAME = module.buckets.names["simulation"]
+  }
+  event_type       = "google.cloud.pubsub.topic.v1.messagePublished"
+  topic_name       = module.pubsub-simulate-tournament.id
+  source_directory = "../../src/function"
+  region           = var.region
+  project_id       = module.project.project_id
+}
+
+
 module "bigquery-outputs" {
   source = "../modules/bigquery"
 
-  dataset_id = "outputs"
-  location   = var.region
-  project_id = module.project.project_id
+  dataset_id          = "outputs"
+  location            = var.region
+  project_id          = module.project.project_id
+  deletion_protection = false
   views = {
     results                    = file("../../src/bigquery/sql/outputs/results.sql")
     schedule                   = file("../../src/bigquery/sql/outputs/schedule.sql")

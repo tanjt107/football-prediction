@@ -17,7 +17,7 @@ def main(cloud_event: CloudEvent):
         return
 
     leagues = bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_params`(@type);", params={"type": _type}
+        query="SELECT * FROM `simulation.get_messages`(@type);", params={"type": _type}
     )
     for league in leagues:
         pubsub.publish_json_message(

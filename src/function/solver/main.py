@@ -1,4 +1,3 @@
-import logging
 import os
 
 import functions_framework
@@ -16,15 +15,8 @@ setup_logging()
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
-    _type = decode_message(cloud_event)
-
-    last_run = queries.get_last_run(_type)
-    latest_match_date = queries.get_latest_match_date(_type)
-    if last_run >= latest_match_date:
-        logging.info(
-            f"Already updated. Solver aborted: {_type=}, {last_run=} {latest_match_date=}"
-        )
-        return
+    message = decode_message(cloud_event)
+    _type, latest_match_date = message["_TYPE"], message["latest_match_date"]
 
     data = queries.get_matches_and_teams(_type, latest_match_date)
 

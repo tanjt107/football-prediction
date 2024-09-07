@@ -2,26 +2,6 @@ from solver.models import League, Match, Team
 from gcp import bigquery
 
 
-def get_last_run(_type: str) -> int:
-    if rows := bigquery.query_dict(
-        query="""
-            SELECT
-                COALESCE(MAX(_DATE_UNIX), 0) AS last_run
-            FROM `solver.teams` teams
-            WHERE _TYPE = @type
-            """,
-        params={"type": _type},
-    ):
-        return rows[0]["last_run"]
-
-
-def get_latest_match_date(_type: str) -> dict[str, League | Match | Team]:
-    return bigquery.query_dict(
-        query="SELECT * FROM `solver.get_latest_match_date`(@type);",
-        params={"type": _type},
-    )[0]["max_date_unix"]
-
-
 def get_matches_and_teams(_type: str, max_time: int) -> dict:
     data = bigquery.query_dict(
         query="SELECT * FROM `solver.get_matches`(@type, @max_time);",

@@ -5,20 +5,6 @@ from gcp import bigquery
 from simulation.models import Team, Match
 
 
-def get_last_run(league: str) -> int:
-    return bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_last_run`(@league);",
-        params={"league": league},
-    )[0]["last_run"]
-
-
-def get_latest_match_date(league: str) -> int:
-    return bigquery.query_dict(
-        query="SELECT * FROM `simulation.get_latest_match_date`(@league);",
-        params={"league": league},
-    )[0]["max_date_unix"]
-
-
 def get_avg_goal_home_adv(league: str) -> tuple[float]:
     return bigquery.query_dict(
         query="SELECT * FROM `simulation.get_avg_goal_home_adv`(@league);",
