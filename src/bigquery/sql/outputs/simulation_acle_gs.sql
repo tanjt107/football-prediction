@@ -3,8 +3,8 @@ WITH result AS (
     teams.transfermarkt_id,
     teams.name,
     CASE
-      WHEN leagues.group = 'East' THEN '東'
-      ELSE '西'
+      WHEN leagues.group = 'East' THEN '東亞'
+      ELSE '西亞'
     END AS _group,
     rating,
     offence,

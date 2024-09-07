@@ -18,6 +18,7 @@ SELECT
   END AS division,
   COALESCE(REGEXP_EXTRACT(sequence, r'\.\d+\.(\d+)\.'), display_order) AS display_order,
   format = 'Domestic League' AND division > 0 AS is_league,
+  _NAME LIKE 'International WC Qualification %' AND _NAME <> 'International WC Qualification Intercontinental Playoffs' AS is_wcq,
   display_order IS NOT NULL AS is_manual,
   COALESCE(is_simulate, FALSE) AS is_simulate,
   seasons.id AS latest_season_id,
