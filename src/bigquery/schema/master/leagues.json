@@ -30,11 +30,6 @@
         "mode": "NULLABLE"
     },
     {
-        "name": "is_wcq",
-        "type": "BOOLEAN",
-        "mode": "NULLABLE"
-    },
-    {
         "name": "is_manual",
         "type": "BOOLEAN",
         "mode": "NULLABLE"

@@ -4,14 +4,6 @@ WITH latest AS (
     transfermarkt_id,
     id,
     name,
-    CASE
-      WHEN league_name = 'International WC Qualification Asia' THEN '亞洲'
-      WHEN league_name = 'International WC Qualification Africa' THEN '非洲'
-      WHEN league_name = 'International WC Qualification Europe' THEN '歐洲'
-      WHEN league_name = 'International WC Qualification Oceania' THEN '大洋洲'
-      WHEN league_name = 'International WC Qualification CONCACAF' THEN '中北美洲'
-      WHEN league_name = 'International WC Qualification South America' THEN '南美洲'
-    END AS confederation,
     ROUND(offence, 2) AS offence,
     ROUND(defence, 2) AS defence,
     ROUND(rating, 1) AS rating,
@@ -29,7 +21,6 @@ SELECT
   RANK() OVER(ORDER BY team_ratings_7d.rating DESC) - rank AS rank_7d_diff,
   transfermarkt_id,
   name,
-  confederation,
   offence,
   defence,
   latest.rating,
