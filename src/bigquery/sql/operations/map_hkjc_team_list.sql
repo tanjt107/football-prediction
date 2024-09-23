@@ -20,3 +20,4 @@ WHERE
     SELECT 1
     FROM manual.teams manual_teams
     WHERE fs_teams.id = manual_teams.footystats_id)
+  AND hkjc_teams.name_ch NOT LIKE '%女足'

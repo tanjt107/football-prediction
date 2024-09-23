@@ -44,7 +44,7 @@ Germany Germany Play offs 1 2,,,l1po,false,
 Hong Kong Hong Kong FA Cup,香港足總盃,,hkfa,false,00
 Hong Kong Hong Kong Premier League,香港超級聯賽,,hgkg,true,00
 Hong Kong Senior Shield,香港高級組銀牌,,hksc,false,00
-Hong Kong Sapling Cup,香港菁英盃,,hkp2,false,
+Hong Kong Sapling Cup,香港菁英盃,,hkp2,false,00
 International AFC Asian Cup,,ASC,am23,false,
 International Africa Cup of Nations,,ANC,afcn,false,
 International Africa Cup of Nations Qualification,,ANQ,afcq,false,
@@ -82,6 +82,7 @@ Qatar Stars League,,QSL,qsl,false,
 Russia Russian Cup,,RFC,rup,false,
 Russia Russian Premier League,,RPL,ru1,false,
 Russia Russian Super Cup,,RSC,russ,false,
+Saudi Arabia Kings Cup,,SKC,sakc,false
 Saudi Arabia Professional League,,SDL,sa1,false,
 Scotland Premiership,,SPL,sc1,false,
 Scotland Scottish Cup,,SFA,sfa,false,

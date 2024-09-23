@@ -96,7 +96,7 @@ module "footystats-delta-load" {
   docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "footystats-delta-load"
-  job_schedule                   = "35 */6 * * *"
+  job_schedule                   = "35 */8 * * *"
   topic_name                     = "footystats-delta-load"
   function_source_directory      = "../../src/function"
   function_environment_variables = { "TOPIC_NAME" = module.footystats-league-list-topic.id }
@@ -304,7 +304,7 @@ module "hkjc-get-odds" {
   docker_repository = google_artifact_registry_repository.repository.id
   bucket_name       = module.buckets.names["gcf"]
   job_name          = "hkjc-odds"
-  job_schedule      = "55 */6 * * *"
+  job_schedule      = "55 */8 * * *"
 
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../src/function"
@@ -441,7 +441,7 @@ module "solver-publish-messages" {
   docker_repository              = google_artifact_registry_repository.repository.id
   bucket_name                    = module.buckets.names["gcf"]
   job_name                       = "solver"
-  job_schedule                   = "45 */6 * * *"
+  job_schedule                   = "45 */8 * * *"
   topic_name                     = "solver"
   function_source_directory      = "../../src/function"
   function_environment_variables = { TOPIC_NAME = module.pubsub-solver.id }
@@ -734,7 +734,7 @@ module "bigquery-outputs" {
     simulation_li1             = file("../../src/bigquery/sql/outputs/simulation_li1.sql")
     simulation_ll              = file("../../src/bigquery/sql/outputs/simulation_ll.sql")
     simulation_sea             = file("../../src/bigquery/sql/outputs/simulation_sea.sql")
-    simulation_ucl_gs          = file("../../src/bigquery/sql/outputs/simulation_ucl_gs.sql")
+    simulation_ucl             = file("../../src/bigquery/sql/outputs/simulation_ucl.sql")
     simulation_wcq_r3          = file("../../src/bigquery/sql/outputs/simulation_wcq_r3.sql")
     team_ratings_club          = file("../../src/bigquery/sql/outputs/team_ratings_club.sql")
     team_ratings_international = file("../../src/bigquery/sql/outputs/team_ratings_international.sql")

@@ -33,7 +33,11 @@ WITH
     leagues.division AS league_division,
     leagues.type AS league_type,
     leagues.transfermarkt_id AS league_transfermarkt_id,
-    COALESCE(leagues.display_order, '00') AS display_order,
+    CASE
+      WHEN (home_teams.country = 'Hong Kong'
+        OR away_teams.country = 'Hong Kong') THEN '00'
+      ELSE leagues.display_order
+    END AS display_order,
     home_teams.solver_id AS home_solver_id,
     home_teams.transfermarkt_id AS home_transfermarkt_id,
     home_teams.type AS home_type,
@@ -147,4 +151,4 @@ LEFT JOIN `solver.team_ratings` home_ratings ON matches.home_solver_id = home_ra
 LEFT JOIN `solver.team_ratings` away_ratings ON matches.away_solver_id = away_ratings.id
   AND matches.away_type = away_ratings._TYPE
 LEFT JOIN match_probs USING (match_id)
-ORDER BY FORMAT_TIMESTAMP('%F', matches.kick_off_time, 'Etc/GMT+4'), display_order, league_transfermarkt_id, kick_off_time, match_id;
+ORDER BY display_order, league_transfermarkt_id, kick_off_time, match_id;

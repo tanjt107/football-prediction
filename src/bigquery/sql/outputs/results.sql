@@ -40,7 +40,10 @@ WITH matches AS (
     AND date_unix >= UNIX_SECONDS(TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL -5 DAY))
     AND (home_teams.is_simulate
       OR away_teams.is_simulate
-      OR leagues.is_simulate)
+      OR leagues.is_simulate
+      OR home_teams.country = 'Hong Kong'
+      OR away_teams.country = 'Hong Kong'
+      OR leagues.is_manual)
   QUALIFY ROW_NUMBER() OVER (PARTITION BY matches.id ORDER BY league_solver._DATE_UNIX DESC) = 1
   ORDER BY date_unix DESC, display_order, matches.id
   LIMIT 100

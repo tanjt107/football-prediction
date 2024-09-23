@@ -10,7 +10,7 @@ WITH result AS (
     COALESCE(rounds.quarter_finals, 0) AS qf,
     COALESCE(rounds.semi_finals, 0) AS sf,
     COALESCE(rounds.final, 0) AS f,
-    COALESCE(rounds., 0) AS winner,
+    COALESCE(rounds.winner, 0) AS winner,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN master.teams ON leagues.team = teams.footystats_id
