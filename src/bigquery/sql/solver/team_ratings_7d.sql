@@ -2,7 +2,7 @@ WITH match_probs AS (
   SELECT
   id,
   _TYPE,
-  functions.matchProbs(GREATEST(1.35 + offence, 0.2), GREATEST(1.35 + defence, 0.2), '0') AS had_probs,
+  functions.matchProbs(GREATEST(1.37 + offence, 0.2), GREATEST(1.37 + defence, 0.2), '0') AS had_probs,
   _DATE_UNIX
   FROM solver.teams_7d
 )

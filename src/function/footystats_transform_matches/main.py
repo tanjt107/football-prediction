@@ -17,10 +17,11 @@ REDUCE_RED_CARD_GOAL_VALUE = 0.2
 XG_WEIGHT = 0.67
 ADJ_FACTORS = {
     (False, False): 1,
-    (True, False): 1.01,
+    (True, False): 1,
     (False, True): 1.04,
     (True, True): 1.05,
 }
+XG_ADJ_FACTOR = 1.1
 
 
 @functions_framework.cloud_event
@@ -41,7 +42,7 @@ class Team(Enum):
     HOME = 1
     AWAY = 2
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Team"):
         return self.value > other.value
 
 
@@ -79,8 +80,12 @@ def transform_matches(
     away_adj *= adj_factor
 
     if _match["total_xg"] > 0:
-        home_avg = home_adj * (1 - XG_WEIGHT) + _match["team_a_xg"] * XG_WEIGHT
-        away_avg = away_adj * (1 - XG_WEIGHT) + _match["team_b_xg"] * XG_WEIGHT
+        home_avg = (
+            home_adj * (1 - XG_WEIGHT) + _match["team_a_xg"] * XG_ADJ_FACTOR * XG_WEIGHT
+        )
+        away_avg = (
+            away_adj * (1 - XG_WEIGHT) + _match["team_b_xg"] * XG_ADJ_FACTOR * XG_WEIGHT
+        )
     else:
         home_avg, away_avg = home_adj, away_adj
 
@@ -98,6 +103,7 @@ def get_more_players_team(home_red_cards: int, away_red_cards: int) -> Team | No
         return Team.AWAY
     if away_red_cards > home_red_cards:
         return Team.HOME
+    return None
 
 
 def get_goal_timings_dict(home: list[str], away: list[str]) -> list[tuple]:
