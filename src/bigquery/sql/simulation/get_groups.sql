@@ -1,5 +1,5 @@
 SELECT
-  specific_tables.round, group_tables.name, table.id
+  DISTINCT specific_tables.round, group_tables.name, table.id
 FROM ${project_id}.footystats.tables
 CROSS JOIN tables.specific_tables
 CROSS JOIN specific_tables.groups group_tables
