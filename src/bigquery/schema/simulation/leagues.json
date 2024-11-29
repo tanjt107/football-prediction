@@ -91,6 +91,54 @@
             {
                 "name": "_20",
                 "type": "FLOAT"
+            },
+            {
+                "name": "_21",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_22",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_23",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_24",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_25",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_26",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_27",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_28",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_29",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_30",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_31",
+                "type": "FLOAT"
+            },
+            {
+                "name": "_32",
+                "type": "FLOAT"
             }
         ]
     },
