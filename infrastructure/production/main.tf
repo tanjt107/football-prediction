@@ -699,10 +699,11 @@ module "bigquery-operations" {
   location   = var.region
   project_id = module.project.project_id
   views = {
-    get_kelly_ratio      = file("../../src/bigquery/sql/operations/get_kelly_ratio.sql")
-    map_hkjc_team_list   = file("../../src/bigquery/sql/operations/map_hkjc_team_list.sql")
-    map_hkjc_teams       = file("../../src/bigquery/sql/operations/map_hkjc_teams.sql")
-    map_hkjc_tournaments = file("../../src/bigquery/sql/operations/map_hkjc_tournaments.sql")
+    get_daily_suggestions = file("../../src/bigquery/sql/operations/get_daily_suggestions.sql")
+    get_kelly_ratio       = file("../../src/bigquery/sql/operations/get_kelly_ratio.sql")
+    map_hkjc_team_list    = file("../../src/bigquery/sql/operations/map_hkjc_team_list.sql")
+    map_hkjc_teams        = file("../../src/bigquery/sql/operations/map_hkjc_teams.sql")
+    map_hkjc_tournaments  = file("../../src/bigquery/sql/operations/map_hkjc_tournaments.sql")
   }
   depends_on = [
     module.bigquery-hkjc.views,
