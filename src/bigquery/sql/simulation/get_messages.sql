@@ -7,4 +7,4 @@ WHERE status = 'complete'
     AND is_simulate
     AND type = type
 GROUP BY footystats_name
-HAVING latest_match_date > last_run
+HAVING latest_match_date > COALESCE(last_run, 0)

@@ -10,4 +10,4 @@ WHERE status = 'complete'
       OR away_teams.is_simulate
       OR leagues.is_simulate)
 GROUP BY solver._TYPE
-HAVING latest_match_date > last_run
+HAVING latest_match_date > COALESCE(last_run, 0)
