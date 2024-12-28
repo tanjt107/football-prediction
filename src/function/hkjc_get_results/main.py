@@ -75,6 +75,7 @@ def get_hkjc_result(date: str) -> list[dict]:
           refundPools
           ntsInfo
           entInfo
+          definedPools
         }
       }
     }
