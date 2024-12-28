@@ -251,7 +251,21 @@
     },
     {
         "name": "runningResultExtra",
-        "type": "STRING"
+        "type": "RECORD",
+        "fields": [
+            {
+                "name": "homeScore",
+                "type": "INTEGER"
+            },
+            {
+                "name": "awayScore",
+                "type": "INTEGER"
+            },
+            {
+                "name": "corner",
+                "type": "INTEGER"
+            }
+        ]
     },
     {
         "name": "adminOperation",
