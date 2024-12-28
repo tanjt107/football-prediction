@@ -47,7 +47,7 @@ kelly AS (
     END AS hdc_home_win2,
     kelly_ratio
   FROM matches
-  CROSS JOIN UNNEST(GENERATE_ARRAY(20, 200, 20)) kelly_ratio
+  CROSS JOIN UNNEST(GENERATE_ARRAY(10, 30, 1)) kelly_ratio
 ),
 
 results AS (
