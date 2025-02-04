@@ -23,6 +23,7 @@ WITH matches AS (
   WHERE
     (SAFE_CAST(home_teams.solver_id AS INT64) IS NOT NULL OR home_teams.type = 'International')
     AND (SAFE_CAST(away_teams.solver_id AS INT64) IS NOT NULL OR away_teams.type = 'International')
+    AND kick_off_time >= '2024-09-28'
     QUALIFY ROW_NUMBER() OVER (PARTITION BY odds_latest.id ORDER BY home_solver._DATE_UNIX DESC) = 1
 ),
 
@@ -47,7 +48,7 @@ kelly AS (
     END AS hdc_home_win2,
     kelly_ratio
   FROM matches
-  CROSS JOIN UNNEST(GENERATE_ARRAY(10, 30, 1)) kelly_ratio
+  CROSS JOIN UNNEST(GENERATE_ARRAY(20, 200, 20)) kelly_ratio
 ),
 
 results AS (

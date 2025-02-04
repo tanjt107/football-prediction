@@ -70,4 +70,4 @@ SELECT
   kelly_hdc_away,
   FROM kelly
   WHERE kelly_hdc_away > 0
-ORDER BY amount DESC
+ORDER BY kick_off_time, id

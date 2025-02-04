@@ -301,12 +301,11 @@ module "bigquery-manual" {
 module "hkjc-get-odds" {
   source = "../modules/scheduled-function"
 
-  function_name     = "hkjc_get_odds"
-  docker_repository = google_artifact_registry_repository.repository.id
-  bucket_name       = module.buckets.names["gcf"]
-  job_name          = "hkjc-odds"
-  job_schedule      = "55 */8 * * *"
-
+  function_name                         = "hkjc_get_odds"
+  docker_repository                     = google_artifact_registry_repository.repository.id
+  bucket_name                           = module.buckets.names["gcf"]
+  job_name                              = "hkjc-odds"
+  job_schedule                          = "55 */8 * * *"
   topic_name                            = "hkjc-odds"
   function_source_directory             = "../../src/function"
   function_event_trigger_failure_policy = "RETRY_POLICY_RETRY"
