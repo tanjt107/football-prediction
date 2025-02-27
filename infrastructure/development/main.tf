@@ -113,10 +113,10 @@ module "footystats-get-league-list" {
   function_name                         = "footystats_get_league_list"
   docker_repository                     = google_artifact_registry_repository.repository.id
   bucket_name                           = module.buckets.names["gcf"]
-  job_name                              = "footystats_get_league_list"
+  job_name                              = "footystats-get-league-list"
   job_schedule                          = "0 23 * * 1"
   job_paused                            = true
-  topic_name                            = "footystats_get_league_list"
+  topic_name                            = "footystats-get-league-list"
   function_source_directory             = "../../src/function"
   function_secret_environment_variables = [module.api-key.secret_ids["FOOTYSTATS_API_KEY"]]
   function_environment_variables        = { BUCKET_NAME = module.buckets.names["footystats-league-list"] }
