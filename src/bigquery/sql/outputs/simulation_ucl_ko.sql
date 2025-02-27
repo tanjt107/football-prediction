@@ -26,6 +26,7 @@ SELECT
   ROUND(rating, 1) AS rating,
   ROUND(offence, 2) AS offence,
   ROUND(defence, 2) AS defence,
+  ROUND(po, 3) AS po,
   ROUND(r16, 3) AS r16,
   ROUND(qf, 3) AS qf,
   ROUND(sf, 3) AS sf,
