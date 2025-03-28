@@ -1,7 +1,7 @@
 {
     "3rd Round": {
         "format": "Groups",
-        "h2h": true,
+        "h2h": false,
         "leg": 2,
         "groups": {
             "Group A": [
