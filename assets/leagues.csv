@@ -14,10 +14,10 @@ Brazil Serie A,,BD1,bra1,false,
 Chile Copa Chile,,CHC,ch1c,false,
 Chile Primera División,,CD1,clpd,false,
 Chile Super Cup,,CSC,csuc,false,
-China China League One,中國甲級聯賽,,clo,true,26
+China China League One,中國甲級聯賽,,clo,true,17
 China Chinese FA Cup,中國足協盃,,chfa,false,29
-China Chinese Super League,中國超級聯賽,,csl,true,15
-China Super Cup,中國超級盃,,chsc,false,28
+China Chinese Super League,中國超級聯賽,,csl,true,16
+China Super Cup,中國超級盃,,chsc,false,16
 England Championship,,ED1,gb2,false,
 England Community Shield,,ESH,gbcs,false,
 England EFL League One,,ED2,gb3,false,
@@ -41,10 +41,10 @@ Germany Bundesliga,,GSL,l1,true,
 Germany DFB Pokal,,GSC,dfb,false,
 Germany DFL Super Cup,,GCC,dfl,false,
 Germany Germany Play offs 1 2,,,l1po,false,
-Hong Kong Hong Kong FA Cup,香港足總盃,,hkfa,false,00
-Hong Kong Hong Kong Premier League,香港超級聯賽,,hgkg,true,00
-Hong Kong Senior Shield,香港高級組銀牌,,hksc,false,00
-Hong Kong Sapling Cup,香港菁英盃,,hkp2,false,00
+Hong Kong Hong Kong FA Cup,香港足總盃,,hkfa,false,02
+Hong Kong Hong Kong Premier League,香港超級聯賽,,hgkg,true,01
+Hong Kong Senior Shield,香港高級組銀牌,,hksc,false,03
+Hong Kong Sapling Cup,香港菁英盃,,hkp2,false,04
 International AFC Asian Cup,,ASC,am23,false,
 International AFF Championship,,SEC,af24,false,
 International Africa Cup of Nations,,ANC,afcn,false,
