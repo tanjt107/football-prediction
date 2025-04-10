@@ -72,7 +72,8 @@ class Knockout:
             if not agg.is_complete:
                 agg.simulate(self.avg_goal, self.home_adv, is_cup=True)
 
-            self.winning_teams.add(agg.winning_team)
+            if agg.winning_team:
+                self.winning_teams.add(agg.winning_team)
 
     def get_advanced(self) -> list[Team]:
         return self.winning_teams

@@ -26,12 +26,12 @@
     },
     "Quarter-finals": {
         "format": "Knockout",
-        "leg": 1,
+        "leg": 2,
         "advance_to": "Semi-finals"
     },
     "Semi-finals": {
         "format": "Knockout",
-        "leg": 1,
+        "leg": 2,
         "advance_to": "Final"
     },
     "Final": {
