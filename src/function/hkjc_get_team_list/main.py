@@ -40,5 +40,5 @@ def get_hkjc_team_list() -> dict:
     )
     response.raise_for_status()
     team_list = response.json()["data"]["teamList"]
-    logging.info("Got HKJC team list")
+    print("Got HKJC team list")
     return team_list

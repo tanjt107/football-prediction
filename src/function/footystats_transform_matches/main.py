@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from enum import Enum
+from enum import Enum, auto
 
 from cloudevents.http.event import CloudEvent
 import functions_framework
@@ -39,30 +39,23 @@ def main(cloud_event: CloudEvent):
 
 
 class Team(Enum):
-    HOME = 1
-    AWAY = 2
-
-    def __lt__(self, other: "Team"):
-        return self.value > other.value
+    HOME = auto()
+    AWAY = auto()
 
 
-def transform_matches(
-    _match: dict,
-) -> dict:
-    home_adj, away_adj = (
-        _match["homeGoalCount"],
-        _match["awayGoalCount"],
-    )
-    more_player_team = None
+def transform_matches(_match: dict) -> dict:
+    home_adj: float = _match["homeGoalCount"]
+    away_adj: float = _match["awayGoalCount"]
+    more_player_team: Team | None = None
 
+    valid_home_goals = all(minute != "None" for minute in _match["homeGoals"])
+    valid_away_goals = all(minute != "None" for minute in _match["awayGoals"])
     goal_timings_recorded = (
-        _match["goal_timings_recorded"] == 1
-        and "None" not in _match["homeGoals"]
-        and "None" not in _match["awayGoals"]
+        _match["goal_timings_recorded"] == 1 and valid_home_goals and valid_away_goals
     )
     card_timings_recorded = _match["card_timings_recorded"] == 1
 
-    if card_timings_recorded == 1:
+    if card_timings_recorded:
         more_player_team = get_more_players_team(
             _match["team_a_red_cards"], _match["team_b_red_cards"]
         )
@@ -119,8 +112,8 @@ def get_goal_timings_dict(home: list[str], away: list[str]) -> list[tuple]:
 
 
 def reduce_goal_value(
-    goal_timings: list[tuple[int, Team]], more_player_team: Team
-) -> tuple[float]:
+    goal_timings: list[tuple[int, "Team"]], more_player_team: "Team"
+) -> tuple[float, float]:
     if not goal_timings:
         return 0, 0
     home = home_adj = away = away_adj = 0
