@@ -63,13 +63,13 @@ class Knockout:
             if self.leg == 2:
                 leg1, leg2 = matches[0], matches[1]
                 if not leg1.is_complete:
-                    leg1.simulate(self.avg_goal, self.home_adv)
+                    leg1.simulate(self.avg_goal, self._home_adv)
                 agg = leg1 + leg2
             else:
                 agg = matches[0]
 
             if not agg.is_complete:
-                agg.simulate(self.avg_goal, self.home_adv, is_cup=True)
+                agg.simulate(self.avg_goal, self._home_adv, is_cup=True)
 
             if agg.winning_team:
                 self.winning_teams.add(agg.winning_team)

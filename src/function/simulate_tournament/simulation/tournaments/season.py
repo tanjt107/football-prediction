@@ -59,7 +59,7 @@ class Season:
     def simulate(self):
         for match in self.matches:
             if not match.is_complete:
-                match.simulate(self.avg_goal, self.home_adv)
+                match.simulate(self.avg_goal, self._home_adv)
             match.log_teams_table()
 
         for position, team in enumerate(self.positions, 1):
