@@ -16,7 +16,6 @@ class Groups:
 
     def __post_init__(self):
         self.matches = self.matches or []
-        self._matches = self.matches.copy()
         self._positions = defaultdict(list)
 
         group_matches = self.get_matches_by_groups(self.matches, self.groups)
@@ -63,7 +62,6 @@ class Groups:
         return self.positions[start - 1 : end]
 
     def reset(self):
-        self.matches = self._matches.copy()
         self._positions = defaultdict(list)
 
         for group in self._groups:

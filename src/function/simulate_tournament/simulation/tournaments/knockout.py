@@ -21,7 +21,6 @@ class Knockout:
         self.teams: list[Team] = []
         self.matches = self.matches or []
         self.winning_teams = self.winning_teams or set()
-        self._matches = self.matches.copy()
         self._winning_teams = self.winning_teams.copy()
 
     @property
@@ -80,5 +79,6 @@ class Knockout:
 
     def reset(self):
         self.teams = []
-        self.matches = self._matches.copy()
+        for match in self.matches:
+            match.reset()
         self.winning_teams = self._winning_teams.copy()
