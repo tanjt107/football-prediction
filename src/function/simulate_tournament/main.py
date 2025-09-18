@@ -129,7 +129,7 @@ def simulate_tournament(
         team.sim_rounds /= no_of_simulations
         team.sim_positions /= no_of_simulations
 
-    if groups:
+    if _groups:
         return [
             {
                 "team": team.name,
