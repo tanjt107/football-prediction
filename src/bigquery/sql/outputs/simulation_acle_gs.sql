@@ -3,7 +3,7 @@ WITH result AS (
     teams.transfermarkt_id,
     teams.name,
     CASE
-      WHEN leagues.group = 'East' THEN '東亞'
+      WHEN teams.country IN ('Japan', 'South Korea', 'Thailand', 'China', 'Malaysia', 'Australia', 'Vietnam') THEN '東亞'
       ELSE '西亞'
     END AS _group,
     rating,
@@ -22,6 +22,7 @@ WITH result AS (
   JOIN solver.team_ratings ON teams.solver_id = team_ratings.id
   WHERE _LEAGUE = 'Asia AFC Champions League'
   AND team_ratings._TYPE = 'Club'
+  AND ROUND(table.wins + table.draws + table.losses) = 8
 )
 
 SELECT

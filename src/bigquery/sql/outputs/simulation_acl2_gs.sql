@@ -37,4 +37,4 @@ SELECT
   ROUND(winner, 3) AS winner,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 2 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
-ORDER BY _group IN ('E', 'G') DESC, _group IN ('F', 'H') DESC, _group, points DESC
+ORDER BY _group IN ('E', 'F') DESC, _group IN ('G', 'H') DESC, _group, points DESC

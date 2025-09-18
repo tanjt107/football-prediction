@@ -1,12 +1,23 @@
 {
-    "Group Stage": {
-        "format": "Groups",
+    "East": {
+        "format": "Season",
         "h2h": true,
         "leg": "Swiss",
         "advance_to": {
             "Round of 16": {
                 "start": 1,
-                "end": 16
+                "end": 8
+            }
+        }
+    },
+    "West": {
+        "format": "Season",
+        "h2h": true,
+        "leg": "Swiss",
+        "advance_to": {
+            "Round of 16": {
+                "start": 1,
+                "end": 8
             }
         }
     },
