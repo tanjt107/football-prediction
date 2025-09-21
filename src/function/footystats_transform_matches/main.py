@@ -24,7 +24,7 @@ ADJ_FACTORS = {
 }
 XG_ADJ_FACTOR = 1.1
 
-OUTPUT_BUCKET_NAME = os.environ["BUCKET_NAME"]
+RESULT_BUCKET_NAME = os.environ["BUCKET_NAME"]
 
 
 @functions_framework.cloud_event
@@ -46,7 +46,7 @@ def main(cloud_event: CloudEvent):
         match = transform_match(match)
         data.append(match)
 
-    storage.upload_json_to_bucket(data, blob_name, bucket_name=OUTPUT_BUCKET_NAME)
+    storage.upload_json_to_bucket(data, blob_name, bucket_name=RESULT_BUCKET_NAME)
 
 
 class Team(IntEnum):
