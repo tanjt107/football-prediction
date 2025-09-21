@@ -1,7 +1,8 @@
 import json
+import logging
 import os
 import re
-from enum import Enum, auto
+from enum import IntEnum
 
 from cloudevents.http.event import CloudEvent
 import functions_framework
@@ -23,27 +24,37 @@ ADJ_FACTORS = {
 }
 XG_ADJ_FACTOR = 1.1
 
+OUTPUT_BUCKET_NAME = os.environ["BUCKET_NAME"]
+
 
 @functions_framework.cloud_event
 def main(cloud_event: CloudEvent):
     message = cloud_event.data
     blob_name = message["name"]
+    bucket_name = message["bucket"]
+
+    logging.info("Transforming blob: %s", blob_name)
     blob = storage.download_blob(
         blob_name,
-        bucket_name=message["bucket"],
+        bucket_name,
     )
-    data = [transform_matches(json.loads(line)) for line in blob.splitlines()]
-    storage.upload_json_to_bucket(
-        data, blob_name, bucket_name=os.environ["BUCKET_NAME"]
-    )
+    lines = blob.splitlines()
+
+    data = []
+    for line in lines:
+        match = json.loads(line)
+        match = transform_match(match)
+        data.append(match)
+
+    storage.upload_json_to_bucket(data, blob_name, bucket_name=OUTPUT_BUCKET_NAME)
 
 
-class Team(Enum):
-    HOME = auto()
-    AWAY = auto()
+class Team(IntEnum):
+    HOME = 0
+    AWAY = 1
 
 
-def transform_matches(_match: dict) -> dict:
+def transform_match(_match: dict) -> dict:
     home_adj: float = _match["homeGoalCount"]
     away_adj: float = _match["awayGoalCount"]
     more_player_team: Team | None = None
