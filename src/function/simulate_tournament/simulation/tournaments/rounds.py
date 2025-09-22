@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from simulation.models import Team
+
+
+class Round(Protocol):
+    def add_teams(self, teams: list[Team]): ...
+
+    def simulate(self): ...
+
+    def get_advanced(self, end: int, start: int) -> list[Team]: ...
+
+    def reset(self): ...

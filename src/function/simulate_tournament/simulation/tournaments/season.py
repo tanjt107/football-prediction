@@ -14,6 +14,7 @@ class Season:
     matches: list[Match]
     h2h: bool = False
     leg: int = 2
+    advance_to: str | dict[str, int] | None = None
 
     def __post_init__(self):
         self.matches = self.matches or self.scheduling(self.teams)

@@ -12,6 +12,7 @@ class Knockout:
     home_adv: float
     matches: list[Match] | None = None
     leg: int = 2
+    advance_to: str | dict[str, int] | None = None
     winning_teams: set[Team] | None = None
 
     def __post_init__(self):
@@ -75,7 +76,7 @@ class Knockout:
                 self.winning_teams.add(agg.winning_team)
 
     def get_advanced(self) -> list[Team]:
-        return self.winning_teams
+        return list(self.winning_teams)
 
     def reset(self):
         self.teams = []
