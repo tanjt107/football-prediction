@@ -1,11 +1,13 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import partial
+from itertools import combinations, permutations
 
 from simulation.models import Team, TieBreaker, Match
 
 
 @dataclass
-class Season:
+class BeforeSplit:
     teams: list[Team]
     avg_goal: float
     home_adv: float
@@ -13,6 +15,17 @@ class Season:
     h2h: bool = False
     leg: int = 2
     advance_to: str | dict[str, int] | None = None
+
+    def __post_init__(self):
+        self.matches = self.matches or self.scheduling(self.teams)
+
+    @property
+    def scheduling(self):
+        if self.leg == 1:
+            return partial(combinations, r=2)
+        if self.leg == 2:
+            return partial(permutations, r=2)
+        raise ValueError
 
     @property
     def _home_adv(self):
@@ -50,15 +63,8 @@ class Season:
                 match.simulate(self.avg_goal, self._home_adv)
             match.log_teams_table()
 
-        for position, team in enumerate(self.positions, 1):
-            team.log_sim_table()
-            team.log_sim_positions(position)
-
     @property
     def advanced_teams(self) -> list[Team]:
-        if not self.advance_to:
-            return []
-
         teams = defaultdict(list)
         for name, positions in self.advance_to.items():
             teams[name].extend(
@@ -69,5 +75,3 @@ class Season:
     def reset(self):
         for match in self.matches:
             match.reset()
-        for team in self.teams:
-            team.reset()

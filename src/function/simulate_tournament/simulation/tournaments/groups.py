@@ -59,8 +59,14 @@ class Groups:
             for position, team in enumerate(group.positions, 1):
                 self._positions[position].append(team)
 
-    def get_advanced(self, end: int, start: int = 1) -> list[Team]:
-        return self.positions[start - 1 : end]
+    @property
+    def advanced_teams(self) -> list[Team]:
+        teams = defaultdict(list)
+        for name, positions in self.advance_to.items():
+            teams[name].extend(
+                self.positions[positions["start"] - 1 : positions["end"]]
+            )
+        return teams
 
     def reset(self):
         self._positions = defaultdict(list)

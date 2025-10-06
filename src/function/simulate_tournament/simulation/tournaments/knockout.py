@@ -32,8 +32,8 @@ class Knockout:
 
     def add_teams(self, teams: list[Team]):
         name = self.name.lower().replace(" ", "_").replace("-", "_")
+        self.teams.extend(teams)
         for team in teams:
-            self.teams.append(team)
             team.log_sim_rounds(name)
 
     @staticmethod
@@ -75,8 +75,9 @@ class Knockout:
             if agg.winning_team:
                 self.winning_teams.add(agg.winning_team)
 
-    def get_advanced(self) -> list[Team]:
-        return list(self.winning_teams)
+    @property
+    def advanced_teams(self) -> dict[str, list[Team]]:
+        return {self.advance_to: list(self.winning_teams)}
 
     def reset(self):
         self.teams = []

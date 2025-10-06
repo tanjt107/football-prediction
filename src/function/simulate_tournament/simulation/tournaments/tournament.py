@@ -1,6 +1,8 @@
 from dataclasses import asdict, dataclass
 
 from simulation.models import Match, Team
+from .after_split import AfterSplit
+from .before_split import BeforeSplit
 from .groups import Groups
 from .knockout import Knockout
 from .rounds import Round
@@ -63,6 +65,28 @@ class Tournament:
                 param.get("advance_to"),
             )
 
+        if _format == "BeforeSplit":
+            return BeforeSplit(
+                self.teams.values(),
+                self.avg_goal,
+                self.home_adv,
+                self.matches[name],
+                param["h2h"],
+                param["leg"],
+                param.get("advance_to"),
+            )
+
+        if _format == "AfterSplit":
+            return AfterSplit(
+                self.teams.values(),
+                self.avg_goal,
+                self.home_adv,
+                self.matches[name],
+                param["h2h"],
+                param["leg"],
+                param["start"],
+            )
+
         if _format == "Winner":
             return Winner()
 
@@ -77,14 +101,10 @@ class Tournament:
             for name, round_obj in self.rounds.items():
                 round_obj.simulate()
 
-                if advance_to := round_obj.advance_to:
-                    if isinstance(advance_to, str):
-                        self.rounds[advance_to].add_teams(round_obj.get_advanced())
-                    else:
-                        for name, positions in advance_to.items():
-                            self.rounds[name].add_teams(
-                                round_obj.get_advanced(**positions)
-                            )
+                if round_obj.advanced_teams:
+                    for name, teams in round_obj.advanced_teams.items():
+                        self.rounds[name].add_teams(teams)
+
                 round_obj.reset()
 
         for team in self.teams.values():
