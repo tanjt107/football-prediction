@@ -25,7 +25,7 @@ class Tournament:
         _format = param["format"]
 
         if _format == "Groups":
-            self.groups = self.groups or {
+            self.groups = self.groups.get(name) or {
                 group: [self.teams[team] for team in _teams]
                 for group, _teams in param["groups"].items()
             }
@@ -101,7 +101,7 @@ class Tournament:
             for name, round_obj in self.rounds.items():
                 round_obj.simulate()
 
-                if round_obj.advanced_teams:
+                if round_obj.advance_to:
                     for name, teams in round_obj.advanced_teams.items():
                         self.rounds[name].add_teams(teams)
 
