@@ -7,8 +7,8 @@ WITH result AS (
     defence,
     table.scored - table.conceded AS goal_diff,
     table.wins * 3 + table.draws + table.correction AS points,
-    COALESCE(positions._1, 0) + COALESCE(positions._2, 0) + COALESCE(positions._3, 0) + COALESCE(positions._4, 0) + COALESCE(positions._5, 0) AS champ_group,
-    COALESCE(positions._6, 0) + COALESCE(positions._7, 0) + COALESCE(positions._8, 0) + COALESCE(positions._9, 0) + COALESCE(positions._10, 0) AS challenge_group,
+    COALESCE(positions._1, 0) AS champ,
+    COALESCE(positions._10, 0) AS relegation,
     leagues._DATE_UNIX
   FROM `simulation.leagues_latest` leagues
   JOIN master.teams ON leagues.team = teams.footystats_id
@@ -25,8 +25,8 @@ SELECT
   ROUND(defence, 2) AS defence,
   ROUND(goal_diff, 1) AS goal_diff,
   ROUND(points, 1) AS points,
-  ROUND(champ_group, 3) AS champ_group,
-  ROUND(challenge_group, 3) AS challenge_group,
+  ROUND(champ, 3) AS champ,
+  ROUND(relegation, 3) AS relegation,
   FORMAT_TIMESTAMP('%F %H:%M', TIMESTAMP_ADD(TIMESTAMP_SECONDS(_DATE_UNIX), INTERVAL 2 HOUR), 'Asia/Hong_Kong') AS date_unix
 FROM result
 ORDER BY points DESC
