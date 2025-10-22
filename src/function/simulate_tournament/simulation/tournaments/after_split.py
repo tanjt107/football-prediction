@@ -19,6 +19,7 @@ class AfterSplit:
     def __post_init__(self):
         self.teams: list[Team] = []
         self.matches = self.matches or []
+        self.advance_to = None
 
     @property
     def scheduling(self):
