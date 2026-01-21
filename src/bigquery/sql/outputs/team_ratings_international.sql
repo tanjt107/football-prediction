@@ -1,6 +1,6 @@
 WITH latest AS (
   SELECT
-    RANK() OVER(ORDER BY rating DESC) AS rank,
+    RANK() OVER(ORDER BY rating_linear DESC) AS rank,
     transfermarkt_id,
     id,
     name,
@@ -18,7 +18,7 @@ WITH latest AS (
 
 SELECT
   rank,
-  RANK() OVER(ORDER BY team_ratings_7d.rating DESC) - rank AS rank_7d_diff,
+  RANK() OVER(ORDER BY team_ratings_7d.rating_linear DESC) - rank AS rank_7d_diff,
   transfermarkt_id,
   name,
   offence,
