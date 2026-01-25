@@ -20,6 +20,13 @@ class Match:
         self._away_score = self.away_score
         self._winning_team = None
 
+    def __repr__(self) -> str:
+        if self.is_complete:
+            return (
+                f"{self.home_team} {self.home_score}-{self.away_score} {self.away_team}"
+            )
+        return f"{self.home_team} vs {self.away_team} ({self.status})"
+
     def __add__(self, other: "Match") -> "Match":
         if (self.home_team, self.away_team) != (other.away_team, other.home_team):
             raise ValueError

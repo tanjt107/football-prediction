@@ -1,18 +1,39 @@
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import partial
+from itertools import combinations, permutations
 
 from simulation.models import Team, TieBreaker, Match
 
 
 @dataclass
-class Season:
+class AfterSplit:
     teams: list[Team]
     avg_goal: float
     home_adv: float
-    matches: list[Match]
+    matches: list[Match] | None = None
     h2h: bool = False
     leg: int = 2
-    advance_to: str | dict[str, int] | None = None
+    start: int = 1
+
+    def __post_init__(self):
+        self.teams: list[Team] = []
+        self.matches = self.matches or []
+        self.advance_to = None
+
+    @property
+    def scheduling(self):
+        if self.leg == 1:
+            return partial(combinations, r=2)
+        if self.leg == 2:
+            return partial(permutations, r=2)
+        raise ValueError
+
+    def schedule_matches(self):
+        return [
+            Match(home_team, away_team)
+            for home_team, away_team in self.scheduling(self.teams)
+        ]
 
     @property
     def _home_adv(self):
@@ -44,7 +65,11 @@ class Season:
             reverse=True,
         )
 
+    def add_teams(self, teams: list[Team]):
+        self.teams.extend(teams)
+
     def simulate(self):
+        self.matches = self.matches or self.schedule_matches()
         for match in self.matches:
             if not match.is_complete:
                 match.simulate(self.avg_goal, self._home_adv)
@@ -52,22 +77,16 @@ class Season:
 
         for position, team in enumerate(self.positions, 1):
             team.log_sim_table()
-            team.log_sim_positions(position)
+            team.log_sim_positions(position + self.start - 1)
 
     @property
-    def advanced_teams(self) -> list[Team]:
-        if not self.advance_to:
-            return []
-
-        teams = defaultdict(list)
-        for name, positions in self.advance_to.items():
-            teams[name].extend(
-                self.positions[positions["start"] - 1 : positions["end"]]
-            )
-        return teams
+    def advanced_teams(self):
+        return None
 
     def reset(self):
         for match in self.matches:
             match.reset()
         for team in self.teams:
             team.reset()
+        self.teams = []
+        self.matches = []

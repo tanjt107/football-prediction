@@ -14,6 +14,10 @@ class Winner:
 
         teams[0].log_sim_rounds("winner")
 
+    @property
+    def advanced_teams(self):
+        return None
+
     def simulate(self):
         pass
 

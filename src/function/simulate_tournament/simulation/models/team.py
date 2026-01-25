@@ -17,6 +17,9 @@ class Team:
         self.sim_positions = Results()
         self.sim_rounds = Results()
 
+    def __repr__(self) -> str:
+        return str(self.name)
+
     def __eq__(self, other: "Team") -> bool:
         return other and self.name == other.name
 
