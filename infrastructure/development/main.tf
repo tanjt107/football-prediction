@@ -53,6 +53,7 @@ module "buckets" {
       "../../assets/simulation/Asia AFC Cup.json",
       "../../assets/simulation/China China League One.json",
       "../../assets/simulation/China Chinese Super League.json",
+      "../../assets/simulation/England Championship.json",
       "../../assets/simulation/England Premier League.json",
       "../../assets/simulation/Europe UEFA Champions League.json",
       "../../assets/simulation/France Ligue 1.json",
@@ -746,6 +747,7 @@ module "bigquery-outputs" {
     simulation_csl             = file("../../src/bigquery/sql/outputs/simulation_csl.sql")
     simulation_cwc_gs          = file("../../src/bigquery/sql/outputs/simulation_cwc_gs.sql")
     simulation_cwc_ko          = file("../../src/bigquery/sql/outputs/simulation_cwc_ko.sql")
+    simulation_ed1             = file("../../src/bigquery/sql/outputs/simulation_ed1.sql")
     simulation_epl             = file("../../src/bigquery/sql/outputs/simulation_epl.sql")
     simulation_hkpl            = file("../../src/bigquery/sql/outputs/simulation_hkpl.sql")
     simulation_j1              = file("../../src/bigquery/sql/outputs/simulation_j1.sql")

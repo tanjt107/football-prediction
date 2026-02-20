@@ -1,0 +1,26 @@
+{
+    "Regular Season": {
+        "format": "Season",
+        "h2h": false,
+        "leg": 2,
+        "advance_to": {
+            "Promotion Play-offs - Semi-finals": {
+                "start": 3,
+                "end": 6
+            }
+        }
+    },
+    "Promotion Play-offs - Semi-finals": {
+        "format": "Knockout",
+        "leg": 2,
+        "advance_to": "Promotion Play-offs - Final"
+    },
+    "Promotion Play-offs - Final": {
+        "format": "Knockout",
+        "leg": 1,
+        "advance_to": "Promotion"
+    },
+    "Promotion": {
+        "format": "Winner"
+    }
+}
