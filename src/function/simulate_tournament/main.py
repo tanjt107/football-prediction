@@ -24,13 +24,17 @@ def main(cloud_event: CloudEvent):
     blob = storage.download_blob(
         blob_name=f"{league}.json", bucket_name="manual-340977255134-asia-east2"
     )
-    rounds = json.loads(blob)
+    config = json.loads(blob)
 
     factors = queries.get_avg_goal_home_adv(league)
     avg_goal, home_adv = factors["avg_goal"], factors["home_adv"]
     teams = queries.get_teams(league)
     matches = queries.get_matches(league, teams)
     groups = queries.get_groups(league, teams)
+
+    corrections: dict[str, int] = config["corrections"]
+    for team_id, correction in corrections.items():
+        teams[team_id].set_correction(correction)
 
     logging.info("Simulating: %s", league)
     tournament = Tournament(
@@ -40,6 +44,8 @@ def main(cloud_event: CloudEvent):
         matches,
         groups,
     )
+
+    rounds = config["rounds"]
     tournament.set_rounds(rounds)
     tournament.simulate()
     logging.info("Simulated: %s", league)

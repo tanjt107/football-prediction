@@ -1,7 +1,10 @@
 {
-    "Regular Season": {
-        "format": "Season",
-        "h2h": true,
-        "leg": 2
-    }
+    "rounds": {
+        "Regular Season": {
+            "format": "Season",
+            "h2h": true,
+            "leg": 2
+        }
+    },
+    "corrections": {}
 }
