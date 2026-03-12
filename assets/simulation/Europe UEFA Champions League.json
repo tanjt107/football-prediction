@@ -5,7 +5,7 @@
             "h2h": false,
             "leg": "Swiss",
             "advance_to": {
-                "Round of 16": {
+                "8th Finals": {
                     "start": 1,
                     "end": 8
                 },
@@ -18,9 +18,9 @@
         "Knockout Round Play-offs": {
             "format": "Knockout",
             "leg": 2,
-            "advance_to": "Round of 16"
+            "advance_to": "8th Finals"
         },
-        "Round of 16": {
+        "8th Finals": {
             "format": "Knockout",
             "leg": 2,
             "advance_to": "Quarter-finals"
