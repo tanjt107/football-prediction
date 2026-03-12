@@ -34,7 +34,7 @@ def main(cloud_event: CloudEvent):
 
     corrections: dict[str, int] = config["corrections"]
     for team_id, correction in corrections.items():
-        teams[team_id].set_correction(correction)
+        teams[int(team_id)].set_correction(correction)
 
     logging.info("Simulating: %s", league)
     tournament = Tournament(

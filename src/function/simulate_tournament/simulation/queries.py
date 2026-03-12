@@ -12,7 +12,7 @@ def get_avg_goal_home_adv(league: str) -> tuple[float]:
     )[0]
 
 
-def get_teams(league: str) -> dict[str, Team]:
+def get_teams(league: str) -> dict[int, Team]:
     return {
         team["name"]: Team(**team)
         for team in bigquery.query_dict(
