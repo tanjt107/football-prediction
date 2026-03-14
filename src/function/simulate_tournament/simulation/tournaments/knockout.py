@@ -62,7 +62,10 @@ class Knockout:
         series = self.draw_series(self.teams, self.matches, self.leg)
         for matches in series.values():
             if self.leg == 2:
-                leg1, leg2 = matches[0], matches[1]
+                if matches[0].is_complete:
+                    leg1, leg2 = matches[0], matches[1]
+                else:
+                    leg1, leg2 = matches[1], matches[0]
                 if not leg1.is_complete:
                     leg1.simulate(self.avg_goal, self._home_adv)
                 agg = leg1 + leg2
