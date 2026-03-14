@@ -6,7 +6,7 @@ WITH result AS (
     offence,
     defence,
     COALESCE(rounds.knockout_round_play_offs, 0) AS po,
-    COALESCE(rounds.round_of_16, 0) AS r16,
+    COALESCE(rounds._8th_finals, 0) AS r16,
     COALESCE(rounds.quarter_finals, 0) AS qf,
     COALESCE(rounds.semi_finals, 0) AS sf,
     COALESCE(rounds.final, 0) AS f,

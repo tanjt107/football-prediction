@@ -155,6 +155,10 @@
                 "type": "FLOAT"
             },
             {
+                "name": "_8th_finals",
+                "type": "FLOAT"
+            },
+            {
                 "name": "quarter_finals",
                 "type": "FLOAT"
             },

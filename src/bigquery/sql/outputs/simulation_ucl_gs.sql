@@ -10,7 +10,7 @@ WITH result AS (
     COALESCE(positions._1, 0) + COALESCE(positions._2, 0) + COALESCE(positions._3, 0) + COALESCE(positions._4, 0) + COALESCE(positions._5, 0) + COALESCE(positions._6, 0) + COALESCE(positions._7, 0) + COALESCE(positions._8, 0) + COALESCE(positions._9, 0) + COALESCE(positions._10, 0) + COALESCE(positions._11, 0) + COALESCE(positions._12, 0) + COALESCE(positions._13, 0) + COALESCE(positions._14, 0) + COALESCE(positions._15, 0) + COALESCE(positions._16, 0) + COALESCE(positions._17, 0) + COALESCE(positions._18, 0) + COALESCE(positions._19, 0) + COALESCE(positions._20, 0) + COALESCE(positions._21, 0) + COALESCE(positions._22, 0) + COALESCE(positions._23, 0) + COALESCE(positions._24, 0) AS top24,
     COALESCE(positions._1, 0) + COALESCE(positions._2, 0) + COALESCE(positions._3, 0) + COALESCE(positions._4, 0) + COALESCE(positions._5, 0) + COALESCE(positions._6, 0) + COALESCE(positions._7, 0) + COALESCE(positions._8) AS top8,
     COALESCE(rounds.knockout_round_play_offs, 0) AS po,
-    COALESCE(rounds.round_of_16, 0) AS r16,
+    COALESCE(rounds._8th_finals, 0) AS r16,
     COALESCE(rounds.quarter_finals, 0) AS qf,
     COALESCE(rounds.semi_finals, 0) AS sf,
     COALESCE(rounds.final, 0) AS f,
